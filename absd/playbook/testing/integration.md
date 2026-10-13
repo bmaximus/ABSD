@@ -32,7 +32,7 @@ in `absd/playbook/testing/gates.md`; test-code hygiene is TCQ in `absd/playbook/
 - *Why:* tests with mocked persistence never run the real schema, engine-specific queries, middleware order, serialization or the auth pipeline; code that no test ran shipped broken (LL-2).
 - *Check:* the Auditor rejects integration tests that mock persistence, repositories or internal services, or swap in an in-memory engine; `test_plan.md` names the harness and every replaced dependency with its EXT id.
 - *Applies when:* Integration is M or R in `TESTING.md`.
-- *Provenance:* LL-2, LL-21 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-2 (KatenatsioTipster, 2026-10)
 - Illustration: e.g. ASP.NET `WebApplicationFactory`, Spring `@SpringBootTest`, FastAPI `TestClient`, supertest for Express.
 
 | Profile | Drive through | Real at the boundary |
@@ -70,7 +70,7 @@ in `absd/playbook/testing/gates.md`; test-code hygiene is TCQ in `absd/playbook/
 - *Provenance:* LL-45, LL-1 (KatenatsioTipster, 2026-10)
 - Illustration: e.g. .NET `TimeProvider`, Java `java.time.Clock`, an injected `now()` in Python or TypeScript.
 
-**INTEG-6** — Replace only what lies outside the product — systems in `EXTERNAL-FACTS.md`, time, randomness — with fakes that obey FAKE-1, and run the host with the settings it ships (production profile, flags at their shipped defaults); any other override is limited to endpoints and credentials or carries an adjacent comment naming what it disables and the TC that tests that behaviour instead.
+**INTEG-6** — Replace only what lies outside the product — systems in `EXTERNAL-FACTS.md`, time, randomness — with fakes that obey FAKE-1, and run the host with the settings it ships (production profile; a flag leaves its shipped default only in TCs of that flag state); any other override is limited to endpoints and credentials or carries an adjacent comment naming what it disables and the TC that tests that behaviour instead.
 - *Why:* a test-only zone override hid an 8-hour defect (LL-1); suites ran under a development profile, so shipped defaults such as flags off and fail-closed startup were never exercised.
 - *Check:* the Auditor lists every harness override; one without reason and pointer is Major; an override of a world fact breaks FAKE-4; a rate limit raised for the suite points to a dedicated limit+1 → refusal test on the shipped value.
 - *Applies when:* always.

@@ -5,7 +5,7 @@ Codes **FAKE** (fakes, recordings, contract and live checks, shipped settings, c
 feeds, payment, identity, mail, push, OCR/LLM, and the platforms it is built, deployed and run on (CI, registry, host or
 container platform). Facts live in the Tester's living `EXTERNAL-FACTS.md` as `EXT-<SYS>-n`; plans cite them as
 `FACT:EXT-<SYS>-n` (ORACLE-1). Contract tests are **M** in every profile once any external system exists
-(`absd/playbook/testing/strategy.md`). Harness: INTEG rules in `absd/playbook/testing/integration.md`; nightly and live
+(data-pipeline: every source and sink; `absd/playbook/testing/strategy.md`). Harness: INTEG rules in `absd/playbook/testing/integration.md`; nightly and live
 jobs: GATE rules in `absd/playbook/testing/gates.md`; secret canaries: SEC rules in `absd/playbook/security/baseline.md`.
 
 ## Checklist
@@ -30,7 +30,7 @@ jobs: GATE rules in `absd/playbook/testing/gates.md`; secret canaries: SEC rules
 
 ## Rules
 
-**FAKE-1** — Make every fake answer like the real system for every VERIFIED fact: format and encoding, time zone, calendar and served periods, ordering, production volume, empty answers, error answers with their real status and body, credential rejection, limits, and synchronous vs asynchronous behaviour.
+**FAKE-1** — Make every fake answer like the real system — format and encoding, time zone, calendar and served periods, ordering, production volume, empty answers, error answers with their real status and body, credential rejection, limits, synchronous vs asynchronous behaviour — and mark any behaviour still resting on an UNVERIFIED fact with its EXT id.
 - *Why:* fakes answered with the team's assumptions — UTC instead of UTC+8, every day served, three groups instead of hundreds, synchronous deploys — and every test passed while production was wrong (LL-1, LL-3, LL-4, LL-7).
 - *Check:* each fake behaviour carries a comment citing its EXT id; `test_plan.md` has a fact × stand-in parity matrix (recording, contract test, unit fake, HTTP fake, e2e fake) with no empty cell; volume reaches the Data Volume Profile max with adversarial ordering (VAR-7); the Auditor flags behaviour without an EXT source as invented.
 - *Applies when:* any fake, stub or simulator of an external system at integration or end-to-end level.
@@ -43,7 +43,7 @@ jobs: GATE rules in `absd/playbook/testing/gates.md`; secret canaries: SEC rules
 - *Provenance:* LL-1, LL-2 (KatenatsioTipster, 2026-10)
 
 **FAKE-3** — Pin every setting that lives in more than one place (code default, settings file, deployment manifest default, environment example, infrastructure code) with a test asserting every copy equals one literal whose comment names its evidence or decision owner; a missing copy fails.
-- *Why:* fixing the provider zone in code alone would have changed nothing live because the manifest passed its own default (LL-1); docs and compose comments contradicted the real defaults (LL-22).
+- *Why:* fixing the provider zone in code alone would have changed nothing live because the manifest passed its own default (LL-1); docs and deployment-file comments contradicted the real defaults (LL-22).
 - *Check:* `architecture.md`'s configuration table lists every location per key and each multi-place row has an agreement TC; generic checks: every manifest key binds to a real setting, every non-secret setting appears in the environment example, every setting a feature needs is settable through the documented surface, production manifests default to nothing unsafe (development mode, sample passwords or keys); files parsed with a real parser, not a regex.
 - *Applies when:* configuration is duplicated across code and deployment artefacts.
 - *Provenance:* LL-1, LL-22 (KatenatsioTipster, 2026-10)
@@ -137,7 +137,7 @@ jobs: GATE rules in `absd/playbook/testing/gates.md`; secret canaries: SEC rules
 - *Applies when:* the product uses platform APIs or custom deploy and ops automation.
 - *Provenance:* LL-7, LL-39, LL-30 (KatenatsioTipster, 2026-10)
 
-**EXT-4** — Verify a fact in one change that adds the recording, the independent source, the contract TC, the updated fakes and the live check and turns the `EXTERNAL-FACTS.md` row VERIFIED; only then may the guarding flag be turned on, through Mode R; until then the fact stays UNVERIFIED in the living register and the Risk register, never only in an archived artifact.
+**EXT-4** — Verify a fact in one Tester change that adds the recording, the independent source, the contract TC, the updated fakes and the live check and turns the `EXTERNAL-FACTS.md` row VERIFIED; only after it may the guarding flag be turned on, by its owner through Mode R; until then the fact stays UNVERIFIED in the living register and the Risk register, never only in an archived artifact.
 - *Why:* the zone caveat lived only in an archived analysis and was lost with it (LL-1).
 - *Check:* git history shows the five parts in one commit set; the Auditor confirms every enabled flag depends only on VERIFIED facts.
 - *Applies when:* always.
