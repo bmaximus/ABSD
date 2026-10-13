@@ -42,8 +42,8 @@ a recorded commit does not count as present (GATE-1).
 **STRAT-2** — A product with several profiles applies, per row, the strictest cell of any declared profile
 (M > R > X), and every declared profile still gets its own form of that test (an http-api black-box access test AND the
 web-ui flow over the same data).
-- *Why:* a web product's API is an interface of its own: free accounts received paid data from an API call the UI
-  never made visible (LL-10).
+- *Why:* a web product's API is an interface of its own: free accounts received paid data in an API response no
+  screen showed, so only a test of the API itself could see it (LL-10).
 - *Check:* `TESTING.md` lists one home per (row × declared profile) where the cell is M or triggered R.
 - *Applies when:* `context.md` declares more than one profile.
 - *Provenance:* LL-10 (KatenatsioTipster, 2026-10)
@@ -86,9 +86,10 @@ the other; end-to-end, device and browser tests never count towards unit coverag
 - *Applies when:* always.
 - *Provenance:* LL-2, LL-51 (KatenatsioTipster, 2026-10)
 
-**STRAT-7** — Run the push lane on every push at the exact commit; it blocks merge, Gate 3 and deploy (§ "Lanes"). Every
-M or triggered R type is in it unless `TESTING.md` names another lane with a reason (cost, live credentials, real
-devices); a slower lane never replaces a push-lane subset of the same type.
+**STRAT-7** — Run the push lane on every push at the exact commit; it blocks merge, Gate 3 and deploy (§ "Lanes").
+Every M or triggered R type is in it unless `TESTING.md` names another lane with a reason (cost, live credentials, real
+devices), and such a type keeps its push-lane counterpart (recorded contract for live, emulated device for real device,
+budget smoke for full performance); changed-code mutation runs per push or, at the latest, at Verify on the cycle HEAD.
 - *Why:* booting the shipped artifact on empty infrastructure and migrating from empty were never run per push, so a
   missing-database crash and a schema missing ~60% of its columns surfaced only in audits (LL-14, LL-21).
 - *Check:* the Tester-owned test workflows contain each push-lane job; the Auditor reconciles the `TESTING.md` lane
@@ -204,7 +205,7 @@ data-pipeline: a recorded real-volume dataset through the real entry point, incl
 
 | Lane | When | Contents | Blocks |
 |---|---|---|---|
-| Push | every push, exact commit | unit · integration · recorded contract · access + completeness · chain · e2e on every device/runtime project + the foreign zone/locale project · a11y · visual/golden · migrations from empty, from previous release, drift · boot shipped artifact on empty infra · config agreement · smoke on the CI stack · traceability + plan conformance · coverage + no-untested-unit · secret canary · static checks | merge, Gate 3, deploy |
+| Push | every push, exact commit | unit · integration · recorded contract · access + completeness · chain · e2e on every device/runtime project + the foreign zone/locale project · a11y · visual/golden · performance budgets · security tests + secret canary · migrations from empty, from previous release, drift · boot shipped artifact on empty infra · config agreement · smoke on the CI stack · traceability + plan conformance · coverage + no-untested-unit · static checks | merge, Gate 3, deploy |
 | Nightly | at a UTC/display-date divergence hour; never deploys | whole suite in random order with parallel workers · repeat runs · live contracts · full mutation · performance at volume · dependency scans | next cycle start, Mode R |
 | Post-deploy | every deploy or publish | version-aware health · read-only smoke · synthetic journey · error-rate watch; failure → automatic rollback | the release |
 | Per cycle | Tester Verify | changed-code mutation (if not per push) · screenshot/golden gallery → Design QA · agent exploratory pass | Gate 3 |

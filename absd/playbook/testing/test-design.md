@@ -111,7 +111,7 @@ time-driven lifecycle once in real time.
 **VAR-9** — When an operation has ≥ 3 independent parameters of ≥ 2 values, cover at least all pairs with a generator
 (e.g. PICT, ACTS, allpairspy) plus the full product for combinations touching money, time or access; record the model,
 constraints and seed in the plan.
-- *Why:* full products explode, so suites test defaults only; most interaction defects need two factors.
+- *Why:* full products explode, so suites test defaults only; most interaction faults need two factors.
 - *Check:* model and generated rows in the plan; money/time/access subset complete.
 - *Applies when:* option-rich operations, filters, multi-field forms, cli flag sets.
 - *Provenance:* industry baseline
@@ -131,8 +131,8 @@ NaN/Infinity, zero denominator (finite result), parts exceeding the whole, max l
 sink (markup, path incl. backslash, header CRLF, query, shell), a forged value for every server-derived field (the
 server's value wins). Expect the most conservative state the spec defines (pending, deny, zero, reject) — never
 success, never a silent default.
-- *Why:* "missing numbers fail validation" became "missing → 0" downstream (LL-44); a client-declared derived value was
-  trusted (LL-48).
+- *Why:* "missing numbers fail validation" became "missing → 0" (LL-44); a client-declared derived value was trusted
+  (LL-48).
 - *Check:* degenerate-input column per operation; missing garbage rows or forged-field TCs are findings. Payloads per
   sink: SEC (`absd/playbook/security/baseline.md`).
 - *Applies when:* boundary inputs, parsers, normalisers, ratios, derived fields.
@@ -143,12 +143,12 @@ concurrent writers of one record (one wins, the other gets the specified conflic
 effect), overlapping job runs (prevented or safe), conflicting actions inside a debounce or latency window (last intent
 wins; late responses ignored), concurrent first cache access, cancellation.
 - *Why:* a filter clicked right after typing was overwritten by the delayed search reload (LL-20).
-- *Check:* each writable record, job and async input has a race TC; nightly repeat runs stay green.
+- *Check:* each shared record, job and async input has a race TC; nightly repeat runs stay green.
 - *Applies when:* shared records, jobs, async UI, caches, multiple instances, consumers.
 - *Provenance:* LL-20 (KatenatsioTipster, 2026-10)
 
-**VAR-13** — Run every operation specified as re-runnable (retry, job, recompute, import, migration, backfill, message
-handler, replayed batch, PUT-style update) twice: snapshot the full state, rerun, assert identical state, zero changes
+**VAR-13** — Run every operation specified as re-runnable (retry, job, recompute, import, migration, backfill, handler,
+replayed batch, PUT-style update) twice: snapshot the full state, rerun, assert identical state, zero changes
 and no duplicate side effect (audit row, notification, message, file, charge). Reads write nothing. Migrations and
 backfills also get applies / exempt / out-of-scope cases on legacy-shaped rows; pipelines get duplicate and late records.
 - *Why:* idempotent re-run criteria were never tested (LL-45); a read built on a mutating call wrote audit rows (LL-42).
@@ -171,7 +171,7 @@ Invalid input makes zero external calls; jobs crash and retry from every step.
 (idempotent, round trip), money (conservation, rounding once), rankings (ranks permute 1..n), period generators (no gap
 or overlap). Generators include the VAR-2, VAR-3 and VAR-11 classes; the seed is fixed and printed; each shrunk failure
 becomes a literal example row (e.g. FsCheck, Hypothesis, fast-check).
-- *Why:* hand-picked examples miss inputs nobody imagined; one invariant checks thousands.
+- *Why:* examples miss inputs nobody imagined; one invariant checks thousands.
 - *Check:* CI output shows each seed; kept failing seeds exist as example rows.
 - *Applies when:* parsers, normalisers, money, ranking, date generation, serialisation.
 - *Provenance:* industry baseline

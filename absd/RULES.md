@@ -4,9 +4,10 @@ The canonical rules for every ABSD agent, on every platform. Agent manuals (`.cl
 playbook (`absd/playbook/`) explains them; nothing overrides them except the user, through the Manager.
 
 **Start:** run the Manager as the main conversation — `claude --agent manager`, or set `"agent": "manager"` in
-`.claude/settings.json` (the Bootstrap template does). **Fallback:** a session that is not the Manager does no pipeline
-work: it tells the user how to start the Manager and never spawns the Manager as a sub-agent (sub-agents cannot
-delegate). GitHub Copilot: pick the **Manager** custom agent; delegation happens through confirmed handoffs.
+`.claude/settings.json` (the Bootstrap template does). Only the main conversation can talk to the user and restrict
+which workers it may delegate to, so the Manager is never a sub-agent. **Fallback:** a session that is not the Manager
+does no pipeline work: it tells the user how to start the Manager. Workers have no delegation tool. GitHub Copilot:
+pick the **Manager** custom agent; delegation happens through handoffs the user confirms.
 
 ## 1. Agents
 
@@ -98,7 +99,9 @@ user. An interrupted agent is re-invoked with a Resume brief (max 2), never fini
 - One branch per cycle: `absd/C###-<slug>`. Every hand-off is a commit by its producer with trailers
   `ABSD-Agent: <name>` and `ABSD-Cycle: C###`; the working tree is clean at every hand-off. The Builder commits once
   per work package; the Plan & Bind commit is **T-SHA**, an ancestor of every production change of the cycle.
-- `absd/tooling/ownership_check.py` proves ownership and ordering; the Auditor reviews every test change after T-SHA.
+- Enforced twice: at write time by the hook `absd/tooling/ownership_hook.py` (installed by the settings template; it
+  refuses an ABSD agent's file write outside its own paths) and in history by `absd/tooling/ownership_check.py`
+  (ownership and ordering per commit); the Auditor reviews every test change after T-SHA.
 - Only the Manager merges, only after Gate 3, per the merge policy in `context.md`. No change reaches the default
   branch outside a mode.
 

@@ -24,6 +24,7 @@ thresholds and flake policy: GATE (`absd/playbook/testing/gates.md`); external f
 - [ ] CHAR tests labelled, tied to INH ids, never specification before the user decides (ORACLE-12)
 - [ ] Tests written after the code are shown able to fail (ORACLE-13)
 - [ ] Every surviving mutant on money/time/access is killed by a spec-sourced TC or justified (ORACLE-14)
+- [ ] A rule implemented in several tiers reads one shared golden-vector file (ORACLE-15)
 
 ## Rules
 
@@ -65,12 +66,12 @@ before Gate T.
 - *Provenance:* LL-29, LL-45 (KatenatsioTipster, 2026-10)
 
 **ORACLE-4** — Never compute an expected value by calling production code: not directly, not through a production
-helper or constant, not through a copy of the production formula, not by running the system and pasting its output,
-and not by arranging the inputs under test with production functions (e.g. deriving a field with the production
-calculator, then asserting on it). The expected side is a literal from the oracle table or an independent reference;
-limits are asserted as the spec states them (5 MiB), not as `MAX + 1`. Snapshot and golden files are oracles only once
-their owner approved them against the spec (Designer for screens and output, Analyst for datasets); re-recording a
-snapshot to get green is changing an oracle (ORACLE-2).
+helper or constant, not through a copy or re-implementation of the production algorithm, not by running the system and
+pasting its output, and not by arranging the inputs under test with production functions (e.g. deriving a field with
+the production calculator, then asserting on it). The expected side is a literal from the oracle table or an
+independent reference; a limit's value comes from the spec (5 MiB), not from the production constant. Snapshot and
+golden files are oracles only once their owner approved them against the spec (Designer for screens and output,
+Analyst for datasets); re-recording a snapshot to get green is changing an oracle (ORACLE-2).
 - *Why:* downstream tests were fed the computation's own outputs, so a misreading component stayed invisible (LL-2).
 - *Check:* the Auditor greps expected sides and arrange blocks on money/time/ranking/access paths for production
   symbols (L6); any hit without a recorded reason is Major.
@@ -112,9 +113,10 @@ design vs analysis — raise a spec defect to their owners; never build the orac
 - *Provenance:* LL-44, LL-48 (KatenatsioTipster, 2026-10)
 
 **ORACLE-8** — Classify every failing TC and every TC-CONFLICT, with evidence, into exactly one class in
-`test_report.md`: product defect (TF → Builder fix, counts as an iteration) · spec defect (→ owner of the cited source,
-then amendment) · obsolete oracle (amendment citing the changed requirement; none exists → Analyst or user) · harness
-defect (test code fixed, expected value unchanged) · flaky (root cause under GATE-6; never skipped, TCQ-1).
+`test_report.md`: product defect (TF; the Manager routes a Builder fix, counted as an iteration) · spec defect (→ owner
+of the cited source, then amendment) · obsolete oracle (amendment citing the changed requirement; none exists → Analyst
+or user) · harness defect (test code fixed, expected value unchanged) · flaky (root cause under GATE-6; never skipped,
+TCQ-1).
 - *Why:* when the party that can only edit tests triages failures alone, "fix the test to match the code" becomes the
   default (LL-29).
 - *Check:* every red TC in the report has one class and a route; harness fixes leave expected values byte-identical.
@@ -177,6 +179,16 @@ removed tie-break, removed branch, swapped precedence. Thresholds per GATE-5.
 - *Why:* coverage shows lines ran, not that any assertion would notice them being wrong.
 - *Check:* the mutation report in `test_report.md` lists survivors with their resolution; the Auditor samples them.
 - *Applies when:* every Verify; money, time and access rules always.
+- *Provenance:* industry baseline
+
+**ORACLE-15** — When one rule is implemented in more than one place (client preview and server, two services, two
+languages, a report and its export), keep one shared golden-vector file (inputs → expected, each row citing its spec
+source) in the test tree and make every implementation's suite load all of it; editing the file is an oracle change
+(ORACLE-2) and runs every consuming suite.
+- *Why:* hand-copied, partly overlapping case lists let a preview show one number while the server pays another.
+- *Check:* each duplicated rule listed in `architecture.md` has one vector file; CI fails if a consuming suite does not
+  load it or if the file changes without all consumers running.
+- *Applies when:* a business rule exists in two or more implementations.
 - *Provenance:* industry baseline
 
 ## Oracle table (in `test_plan.md`)
