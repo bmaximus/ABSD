@@ -75,6 +75,9 @@ go to the Risk register, never into the architecture.
 - Operations / endpoints / commands / public symbols: <table or link to the generated list — each with its access rule>
 - Data stores and key tables/collections: <…>
 - Screens (SCR ids) and journeys (UJ ids): <…>
+- Product invariants: the business rules `AREA-BR-n` in `absd-project/catalogue.md` hold across every cycle (e.g.
+  "derived amounts are always recomputed server-side, never client-supplied"); the Analyst flags any contradiction,
+  the Tester keeps an invariant test for each.
 
 ## 10. Architecture decisions (index)
 | ADR | Title | Cycle | Status |
