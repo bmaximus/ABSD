@@ -72,7 +72,7 @@ in `absd/playbook/testing/gates.md`; test-code hygiene is TCQ in `absd/playbook/
 
 **INTEG-6** — Replace only what lies outside the product — systems in `EXTERNAL-FACTS.md`, time, randomness — with fakes that obey FAKE-1, and run the host with the settings it ships (production profile, flags at their shipped defaults); any other override is limited to endpoints and credentials or carries an adjacent comment naming what it disables and the TC that tests that behaviour instead.
 - *Why:* a test-only zone override hid an 8-hour defect (LL-1); suites ran under a development profile, so shipped defaults such as flags off and fail-closed startup were never exercised.
-- *Check:* the Auditor lists every harness override; one without reason and pointer is Major; an override of a world fact breaks FAKE-4.
+- *Check:* the Auditor lists every harness override; one without reason and pointer is Major; an override of a world fact breaks FAKE-4; a rate limit raised for the suite points to a dedicated limit+1 → refusal test on the shipped value.
 - *Applies when:* always.
 - *Provenance:* LL-1 (KatenatsioTipster, 2026-10)
 
@@ -113,7 +113,7 @@ user-safe `detail`, trace id — never a stack trace, query text or internal pat
 
 **INTEG-10** — Give every data flow at least one chain test that starts from a recorded real boundary payload (FAKE-2), runs the shipped adapter, parser and domain logic, and asserts both the persisted state and the displayed or emitted outcome, with only the external system faked and inputs chosen so each plausible misreading (wrong field, zone or unit) produces a different outcome.
 - *Why:* scoring tests fed the scorer its own scores, so the reader that took the half-time field for the final score was never in the path (LL-2).
-- *Check:* Gate T maps every flow in `architecture.md` to a CHAIN TC; the Auditor rejects chains that bypass the adapter or inject pre-parsed values; the displayed outcome is read where the user reads it (read model, screen, CLI output, output dataset).
+- *Check:* Gate T maps every flow in `architecture.md` to a CHAIN TC; the Auditor rejects chains that bypass the adapter or inject pre-parsed values; the displayed outcome is read where the user reads it (read model, screen, CLI output, output dataset); data-pipeline chains also replay the batch and feed a duplicate and a late record per the data contract.
 - *Applies when:* chain tests are M or R in `TESTING.md`.
 - *Provenance:* LL-2 (KatenatsioTipster, 2026-10)
 
@@ -125,7 +125,7 @@ user-safe `detail`, trace id — never a stack trace, query text or internal pat
 
 **INTEG-12** — Race every exactly-once or uniqueness rule (double submit, parallel approvals, a job racing a manual action, two writers on one record) behind a start barrier, never sleeps; a stale-version write is rejected (409 for http-api) with no lost update; a refused bulk or multi-row write leaves prior state byte-identical with the bad item first, middle and last.
 - *Why:* concurrency paths are where "exactly once" quietly becomes "twice", and a partially applied bulk write is data loss.
-- *Check:* one TC per exactly-once rule (concurrency technique: VAR rules in `absd/playbook/testing/test-design.md`); state snapshot compared before and after each refusal; races repeated N times in the nightly run.
+- *Check:* one TC per exactly-once rule (concurrency technique: VAR rules in `absd/playbook/testing/test-design.md`); state snapshot compared before and after each refusal; races repeated N times in the nightly run; a message or event is emitted only if its transaction commits (crash between commit and publish tested).
 - *Applies when:* concurrent writers, bulk writes or uniqueness rules exist.
 - *Provenance:* industry baseline
 
