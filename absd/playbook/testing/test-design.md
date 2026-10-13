@@ -2,7 +2,7 @@
 
 Code **VAR**. How the Tester turns requirements, rules, state machines, data flows and risks into test cases before
 code exists — the HOW behind every Gate T obligation. Expected values: ORACLE (`absd/playbook/testing/oracles.md`);
-principals: ACCESS (`absd/playbook/testing/access-visibility.md`); harness: INTEG (`absd/playbook/testing/integration.md`).
+harness: INTEG (`absd/playbook/testing/integration.md`).
 
 ## Checklist
 
@@ -33,14 +33,14 @@ principals: ACCESS (`absd/playbook/testing/access-visibility.md`); harness: INTE
 risk: `test_plan.md` marks each relevant dimension "covered → TC ids" or "N/A — reason" and names the technique used.
 - *Why:* interacting rules, midnights, re-runs and volume each slipped because nobody walked a list (LL-9, LL-45).
 - *Check:* Gate T: no blank cell in the plan's dimension table; the Auditor samples N/A reasons.
-- *Applies when:* every test plan (Modes F, S, D, B).
+- *Applies when:* every test plan.
 - *Provenance:* LL-9, LL-45 (KatenatsioTipster, 2026-10)
 
 **VAR-2** — Partition every input and rule outcome into equivalence classes from the specification (each valid and
 invalid class, enum member, rule variant); test one representative per class as a row of one parameterised test
 (e.g. xUnit `[Theory]`, pytest `parametrize`, Jest `test.each`) reviewable against the spec table. When behaviour forks
 by type, plan or category, run each scenario under every variant.
-- *Why:* an enum branch without a row, or a variant run by another variant's rule, is the cheapest defect to miss.
+- *Why:* an enum branch without a row, or a variant run by another's rule, is the cheapest defect to miss.
 - *Check:* rows diffed against the spec's classes; branch-removal mutants killed (GATE-5).
 - *Applies when:* ≥ 3 input classes, or a fork on type, plan, category or enum.
 - *Provenance:* industry baseline
@@ -52,7 +52,7 @@ last valid day, first invalid day. Rounding: a value needing it and an exact mid
 valid, first overflow. Assert the spec's value, never the code's constant.
 - *Why:* deadlines read in the wrong offset stayed open for hours (LL-1); threshold criteria never became cases (LL-45).
 - *Check:* boundary table with three rows + a representation row per limit; relational and rounding mutants killed.
-- *Applies when:* any `<`, `≤`, until, before, at least, max, deadline, expiry, quota, page size, rounding.
+- *Applies when:* any limit, deadline, expiry, quota, page size or rounding.
 - *Provenance:* LL-1, LL-45 (KatenatsioTipster, 2026-10)
 
 **VAR-4** — When conditions or rules interact (precedence, override, dominance, eligibility + ordering, roll-up of
@@ -60,7 +60,7 @@ child states), write a decision table in `test_plan.md` — every combination, o
 test each row. Roll-ups: each state alone, each adjacent dominance pair, all-weakest, empty. Orderings: one constructed
 tie per tie-break level (assert the tie, then the order) down to a unique key; eligibility tested apart from order.
 - *Why:* ranking, disqualification and prize split, each tested alone, together gave wrong prize positions (LL-9).
-- *Check:* every BR citing another BR has a table; rows map to TCs; statement-reorder mutants are killed.
+- *Check:* a table per BR citing another BR; rows map to TCs; reorder mutants killed.
 - *Applies when:* interacting BRs, derived statuses, rankings, permission overrides.
 - *Provenance:* LL-9 (KatenatsioTipster, 2026-10)
 
@@ -79,8 +79,8 @@ native-app each platform and device class; cli each OS, shell, terminal width, T
 runtime or language version; http-api and data-pipeline each declared deployment runtime. Per input mode test what
 only it breaks: hover-only affordances, touch targets, overscroll in scroll containers, on-screen keyboard, keyboard-only.
 - *Why:* on a phone a swipe reloaded the app and lost input, and a hover-only control was unreachable (LL-4, LL-16).
-- *Check:* each class in `context.md` has a project and each journey runs in it; gestures emulation misses are on
-  the Mode R real-device list.
+- *Check:* each class in `context.md` has a project running every journey; gestures emulation misses are on the
+  Mode R real-device list.
 - *Applies when:* the device/runtime row is M or triggered R.
 - *Provenance:* LL-4, LL-16 (KatenatsioTipster, 2026-10)
 
@@ -126,8 +126,8 @@ on the next request). Expectations per ACCESS-3.
 - *Provenance:* LL-5, LL-10, LL-35 (KatenatsioTipster, 2026-10)
 
 **VAR-11** — Give every input that may be absent or wrong a test named after its specified meaning: null, empty,
-whitespace, garbage, case variants, numeric or combined enum spellings, diacritics and Unicode normalisation
-forms, NaN/Infinity, zero denominator (finite result), parts exceeding the whole, max length + 1, a hostile payload per
+whitespace, garbage, case variants, numeric or combined enum spellings, diacritics and Unicode normalisation forms,
+NaN/Infinity, zero denominator (finite result), parts exceeding the whole, max length + 1, a hostile payload per
 sink (markup, path incl. backslash, header CRLF, query, shell), a forged value for every server-derived field (the
 server's value wins). Expect the most conservative state the spec defines (pending, deny, zero, reject) — never
 success, never a silent default.
@@ -156,10 +156,10 @@ backfills also get applies / exempt / out-of-scope cases on legacy-shaped rows; 
 - *Applies when:* jobs, retries, migrations, handlers, imports, approvals.
 - *Provenance:* LL-42, LL-45 (KatenatsioTipster, 2026-10)
 
-**VAR-14** — Inject every failure mode in each dependency's fact sheet and every error-catalogue entry: timeout, connection
-reset, error status or exit code, rate limit, malformed, partial or empty payload, slow answer, pending
-async work, rejected credential, full disk, crash mid-operation. Assert the message key, status or exit code, persisted
-state (nothing half-written; resumable), retry behaviour and log level (expected client errors never at error level).
+**VAR-14** — Inject every failure mode in each dependency's fact sheet and every error-catalogue entry: timeout,
+connection reset, error status or exit code, rate limit, malformed, partial or empty payload, slow answer, pending async
+work, rejected credential, full disk, crash mid-operation. Assert the message key, status or exit code, persisted state
+(nothing half-written; resumable), retry behaviour and log level (expected client errors never at error level).
 Invalid input makes zero external calls; jobs crash and retry from every step.
 - *Why:* external failures showed "Server error" (LL-11); a synchronous fake hid an asynchronous platform (LL-7);
   rejected passwords were logged as server errors (LL-15).
@@ -169,8 +169,8 @@ Invalid input makes zero external calls; jobs crash and retry from every step.
 
 **VAR-15** — Back example tests with property-based tests wherever a rule has an invariant: parsers and normalisers
 (idempotent, round trip), money (conservation, rounding once), rankings (ranks permute 1..n), period generators (no gap
-or overlap). Generators include the VAR-2, VAR-3 and VAR-11 classes; the
-seed is fixed and printed; each shrunk failure becomes a literal example row (e.g. FsCheck, Hypothesis, fast-check).
+or overlap). Generators include the VAR-2, VAR-3 and VAR-11 classes; the seed is fixed and printed; each shrunk failure
+becomes a literal example row (e.g. FsCheck, Hypothesis, fast-check).
 - *Why:* hand-picked examples miss inputs nobody imagined; one invariant checks thousands.
 - *Check:* CI output shows each seed; kept failing seeds exist as example rows.
 - *Applies when:* parsers, normalisers, money, ranking, date generation, serialisation.
@@ -192,12 +192,12 @@ pipeline writes nothing and logs no error; an open dialog or unsaved edit outliv
 - *Applies when:* timers, polling, live clocks, subscriptions, schedulers.
 - *Provenance:* LL-12 (KatenatsioTipster, 2026-10)
 
-**VAR-18** — For every data flow in `architecture.md`, write ≥ 1 chain test from the outermost boundary input — a
-recorded real payload (FAKE-2) — through every specified step to the persisted end state and the displayed or emitted
-outcome, faking only the external system; assert each step's effect (rows inserted, updated, deleted), not only the end.
+**VAR-18** — Plan ≥ 1 chain test per data flow in `architecture.md`: outermost boundary input = a recorded real payload
+(FAKE-2), every specified step's effect asserted (rows inserted, updated, deleted), ending at the persisted state and the
+displayed or emitted outcome; only the external system is faked. Build it per INTEG rules.
 - *Why:* tests fed a computation its own inputs, so the reader misreading a provider field was on no path (LL-2);
   "delete provisional, insert final" never deleted (LL-51).
-- *Check:* trace_check data flow → chain TC; the chain's input is a committed recording; harness per INTEG rules.
+- *Check:* trace_check data flow → chain TC; the chain's input is a committed recording.
 - *Applies when:* every data flow.
 - *Provenance:* LL-2, LL-51 (KatenatsioTipster, 2026-10)
 
@@ -210,8 +210,9 @@ tested after restart); run the suite once with each environment's shipped defaul
 - *Provenance:* LL-23 (KatenatsioTipster, 2026-10)
 
 **VAR-20** — After every mutation assert at the source of truth (re-read through the public interface or reload);
-after a delete assert absence. Count side effects with attributes: one audit row per action naming the real actor
-(also under impersonation), none on reads; each notification's recipient, content, locale, no duplicate on retry.
+after a delete assert absence. Vary side effects by actor and repetition: one audit row per action naming the real
+actor (also under impersonation), none on reads; each notification's recipient, content, locale, no duplicate on
+retry (harness: INTEG rules).
 - *Why:* a mutating call used as a read wrote phantom audit rows (LL-42).
 - *Check:* mutating TCs re-read; audit and notification TCs assert actor, target and count.
 - *Applies when:* mutations, admin actions, notifications.
@@ -240,6 +241,7 @@ after a delete assert absence. Count side effects with attributes: one audit row
 | Idle | untouched > longest timer | idle budget (VAR-17) | timers, polling |
 | Data flow | recorded payload → persisted → shown | chain (VAR-18) | every data flow |
 | Flags, config | off, on, toggle, shipped defaults | VAR-19 | every flag |
+| Background job | schedule, no overlap, rerun, crash/retry, flag off | VAR-12, VAR-13, VAR-14, VAR-19 | every job |
 | Side effects | re-read, absence, audit actor, notifications | VAR-20 | mutations, admin actions |
 | Locale, format | each locale; 24 h; number, currency, sign | EP + LOC rules | every displayed value |
 | UI state | empty, loading, error, partial, max | E2E, VIS rules | every SCR |
