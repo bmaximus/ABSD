@@ -45,6 +45,10 @@
 ## 7. Data contract style (data-pipeline, http-api)
 - Field naming, units, time zones (always explicit), nullability, keys, pagination, error body, versioning.
 
+## 8. Protected screens register (visual baselines)
+| SCR | State | Device class | Theme | Baseline path | SHA-256 | Approved in (design_review.md, cycle) |
+|---|---|---|---|---|---|---|
+
 ## Change log
 | Date | Cycle | Change | Reason |
 |---|---|---|---|

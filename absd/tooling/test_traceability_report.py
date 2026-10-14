@@ -110,7 +110,7 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertEqual(code, 1, out)
 
     def test_reserved_prefixes_in_brackets_are_not_requirements(self):
-        self.write("r/junit.xml", junit([("regression [DEF-12] [TC-0001] [E2E-1] [ACC-1]", "passed", {})]))
+        self.write("r/junit.xml", junit([("regression [DEF-12] [TC-0001] [E2E-1] [OQ-3] [D-2] [ACC-1]", "passed", {})]))
         code, out = self.run_report("--catalogue", self.catalogue)
         self.assertEqual(code, 0, out)
         self.assertNotIn("not in the catalogue", out)

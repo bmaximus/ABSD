@@ -258,8 +258,10 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(doc.excluded("requirement"), {"ACC-1"})
 
     def test_reserved_codes_are_not_requirements(self):
-        text = "UJ-1 SCR-2 TC-0003 ABSD:CODE-4 E2E-5 F-6 QC-7 WP-8 EXT-9 TC-CONFLICT-1 ACC-10 PAY-NF-2 PAY-BR-3"
-        self.assertEqual(trace_check.referenced_in(text, "requirement"), {"ACC-10", "PAY-NF-2", "PAY-BR-3"})
+        text = ("UJ-1 SCR-2 TC-0003 ABSD:CODE-4 E2E-5 F-6 WP-8 EXT-9 TC-CONFLICT-1 A-1 OQ-2 D-3 UXQ-4 UXA-5 "
+                "ACC-10 PAY-NF-2 PAY-BR-3 QC-7")
+        # QC is the fixed area code of the Foundation quality capabilities, so QC-7 is a requirement
+        self.assertEqual(trace_check.referenced_in(text, "requirement"), {"ACC-10", "PAY-NF-2", "PAY-BR-3", "QC-7"})
 
     def test_references_are_whole_tokens(self):
         text = "ACC-10 xACC-1 ACC-1x acc-1 ACC-NF-1 and [ACC-2] and ACC-3.AC4 and ACC-5."
@@ -528,6 +530,64 @@ class TraceCheckTests(unittest.TestCase):
             self.assertEqual(code, 2, name)
             self.assertIn(f"{name}: not found", out)
             self.write("working/" + name, "# ok\n")
+
+    def test_gate3_route_mode_x_needs_only_the_audit(self):
+        self.write("working/cycle.md", "# Cycle C007\nCycle: C007 | Mode: X | Status: IN-PROGRESS\n")
+        self.remove("working/arch_review.md")
+        self.remove("working/test_report.md")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 0, out)
+        self.assertIn("route Mode X: requires audit.md", out)
+
+    def test_gate3_route_mode_d_needs_no_architecture_review_but_reads_one(self):
+        self.write("working/cycle.md", "Cycle: C008 | **Mode:** D | Status: IN-PROGRESS\n")
+        self.remove("working/arch_review.md")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 0, out)
+        self.remove("working/test_report.md")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 2, out)
+        self.assertIn("test_report.md: not found", out)
+        self.write("working/test_report.md", TEST_REPORT)
+        self.write("working/arch_review.md", "| ID | Severity | Status |\n|---|---|---|\n| AR-9 | Major | open |\n")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 1, out)
+        self.assertIn("AR-9 (Major)", out)
+
+    def test_gate3_mode_f_cycle_needs_all_three_reports(self):
+        self.write("working/cycle.md", "Cycle: C009 | Mode: F | Status: IN-PROGRESS\n")
+        self.remove("working/arch_review.md")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 2, out)
+        self.assertIn("arch_review.md: not found", out)
+
+    def test_gate2_and_gate_t_fall_back_to_the_brief_without_analysis(self):
+        with open(os.path.join(self.working, "analysis.md"), encoding="utf-8") as f:
+            analysis = f.read()
+        self.remove("working/analysis.md")
+        self.write("working/brd.md", analysis)
+        for gate in ("gate2", "gateT"):
+            code, out = self.run_gate(gate)
+            self.assertEqual(code, 0, out)
+            self.assertIn("analysis.md not found — requirements read from brd.md", out)
+
+    def test_gate_t_without_architecture_reads_the_defect_list_and_skips_ext(self):
+        with open(os.path.join(self.working, "analysis.md"), encoding="utf-8") as f:
+            analysis = f.read()
+        self.remove("working/analysis.md")
+        self.remove("working/architecture.md")
+        self.remove("working/architecture/01-core.md")   # split parts count as the architecture too
+        self.write("working/defect.md", analysis)
+        code, out = self.run_gate("gateT")
+        self.assertEqual(code, 0, out)
+        self.assertIn("requirements read from defect.md", out)
+        self.assertIn("EXT check skipped", out)
+
+    def test_gate2_without_any_requirement_source_is_an_input_error(self):
+        self.remove("working/analysis.md")
+        code, out = self.run_gate("gate2")
+        self.assertEqual(code, 2)
+        self.assertIn("none of analysis.md, brd.md, defect.md", out)
 
     # --- generic check ----------------------------------------------------------------------------------------
 

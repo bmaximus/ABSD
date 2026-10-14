@@ -128,9 +128,10 @@ Stack, vendor and tool names appear only in labelled illustrations naming at lea
 
 - Products and artifacts cite `ABSD:CODE-n`; product and cycle ids follow `absd/RULES.md` §7.
 
-Reserved codes: `STRAT` `VAR` `ORACLE` `ACCESS` `INTEG` `FAKE` `EXT` `E2E` `TRACE` `GATE` `ESC` `EXPL` `A11Y` `PERF` `RESIL` `VIS` `OPS` `TCQ` `DSN` `LOC` `ARCH` `CODE` `SEC` `PRIV` `ELIC` `DOD` `XCA` `ENR` `TC` `DEF` `CR` `ADR` `UJ` `SCR` `DEBT` `RISK` `LL` `AR` `TF` `DQ` `F` `CLR` `WP` `QC` `INH` `TSEAM` `CHAR` `C`
+Reserved codes: `STRAT` `VAR` `ORACLE` `ACCESS` `INTEG` `FAKE` `EXT` `E2E` `TRACE` `GATE` `ESC` `EXPL` `A11Y` `PERF` `RESIL` `VIS` `OPS` `TCQ` `DSN` `LOC` `ARCH` `CODE` `SEC` `PRIV` `ELIC` `DOD` `XCA` `ENR` `TC` `DEF` `CR` `ADR` `UJ` `SCR` `DEBT` `RISK` `LL` `AR` `TF` `DQ` `F` `CLR` `WP` `INH` `TSEAM` `CHAR` `C` `A` `OQ` `D` `UXQ` `UXA`
 
-No product area code (`absd-project/context.md` §1) may be one of them: the Analyst checks at Gate 1 (ELIC-20), and
+`QC` is the one fixed area code every product shares: the Foundation quality capabilities (`QC-n` catalogue rows,
+Area "Quality"). No product area code (`absd-project/context.md` §1) may be a reserved code: the Analyst checks at Gate 1 (ELIC-20), and
 the tools read these prefixes as references, never as requirement links (TRACE-4).
 
 ## Provenance

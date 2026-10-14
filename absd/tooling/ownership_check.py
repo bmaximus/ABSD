@@ -238,6 +238,7 @@ class Commit:
     problem: str                # why the commit is not attributed ("" when it is)
     cycles: list
     files: list = field(default_factory=list)
+    deleted: set = field(default_factory=set)   # the subset of files the commit deletes
 
     @property
     def short(self) -> str:
@@ -298,10 +299,25 @@ def read_commits(repo: str, rev_range: str) -> list[Commit]:
     return commits
 
 
-def changed_files(repo: str, sha: str) -> list[str]:
-    """Every path the commit adds, changes or deletes (a rename is its old and its new path)."""
-    out = git(repo, "diff-tree", "--no-commit-id", "--name-only", "-r", "-m", "--root", "--no-renames", "-z", sha)
-    return sorted({path for path in out.split("\0") if path})
+def changed_files(repo: str, sha: str) -> tuple[list[str], set[str]]:
+    """(every path the commit adds, changes or deletes, the deleted ones) — a rename is its old and its new path."""
+    out = git(repo, "diff-tree", "--no-commit-id", "--name-status", "-r", "-m", "--root", "--no-renames", "-z", sha)
+    fields = out.split("\0")
+    files, deleted = set(), set()
+    for status, path in zip(fields[0::2], fields[1::2]):
+        if not status or not path:
+            continue
+        files.add(path)
+        if status.startswith("D"):
+            deleted.add(path)
+    return sorted(files), deleted
+
+
+def is_archive_move(commit: Commit, path: str) -> bool:
+    """The Manager archives a cycle by moving every per-cycle artifact out of working/ (RULES §1): deleting another
+    agent's file there is that move, not authorship. Writing or changing such a file is still a violation."""
+    return (commit.agent == "manager" and path in commit.deleted
+            and path.startswith(f"{PROJECT_DIR}/working/"))
 
 
 def default_range(repo: str, base: str) -> str:
@@ -346,7 +362,7 @@ def check_ownership(commits: list[Commit], rules: list[Rule], strict: bool, find
             owner, rule = owner_of(path, rules)
             if owner == UNOWNED:
                 unowned[path].append(commit)
-            elif owner not in (commit.agent, SHARED):
+            elif owner not in (commit.agent, SHARED) and not is_archive_move(commit, path):
                 findings.errors.append(("ownership", f"{describe(commit)} changed {path}, owned by {owner} ({rule.origin}: {rule.glob})"))
     for path, touching in sorted(unowned.items()):
         message = f"{path} matches no Source Layout row (changed by {', '.join(f'{c.short} ({c.agent})' for c in touching)})"
@@ -451,7 +467,7 @@ def main(argv: list[str] | None = None) -> int:
         merges = [c for c in commits if skip_merges and c.is_merge]
         checked = [c for c in commits if not (skip_merges and c.is_merge)]
         for commit in checked:
-            commit.files = changed_files(args.repo, commit.sha)
+            commit.files, commit.deleted = changed_files(args.repo, commit.sha)
         findings = Findings()
         check_attribution(checked, args.allow_unattributed, findings)
         check_ownership(checked, rules, args.strict, findings)

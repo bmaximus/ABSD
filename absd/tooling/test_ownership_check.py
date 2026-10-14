@@ -316,6 +316,35 @@ class OwnershipCheckTests(unittest.TestCase):
             f"{self.git('rev-parse', '--short=7', 'HEAD')} (builder) 'absd(C001): fix report — builder' changed "
             "absd-project/working/test_report.md, owned by tester (built-in: absd-project/working/test_report.md)"])
 
+    def test_manager_archive_moves_other_agents_artifacts_out_of_working(self):
+        self.mode_f_history()
+        archive = "absd-project/archive/001_2026-10-14_cart"
+        os.makedirs(os.path.join(self.repo, archive), exist_ok=True)
+        for name in ("analysis.md", "test_plan.md", "build_log.md", "audit.md", "architecture"):
+            self.git("mv", f"absd-project/working/{name}", f"{archive}/{name}")
+        self.commit("absd(C001): archive — manager", "manager")
+        code, out = self.run_check()
+        self.assertEqual(code, 0, out)
+
+    def test_manager_editing_or_another_agent_deleting_an_artifact_still_fails(self):
+        self.mode_f_history()
+        self.commit("absd(C001): tweak plan — manager", "manager", ["absd-project/working/test_plan.md"])
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        self.assertIn("changed absd-project/working/test_plan.md, owned by tester", "\n".join(data["errors"]))
+        self.git("reset", "-q", "--hard", "HEAD~1")
+        self.git("rm", "-q", "absd-project/working/test_plan.md")
+        self.commit("absd(C001): drop plan — builder", "builder")
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        self.assertIn("(builder)", "\n".join(data["errors"]))
+        self.git("reset", "-q", "--hard", "HEAD~1")
+        self.git("rm", "-q", "tests/test_cart.py")
+        self.commit("absd(C001): drop a test — manager", "manager")
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        self.assertIn("changed tests/test_cart.py, owned by tester", "\n".join(data["errors"]))
+
     def test_built_in_artifacts_take_precedence_over_the_context_table(self):
         # the context table's last row gives everything else under absd-project/ to the manager
         self.commit("absd(C001): notes — manager", "manager", ["absd-project/working/notes.md"])

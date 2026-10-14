@@ -46,6 +46,7 @@ be N/A; turning an M into N/A needs an ADR that passed Gate 2R. Matrix and rules
 
 ## 3. Running them
 ```bash
+<fast suite>                       # what the Builder runs after every work package (unit + integration + recorded contract + access)
 <unit>
 <integration>
 <end-to-end>                       # starts fakes + the real service on a fresh database built by the shipped migrations

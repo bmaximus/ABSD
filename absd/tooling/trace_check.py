@@ -13,11 +13,13 @@ A path may be a file or a directory (every *.md inside, recursively); X.md also 
 when one exists (architecture.md + architecture/NN-*.md). Any artifact may be split that way.
 
 Id families: requirement ACC-1 / ACC-NF-1 / ACC-BR-1 (the area code must not be a reserved code — playbook codes and
-TC, DEF, CR, ADR, UJ, SCR, DEBT, RISK, EXT, LL, AR, TF, DQ, F, CLR, WP, QC, INH, TSEAM, CHAR, C) · ac ACC-1.AC1 ·
+TC, DEF, CR, ADR, UJ, SCR, DEBT, RISK, EXT, LL, AR, TF, DQ, F, CLR, WP, INH, TSEAM, CHAR, C, A, OQ, D, UXQ, UXA;
+QC is the fixed area code of the Foundation quality capabilities) · ac ACC-1.AC1 ·
 uj UJ-1 · scr SCR-1 · ext EXT-PAY-1 · tc TC-0042 (at least four digits) · adr ADR-1 · tseam TSEAM-1 · wp WP-1.
 
 Gates (artifacts read from --working; design.md is optional for gate2 and gateT — its checks are then skipped with a
-notice; every other input is required):
+notice). The requirement source is analysis.md; on routes without it (Mode S without the Analyst: the brief in brd.md;
+Mode D: defect.md) the first of brd.md, defect.md that exists is used, with a notice.
   gate1    analysis.md defines at least one requirement; every functional requirement it defines has an AC id in it
            (NF/BR exempt); every requirement it defines is defined in the catalogue (retired rows do not count).
   gate-ux  every UJ and SCR defined in design.md is referenced in its Traceability section (a heading containing
@@ -30,7 +32,9 @@ notice; every other input is required):
            UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in test_plan.md;
            every TC defined in test_plan.md has an oracle source (SPEC:… FACT:… CHAR:…) on its row or in its heading's
            section; no TSEAM defined in test_plan.md is open (the word "open" in its status).
-  gate3    arch_review.md, test_report.md and audit.md exist (design_review.md is read when present) and hold no open
+  gate3    the reports the cycle's route produces exist (read from the "Mode:" line of cycle.md: X → audit.md;
+           D → test_report.md, audit.md; any other mode, or no cycle.md → arch_review.md, test_report.md, audit.md;
+           design_review.md and an arch_review.md the route does not require are read when present) and hold no open
            blocking finding. A finding is a table row whose first cell holds an id (F-3, AR-2, TF-12, DQ-1) in a table
            with a Severity column; it is open when its severity is Critical or Major and no row with the same id in
            that file says fixed, resolved or accepted-by-user in a Status, Route or Resolution column.
@@ -60,8 +64,9 @@ PLAYBOOK_CODES = {"STRAT", "VAR", "ORACLE", "ACCESS", "INTEG", "FAKE", "EXT", "E
                   "A11Y", "PERF", "RESIL", "VIS", "OPS", "TCQ", "DSN", "LOC", "ARCH", "CODE", "SEC", "PRIV", "ELIC",
                   "DOD", "XCA", "ENR"}
 # Product area codes may not use these (contract §9), so "[UJ-3]" or "ABSD:CODE-4" is never a requirement.
+# QC is not reserved: it is the fixed area code of the Foundation quality capabilities (catalogue rows QC-n).
 RESERVED = PLAYBOOK_CODES | {"TC", "DEF", "CR", "ADR", "UJ", "SCR", "DEBT", "RISK", "EXT", "LL", "AR", "TF", "DQ", "F",
-                             "CLR", "WP", "QC", "INH", "TSEAM", "CHAR", "C"}
+                             "CLR", "WP", "INH", "TSEAM", "CHAR", "C", "A", "OQ", "D", "UXQ", "UXA"}
 
 REQUIREMENT = r"[A-Z][A-Z0-9]*-(?:NF-|BR-)?\d+"
 FAMILIES = {                      # family -> (display name, id pattern)
@@ -91,8 +96,11 @@ ORACLE_SOURCE = re.compile(r"\b(?:SPEC|FACT|CHAR):[ \t]*[^\s|]")
 FINDING_ID = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+\b")
 CLOSED = re.compile(r"\b(?:fixed|resolved|accepted-by-user)\b", re.IGNORECASE)
 BLOCKING = ("critical", "major")
-GATE3_REQUIRED = ("arch_review.md", "test_report.md", "audit.md")
-GATE3_OPTIONAL = ("design_review.md",)
+GATE3_REQUIRED = ("arch_review.md", "test_report.md", "audit.md")      # Mode F, S, B, C, R — and when unknown
+GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md")}
+GATE3_OPTIONAL = ("arch_review.md", "test_report.md", "design_review.md")
+REQUIREMENT_SOURCES = ("analysis.md", "brd.md", "defect.md")
+MODE_LINE = re.compile(r"\bMode:\s*\**\s*([A-Z])\b")
 
 
 class InputError(Exception):
@@ -392,41 +400,54 @@ def gate_ux(working: str, catalogue_path: str) -> Result:
     return result
 
 
+def requirement_source(working: str) -> tuple[Doc, list]:
+    """analysis.md, or on routes without it the brief (brd.md) or the defect list (defect.md) — with a notice."""
+    for name in REQUIREMENT_SOURCES:
+        doc = artifact(working, name, required=False)
+        if doc is not None:
+            notes = [] if name == "analysis.md" else [("notice", f"analysis.md not found — requirements read from {name}")]
+            return doc, notes
+    raise InputError(f"none of {', '.join(REQUIREMENT_SOURCES)} found in {working}")
+
+
 def gate2(working: str, catalogue_path: str) -> Result:
-    analysis = artifact(working, "analysis.md")
+    analysis, notes = requirement_source(working)
     architecture = artifact(working, "architecture.md")
     design = artifact(working, "design.md", required=False)
-    result = Result("gate2", notes=excluded_note(analysis, "requirement"))
-    result.checks.append(coverage("every requirement defined in analysis.md is referenced in architecture.md",
+    result = Result("gate2", notes=notes + excluded_note(analysis, "requirement"))
+    result.checks.append(coverage(f"every requirement defined in {analysis.label} is referenced in architecture.md",
                                   analysis.defined("requirement"), architecture.referenced("requirement")))
     design_checks(result, design, working, architecture)
-    result.checks.append(coverage("every EXT referenced in analysis.md is referenced in architecture.md",
+    result.checks.append(coverage(f"every EXT referenced in {analysis.label} is referenced in architecture.md",
                                   analysis.referenced("ext"), architecture.referenced("ext")))
     result.checks.append(at_least_one("architecture.md defines at least one WP", architecture.defined("wp")))
     return result
 
 
 def gate_t(working: str, catalogue_path: str) -> Result:
-    analysis = artifact(working, "analysis.md")
-    architecture = artifact(working, "architecture.md")
+    analysis, notes = requirement_source(working)
+    architecture = artifact(working, "architecture.md", required=False)
     plan = artifact(working, "test_plan.md")
     design = artifact(working, "design.md", required=False)
-    result = Result("gateT", notes=excluded_note(analysis, "requirement"))
+    result = Result("gateT", notes=notes + excluded_note(analysis, "requirement"))
     requirements = analysis.defined("requirement")
     acs = {ac for ac in analysis.referenced("ac") if requirement_of(ac) in requirements} - analysis.excluded("ac")
     tcs = plan.defined("tc")
     result.checks += [
         at_least_one("test_plan.md defines at least one TC", tcs),
-        coverage("every AC of a requirement defined in analysis.md is referenced in test_plan.md", acs,
+        coverage(f"every AC of a requirement defined in {analysis.label} is referenced in test_plan.md", acs,
                  plan.referenced("ac")),
-        coverage("every NF requirement defined in analysis.md is referenced in test_plan.md",
+        coverage(f"every NF requirement defined in {analysis.label} is referenced in test_plan.md",
                  {r for r in requirements if "-NF-" in r}, plan.referenced("requirement")),
-        coverage("every BR requirement defined in analysis.md is referenced in test_plan.md",
+        coverage(f"every BR requirement defined in {analysis.label} is referenced in test_plan.md",
                  {r for r in requirements if "-BR-" in r}, plan.referenced("requirement")),
     ]
     design_checks(result, design, working, plan)
-    result.checks.append(coverage("every EXT referenced in architecture.md is referenced in test_plan.md",
-                                  architecture.referenced("ext"), plan.referenced("ext")))
+    if architecture is None:
+        result.notes.append(("notice", f"architecture.md not found in {working} — EXT check skipped (no architecture change on this route)"))
+    else:
+        result.checks.append(coverage("every EXT referenced in architecture.md is referenced in test_plan.md",
+                                      architecture.referenced("ext"), plan.referenced("ext")))
     sourced = {d.id for d in plan.definitions if d.id in tcs and not d.excluded and ORACLE_SOURCE.search(d.context)}
     oracle = coverage("every TC defined in test_plan.md has an oracle source (SPEC:, FACT: or CHAR:)", tcs, sourced)
     oracle.noun = "without a source"
@@ -460,10 +481,21 @@ def open_findings(doc: Doc) -> tuple[int, list[str]]:
     return len(blocking), [f"{finding} ({blocking[finding]})" for finding in still_open]
 
 
+def route_mode(working: str) -> str:
+    """The mode letter on the first "Mode:" line of cycle.md, or "" when there is none."""
+    cycle = artifact(working, "cycle.md", required=False)
+    match = MODE_LINE.search(cycle.text) if cycle is not None else None
+    return match.group(1) if match else ""
+
+
 def gate3(working: str, catalogue_path: str) -> Result:
-    docs = [artifact(working, name) for name in GATE3_REQUIRED]
-    docs += [doc for doc in (artifact(working, name, required=False) for name in GATE3_OPTIONAL) if doc]
-    result = Result("gate3")
+    mode = route_mode(working)
+    required = GATE3_BY_MODE.get(mode, GATE3_REQUIRED)
+    docs = [artifact(working, name) for name in required]
+    docs += [doc for doc in (artifact(working, name, required=False) for name in GATE3_OPTIONAL if name not in required)
+             if doc]
+    result = Result("gate3", notes=[("notice", f"route Mode {mode or '? (no cycle.md — strictest set)'}: requires "
+                                               + ", ".join(required))])
     for doc in docs:
         count, still_open = open_findings(doc)
         result.checks.append(Check(f"no open Critical/Major finding in {doc.label}", count, still_open, noun="open"))

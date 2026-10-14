@@ -54,8 +54,9 @@ TC_TOKEN = re.compile(r"\bTC-\d{4,}\b")
 PLAYBOOK_CODES = {"STRAT", "VAR", "ORACLE", "ACCESS", "INTEG", "FAKE", "EXT", "E2E", "TRACE", "GATE", "ESC", "EXPL",
                   "A11Y", "PERF", "RESIL", "VIS", "OPS", "TCQ", "DSN", "LOC", "ARCH", "CODE", "SEC", "PRIV", "ELIC",
                   "DOD", "XCA", "ENR"}
+# QC is not reserved: it is the fixed area code of the Foundation quality capabilities (catalogue rows QC-n).
 RESERVED = PLAYBOOK_CODES | {"TC", "DEF", "CR", "ADR", "UJ", "SCR", "DEBT", "RISK", "EXT", "LL", "AR", "TF", "DQ", "F",
-                             "CLR", "WP", "QC", "INH", "TSEAM", "CHAR", "C"}
+                             "CLR", "WP", "INH", "TSEAM", "CHAR", "C", "A", "OQ", "D", "UXQ", "UXA"}
 REQ_PROPERTIES = {"requirement", "requirements", "req"}
 TC_PROPERTIES = {"tc", "testcase", "test-case"}
 CATEGORIES = ("failing", "unknown", "missing", "untested", "unplanned")
