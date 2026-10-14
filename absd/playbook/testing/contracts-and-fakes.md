@@ -59,7 +59,7 @@ jobs: GATE rules in `absd/playbook/testing/gates.md`; secret canaries: SEC rules
 - *Check:* a CI "fake conformance" job lists each fake as a target; fakes read a shared fact file or schema where possible; the Auditor diffs fake behaviour against EXT rows.
 - *Applies when:* any fake of an external system exists.
 - *Provenance:* LL-1 (KatenatsioTipster, 2026-10)
-- Illustration: e.g. a JSON Schema, an OpenAPI document or Pact consumer contracts validated by both the fake and the live check.
+- Illustration: e.g. a JSON Schema, an OpenAPI document, or Pact or Spring Cloud Contract consumer contracts validated by both the fake and the live check.
 
 **FAKE-6** — Name recordings `<system>-<operation>-<params>-<capture-date>` with capture metadata (who, how, redactions), scrub secrets and personal data, record empty and error answers as well as success, assert the shipped adapter reads every record of a real response (raw count = parsed count) even where production tolerates bad rows, and derive rare edge cases from real recordings by minimal mutation guarded by `mutated != original`.
 - *Why:* recordings carry quirks nobody invents; a tolerant reader can drop a whole format variant silently, and a mutation that fails to apply makes a test vacuous.

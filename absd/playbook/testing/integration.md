@@ -55,7 +55,7 @@ in `absd/playbook/testing/gates.md`; test-code hygiene is TCQ in `absd/playbook/
 - *Check:* store names carry the run and worker id; no store survives the suite; the CI definition shows a service, not a pull per run.
 - *Applies when:* the integration suite uses a store or broker.
 - *Provenance:* LL-30 (KatenatsioTipster, 2026-10)
-- Illustration: e.g. Testcontainers or docker compose locally; GitHub Actions service containers or GitLab CI services.
+- Illustration: e.g. Testcontainers or Docker Compose locally; GitHub Actions service containers or GitLab CI services.
 
 **INTEG-4** — Declare the isolation strategy in `TESTING.md` and enforce it: one shared host per run with unique data per test, or per-test isolation (transaction rollback, schema or store per test) where cheap; tests assert only on data they created; global aggregates run in their own tenant or store, or assert relative to a snapshot taken during arrange; clock, fakes and environment reset automatically after every test.
 - *Why:* a top-N visibility test passed only because the runner happened to order it before a test that created a larger value; manual resets in `finally` blocks leak the day one is forgotten.

@@ -13,7 +13,7 @@ for sessions working here. Do not act as the Manager here, and do not start cycl
 | `.github/agents/*.agent.md` | Thin GitHub Copilot mirrors that point to the manuals |
 | `absd/playbook/` | The knowledge base: rules with permanent IDs (`CODE-n`), rationale, checks, provenance |
 | `absd/templates/` | Seeds for product-owned files (Bootstrap) and the invocation brief |
-| `absd/tooling/` | Stack-neutral, stdlib-only Python tools with their own tests |
+| `absd/tooling/` | Stack-neutral tools with their own tests (standard-library scripts, no dependencies) |
 | `absd/lessons/LEDGER.md` | Provenance of every rule (LL ids) and the escape scoreboard |
 | `absd/lessons/inbox/` | Enrichment proposals arriving from products, verbatim |
 | `absd/VERSION`, `absd/CHANGELOG.md`, `absd/MANIFEST` | Kit version, history, and the hash list products verify against |

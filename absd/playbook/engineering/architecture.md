@@ -118,7 +118,7 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 
 **ARCH-15** — Specify the schema with exact types, constraints and indexes (per query: predicate → index, round trips, no N+1); back each uniqueness rule with an identical constraint; change it only by tool-generated migrations in the WP changing the model (no hand-edited snapshots), expand/contract so the previous release runs on the new schema.
 - *Why:* a sandbox lacking the tool got migrations banned and the snapshot drifted (LL-21); start-up crashed on a missing store (LL-14).
-- *Check:* CI migrates from empty and the previous release, gates model ↔ migration drift (e.g. EF `has-pending-model-changes`, Django `makemigrations --check`), boots on empty infrastructure (GATE rules); each migration names its rollback; an environment unable to run the tool is a RISK, never a design choice.
+- *Check:* CI migrates from empty and the previous release, gates model ↔ migration drift (e.g. EF Core `has-pending-model-changes`, Django `makemigrations --check`), boots on empty infrastructure (GATE rules); each migration names its rollback; an environment unable to run the tool is a RISK, never a design choice.
 - *Applies when:* the product owns persistent state.
 - *Provenance:* LL-21, LL-14 (KatenatsioTipster, 2026-10)
 
