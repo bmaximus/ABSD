@@ -96,7 +96,7 @@ Plan & Bind; the Auditor cites it at L2. Related: LOC (`absd/playbook/design/con
 
 **DSN-10** — Specify touch behaviour: each scroll container's axis, overscroll containment and initial position; overlays and inner lists contain overscroll and lock the page so pull-to-refresh, edge or back swipes never reload, navigate or lose input; fixed bars respect safe areas; the focused field and its primary action stay above the on-screen keyboard, with the matching keyboard type; full-height surfaces use the visible viewport; landscape works (WCAG 1.3.4).
 - *Why:* swiping a picker list fired the page's pull-to-refresh, reloading the app and losing input (LL-4).
-- *Check:* the Tester swipes past every scroll edge in the phone project: no reload or navigation, input kept (the outcome, not a style property); Mode R real-device session (EXPL).
+- *Check:* a real swipe past every scroll edge in the phone project: no reload or navigation, input kept (the outcome, not a style property); Mode R real-device session (EXPL).
 - *Applies when:* web-ui, native-app on touch devices.
 - *Provenance:* LL-4 (KatenatsioTipster, 2026-10)
 
@@ -131,7 +131,7 @@ Plan & Bind; the Auditor cites it at L2. Related: LOC (`absd/playbook/design/con
 - *Provenance:* LL-19 (KatenatsioTipster, 2026-10)
 
 **DSN-16** — Write every normative statement as an observable (exact copy, accessible name, state attribute, device class, focus target, format literal, timing), never an unmeasured adjective like "intuitive" or "fast", and end with a trace table requirement → UJ/SCR → matrix row.
-- *Why:* measurable criteria were never turned into tests, and tests came after the code (LL-45, LL-29).
+- *Why:* measurable criteria never became tests; tests came after the code (LL-45, LL-29).
 - *Check:* Plan & Bind raises 0 blocking "untestable design statement" defects; trace_check gate-ux has no unmapped requirement.
 - *Applies when:* always.
 - *Provenance:* LL-45, LL-29 (KatenatsioTipster, 2026-10)
@@ -149,7 +149,7 @@ Plan & Bind; the Auditor cites it at L2. Related: LOC (`absd/playbook/design/con
 - *Provenance:* LL-2 (KatenatsioTipster, 2026-10)
 
 **DSN-19** — Score `design.md` against the rubric with evidence per dimension; submit only when every dimension is ≥ 4 and every ★ dimension 5; a score without evidence counts as 1; non-visual profiles mark D2, D5 and D7 N/A with a reason.
-- *Why:* a gate that accepted assessment without evidence approved a hover-only design (LL-52).
+- *Why:* a gate taking assessment without evidence approved a hover-only design (LL-52).
 - *Check:* Gate UX: each score cites a section, computed value or blueprint; any score below the bar returns the design.
 - *Applies when:* always.
 - *Provenance:* LL-52 (KatenatsioTipster, 2026-10)
