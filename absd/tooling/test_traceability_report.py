@@ -43,7 +43,7 @@ MARKDOWN_CATALOGUE = """# Requirement catalogue
 | ACC-1 | Accounts | Everyone | Users sign in. | C001 | active |
 | **ACC-NF-1** | Accounts | Everyone | Sign-in answers within 1 s. | C001 | active |
 | `ACC-BR-1` | Accounts | Everyone | Five wrong passwords lock the account. | C002 | active |
-| OLD-1 | Legacy | Everyone | Gone. | C001 | Retired |
+| OLD-1 | Legacy | Everyone | Gone. | C001 | Retired — see ACC-1 |
 
 Notes mention ACC-9 in prose, which is not a catalogue entry.
 """
@@ -110,7 +110,7 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertEqual(code, 1, out)
 
     def test_reserved_prefixes_in_brackets_are_not_requirements(self):
-        self.write("r/junit.xml", junit([("regression [DEF-12] [TC-0001] [ACC-1]", "passed", {})]))
+        self.write("r/junit.xml", junit([("regression [DEF-12] [TC-0001] [E2E-1] [ACC-1]", "passed", {})]))
         code, out = self.run_report("--catalogue", self.catalogue)
         self.assertEqual(code, 0, out)
         self.assertNotIn("not in the catalogue", out)

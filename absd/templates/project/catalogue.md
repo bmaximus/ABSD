@@ -2,7 +2,7 @@
 
 > Living, owned by the Analyst (applied at Gate 1 from `analysis.md` "Catalogue delta"), NEVER archived.
 > One row per product requirement in users' terms. Ids are permanent: never reused or renumbered — a superseded
-> requirement gets Status `retired` and a pointer to its successor. Tests link to these ids (`[AREA-n]` in the test name
+> requirement gets Status `retired` and its successor id in the Source column. Tests link to these ids (`[AREA-n]` in the test name
 > or a `requirement` property); `absd/tooling/traceability_report.py` reports each as verified, failing or untested,
 > and fails on links to unknown or retired ids (`ABSD:TRACE-1`). Keep the header row exactly as below.
 

@@ -133,7 +133,7 @@ requirement ids are attributes — a name token or a report property (e.g. JUnit
 parts of the id. A test moved to another level keeps its id.
 - *Why:* a level inside the id forces a rename when an escaped defect moves a test to the level that should have caught
   it (ESC-1), and traceability breaks.
-- *Check:* traceability_report rejects duplicate or malformed TC tokens; tokens and properties per TRACE rules in
+- *Check:* traceability_report lists planned TC ids with no test and unplanned TC ids in tests; tokens and properties per TRACE rules in
   `absd/playbook/testing/traceability.md`.
 - *Applies when:* always.
 - *Provenance:* industry baseline

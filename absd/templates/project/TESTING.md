@@ -36,7 +36,7 @@ be N/A; turning an M into N/A needs an ADR that passed Gate 2R. Matrix and rules
 |---|---|---|---|
 | Coverage floor (ratchet: only rises) | `absd/tooling/coverage_gate.py` | <n>% | Tester (lowering needs the user) |
 | No unit no test runs | same, `--untested-allowlist <path>` | 0 new | Tester |
-| Requirement catalogue | `absd/tooling/traceability_report.py --catalogue …` | 0 failing, 0 unknown | Tester |
+| Requirement catalogue | `absd/tooling/traceability_report.py --catalogue … --fail-on failing,unknown,untested` | 0 failing, 0 unknown, 0 untested (brownfield: untested allowed only until the adoption baseline is burned down) | Tester |
 | Test-plan conformance | same, `--plan absd-project/working/test_plan.md` | 0 missing, 0 failing | Tester |
 | Access & visibility completeness | <the matrix test> | 0 unruled operations | Tester |
 | Error signals in end-to-end | <the shared fixture> | 0 unexpected | Tester |

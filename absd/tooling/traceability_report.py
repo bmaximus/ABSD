@@ -16,7 +16,7 @@ How tests link (use any; all are read):
     planned test cases. `test_TC_0042_...` is NOT matched — write the id with hyphens in the display name or a property.
 
 The catalogue is Markdown (a table whose first cell is the requirement id; optional columns Area, Role, Story, Source,
-Status — Status "retired" retires it) or JSON ({"requirements": [{"id", "area", "story", "status"}]}).
+Status — a Status cell starting with "retired" retires it) or JSON ({"requirements": [{"id", "area", "story", "status"}]}).
 
 JUnit XML is written by: pytest --junitxml, dotnet test --logger junit (JunitXml.TestLogger), jest-junit,
 vitest --reporter=junit, Playwright junit reporter, go-junit-report/gotestsum, Maven Surefire/Gradle, cargo-nextest.
@@ -49,9 +49,13 @@ REQ_ID = r"[A-Z][A-Z0-9]*-(?:NF-|BR-)?\d+"
 REQ_TOKEN = re.compile(r"\[(" + REQ_ID + r")\]")
 REQ_EXACT = re.compile(r"^" + REQ_ID + r"$")
 TC_TOKEN = re.compile(r"\bTC-\d{4,}\b")
-# Ids with these prefixes are not requirements (ABSD reserved codes): "[DEF-12]" on a regression test is not a typo.
-RESERVED = {"TC", "DEF", "CR", "ADR", "UJ", "SCR", "DEBT", "RISK", "EXT", "LL", "AR", "TF", "DQ", "F", "CLR", "WP", "QC",
-            "INH", "TSEAM", "CHAR", "C"}
+# Ids with these prefixes are not requirements (ABSD reserved codes, the same set as trace_check.py): "[DEF-12]" on a
+# regression test or "[E2E-1]" citing a playbook rule is not a typo.
+PLAYBOOK_CODES = {"STRAT", "VAR", "ORACLE", "ACCESS", "INTEG", "FAKE", "EXT", "E2E", "TRACE", "GATE", "ESC", "EXPL",
+                  "A11Y", "PERF", "RESIL", "VIS", "OPS", "TCQ", "DSN", "LOC", "ARCH", "CODE", "SEC", "PRIV", "ELIC",
+                  "DOD", "XCA", "ENR"}
+RESERVED = PLAYBOOK_CODES | {"TC", "DEF", "CR", "ADR", "UJ", "SCR", "DEBT", "RISK", "EXT", "LL", "AR", "TF", "DQ", "F",
+                             "CLR", "WP", "QC", "INH", "TSEAM", "CHAR", "C"}
 REQ_PROPERTIES = {"requirement", "requirements", "req"}
 TC_PROPERTIES = {"tc", "testcase", "test-case"}
 CATEGORIES = ("failing", "unknown", "missing", "untested", "unplanned")
@@ -118,8 +122,8 @@ def read_markdown_catalogue(path: str) -> list[dict]:
                 row = {"id": cells[0]}
                 for name, value in zip(header[1:], cells[1:]):
                     row[name.lower()] = value
-                if row.get("status", "").lower() == "retired":
-                    row["status"] = "retired"
+                if re.match(r"retired\b", row.get("status", "").strip(), re.IGNORECASE):
+                    row["status"] = "retired"   # e.g. "retired", "Retired — see ACC-9"
                 entries.append(row)
             elif not header:
                 header = cells
