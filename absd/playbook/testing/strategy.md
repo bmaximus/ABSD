@@ -59,7 +59,7 @@ decision). The Auditor — not the Manager — verifies every N/A at 2R and at a
 - *Why:* a sandbox unable to run the migration tool became an architecture instruction (LL-21); audits certified
   suites they never ran (LL-24); "N/A only by profile" left no honest N/A for a product without jobs (LL-56).
 - *Check:* the Auditor maps each N/A in `TESTING.md` and `test_plan.md` to an X cell, an absent subject with its
-  evidence, or an ADR with a 2R PASS; an N/A on an invalid reason is a Major finding (L6).
+  evidence, or an ADR with a 2R PASS; an invalid reason is a Major finding (L6).
 - *Applies when:* always.
 - *Provenance:* LL-21, LL-24 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
@@ -120,8 +120,8 @@ never by dropping cases.
 **STRAT-10** — Map every REQ-NF at Gate T to ≥ 1 TC with a measurable assertion: dataset (size and ordering, VAR-7),
 environment, metric and threshold (e.g. "p95 ≤ 300 ms and ≤ 3 queries at 10 000 rows"). "Reviewed", "logic exists" or
 a screenshot kept for humans is not a test.
-- *Why:* measurable criteria (UTC offsets, re-runs, volume, midnights) passed audits by code reading (LL-45); visual
-  regression was promised and never compared (LL-53).
+- *Why:* measurable criteria passed audits by code reading (LL-45); visual regression was promised and never compared
+  (LL-53).
 - *Check:* trace_check REQ-NF → TC; each such TC asserts a number or an exact comparison.
 - *Applies when:* any REQ-NF, including the default operability REQ-NFs.
 - *Provenance:* LL-45, LL-53 (KatenatsioTipster, 2026-10)
@@ -208,6 +208,7 @@ M mandatory · R required when a requirement, rule or named risk triggers it · 
 | Performance budgets | R | R | R | R | R | R |
 | Load, stress, soak | R | R | R | X | X | R |
 | Interface compatibility³ | R | R | R | R | M (API snapshot) | R |
+| Model eval set (FAKE-13) | R | R | R | R | R | R |
 | Security (beyond access) | M | M | M | R | R | M |
 | Migrations / backup–restore² | M | M | M | R⁴ | R⁴ | M |
 | Post-deploy smoke + rollback | M | M (store/channel) | M | M (install + withdraw) | M (registry install + yank/patch) | M (canary in an isolated namespace, E2E-16) |

@@ -11,7 +11,8 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 ## Checklist
 
 - [ ] Every operation has a row; the build fails on an unruled operation or a stale row (ACCESS-1)
-- [ ] Principals: anonymous, each role, expired at the boundary instant, suspended with a live token, impersonated, other owner, other tenant, service identity, admin-as-member (ACCESS-2)
+- [ ] Principals: anonymous, each role, an unknown role, expired at the boundary instant, suspended with a live token, impersonated, other owner, other tenant, service identity, admin-as-member (ACCESS-2)
+- [ ] Permission-based access: each grant and deny override, and grant + deny on one principal in both orders (ACCESS-2)
 - [ ] Every cell asserts status/exit AND visible records and fields; forbidden ones asserted absent (ACCESS-3)
 - [ ] No allowed call ever ends in a 5xx, crash or unhandled error (ACCESS-3)
 - [ ] One machine-readable matrix in one place, read by every test and report (ACCESS-4)
@@ -21,10 +22,12 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 - [ ] One refusal taxonomy per profile; no "A or B" oracle (ACCESS-8)
 - [ ] Every id-bearing operation attacked by same-role other owner and other tenant; owner/role over-posting refused (ACCESS-9)
 - [ ] Visibility table per read model: viewer × state × time, incl. every must-not-see cell (ACCESS-10)
+- [ ] Truncated lists: below, at and above the limit; ties at the cut; the withheld count asserted (ACCESS-10)
 - [ ] Suspend / downgrade / revoke / role change / delete / logout: the live token is refused on its next use (ACCESS-11)
 - [ ] Impersonation: marker, refused account actions, way back, audit with real actor (ACCESS-12)
 - [ ] Service identities reach only their declared datasets and operations (ACCESS-13)
 - [ ] UI hides denied controls but the server still refuses; principal switch clears device data (ACCESS-14)
+- [ ] A forbidden screen's URL or deep link opened directly, and back after sign-out, show no data (ACCESS-14)
 
 ## Rules
 
@@ -34,11 +37,11 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 - *Applies when:* ACCESS is M or R in `TESTING.md`; with a single role the matrix is still required (anonymous vs signed-in).
 - *Provenance:* LL-35 (KatenatsioTipster, 2026-10)
 
-**ACCESS-2** — Build the principal dimension as role × entitlement state: anonymous; each role; each entitlement expired at the boundary instant (T−ε allowed, T as specified); suspended or deactivated while holding a valid token, session or key; impersonated; same-role other owner; other tenant; each service identity; an admin acting as an ordinary member.
-- *Why:* role-only matrices pass when the leak sits in the entitlement state or the owner relation — free accounts received paid content (LL-10); admins could not take part as members because nobody listed that principal (LL-5).
-- *Check:* the matrix's principals equal `analysis.md`'s Actor × Capability principals × the entitlement states the product has (trace_check); each state is produced through real operations and the movable clock, never a forged token; absent states are N/A with a one-line reason; where access is permission-based, each grant and deny override is a principal beside the role defaults. cli: principals are credential profiles (none, expired, read-only scope, full scope; flag vs env vs config file).
-- *Applies when:* ACCESS applies.
-- *Provenance:* LL-10, LL-5 (KatenatsioTipster, 2026-10)
+**ACCESS-2** — Build the principal dimension as role × entitlement state: anonymous; each role; an unknown role (a value the product does not define — from a stale token, an old directory entry or a hand-edited record — gets the least privilege, never a default role); each entitlement expired at the boundary instant (T−ε allowed, T as specified); suspended or deactivated while holding a valid token, session or key; impersonated; same-role other owner; other tenant; each service identity; an admin acting as an ordinary member. Where access is permission-based, each grant and deny override is a principal beside the role defaults, and a principal holding a grant and a deny for the same operation is tested with them applied in both orders (deny wins unless the spec says otherwise).
+- *Why:* role-only matrices pass when the leak sits in the entitlement state or the owner relation — free accounts received paid content (LL-10); admins could not take part as members because nobody listed that principal (LL-5); unknown roles and override order were mined as untested dimensions (LL-57).
+- *Check:* the matrix's principals equal `analysis.md`'s Actor × Capability principals × the entitlement states the product has (trace_check); each state is produced through real operations and the movable clock, never a forged token; absent states are N/A with a one-line reason; the unknown-role cell and both override orders have TCs. cli: principals are credential profiles (none, expired, read-only scope, full scope; flag vs env vs config file).
+- *Applies when:* ACCESS applies; override order where access is permission-based.
+- *Provenance:* LL-10, LL-5 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **ACCESS-3** — Assert in every cell the outcome (status, exit code or error type) AND the visible records and fields; assert forbidden records and fields absent; an allowed call never produces a server error, crash or unhandled exception.
 - *Why:* access was checked by status code per role while the response body of an allowed call carried paid content; read leaks are silent — nothing fails on screen (LL-10).
@@ -93,11 +96,11 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 - *Applies when:* resources have owners or tenants.
 - *Provenance:* industry baseline
 
-**ACCESS-10** — For every read model that filters by caller, write a visibility table viewer class × resource state × time (before, at and after each boundary) and test every cell that differs, including every must-not-see cell; the list, detail, search, counts, totals, exports, notifications and cached copies obey the same table.
-- *Why:* free accounts saw paid content in a list they were allowed to read; counts reveal hidden records; a shared cache keyed without the principal serves one user's data to another (LL-10).
+**ACCESS-10** — For every read model that filters by caller, write a visibility table viewer class × resource state × time (before, at and after each boundary) and test every cell that differs, including every must-not-see cell; the list, detail, search, counts, totals, exports, notifications and cached copies obey the same table. Where a principal sees a truncated list (top-N, a free-tier preview, a page limit), test below, at and above the limit, ties at the cut (the spec's tie rule decides who is shown), and the withheld count the principal is told — or that none is revealed.
+- *Why:* free accounts saw paid content in a list they were allowed to read; counts reveal hidden records; a shared cache keyed without the principal serves one user's data to another (LL-10); cut-offs were tested without ties or the withheld count (LL-57).
 - *Check:* a not-contains assertion exists per restricted viewer; boundary cells pin the clock at T−ε, T, T+ε (INTEG rules in `absd/playbook/testing/integration.md`, VAR-8); export content equals on-screen visibility for the same principal; principal A fetches, then principal B fetches the same resource and sees none of A's data, and private responses are marked non-shareable for caches; filters apply before pagination at Data Volume Profile max (VAR-7), and page counts reveal no hidden totals; metamorphic: where the spec orders tiers, a higher tier's visible set contains the lower tier's.
-- *Applies when:* any read returns different content to different callers or over time.
-- *Provenance:* LL-10 (KatenatsioTipster, 2026-10)
+- *Applies when:* any read returns different content to different callers or over time; the truncation cases wherever a principal sees a limited list.
+- *Provenance:* LL-10 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **ACCESS-11** — Make every entitlement change apply on the principal's next request: after suspend, deactivate, delete, downgrade, role change, permission revoke, credential reset or logout, the already-issued token, session, key or open subscription is refused (or served at the new level) on its next use, and restoration re-opens exactly what it should.
 - *Why:* checks that trust claims inside an issued token keep a suspended or downgraded principal in until expiry; overrides were never proven to bite on a live session.
@@ -117,8 +120,8 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 - *Applies when:* data-pipeline (M), or any product with background work or machine credentials.
 - *Provenance:* industry baseline
 
-**ACCESS-14** — In web-ui and native-app, prove that the interface reflects the matrix without using it as the access test: a denied operation's control is absent (or disabled with the reason `design.md` specifies) while the server probe still refuses, and switching principal clears rendered data, device caches and offline stores of the previous one.
-- *Why:* a hidden button is not authorization, and screens or offline stores survive a principal switch unless a test says otherwise.
-- *Check:* per-role e2e assertions by accessible name (E2E-2); a sign-out → sign-in-as-another test, online and offline, finds none of the previous principal's data.
+**ACCESS-14** — In web-ui and native-app, prove that the interface reflects the matrix without using it as the access test: a denied operation's control is absent (or disabled with the reason `design.md` specifies) while the server probe still refuses; a forbidden screen opened directly by URL or deep link shows the designed refusal and no data, not even briefly; switching principal clears rendered data, device caches and offline stores of the previous one, and back or forward after sign-out shows none of it.
+- *Why:* a hidden button is not authorization, and screens or offline stores survive a principal switch unless a test says otherwise; deep links to forbidden screens and back after sign-out were mined as never automated (LL-57).
+- *Check:* per-role e2e assertions by accessible name (E2E-2); one direct-URL or deep-link test per forbidden screen and principal class; a sign-out → back → sign-in-as-another test, online and offline, finds none of the previous principal's data.
 - *Applies when:* web-ui, native-app.
-- *Provenance:* industry baseline
+- *Provenance:* industry baseline; LL-57 (ABSD v2 kit review, 2026-10)

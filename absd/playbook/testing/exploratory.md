@@ -14,9 +14,10 @@ how each finding becomes a fix, a defect, a product decision or a "by design" no
 - [ ] Sessions: 60–90 min, one charter, one principal, one device class; start state recorded (EXPL-2)
 - [ ] Findings noted as they happen: did → happened → expected, with evidence; a debrief closes it (EXPL-2)
 - [ ] Verify: the Tester's agent pass drives the built product per charter on every device class (EXPL-3)
+- [ ] Probes per profile: screen probes on web-ui/native-app, interrupts on cli, reruns on pipelines (EXPL-3)
 - [ ] Human sessions per affected principal before users get a build; offered after visible cycles (EXPL-4)
 - [ ] Severity from the unified scale, set by the finder, never downgraded by the Manager (EXPL-5)
-- [ ] Every finding → TF, DEF (Mode D), product decision or by-design entry; fixed ones get tests (EXPL-6)
+- [ ] Every finding → TF, backlog DEF (Mode D), product decision or by-design entry; fixed ones get tests (EXPL-6)
 - [ ] "By design" entries cite the requirement or decision behind them; reviewed at Mode R (EXPL-7)
 - [ ] Manual acceptance checklist run by a person at Mode R; each item dated, with device and person (EXPL-8)
 - [ ] Real devices before release: gestures, on-screen keyboard, safe areas, every E2E-6 item (EXPL-9)
@@ -26,19 +27,19 @@ how each finding becomes a fix, a defect, a product decision or a "by design" no
 ## Rules
 
 **EXPL-1** — Write charters at Plan & Bind for every journey, screen, command or flow the cycle touches — one per
-principal × device class × goal — and keep the product's standing set in `EXPLORATORY.md`. A charter states its
-mission ("explore <target> as <principal> on <device class> with <data> to discover <risk>"), where to wander (tours
-below), the oracles to check against (an independent calculation, an official source, `design.md` copy and states,
-the data contract) and the ids it targets (requirement, BR, EXT, RISK). The standing set always includes: the
-least-privileged principal hunting for leaks and paywall gaps; the admin through every lifecycle; a phone-only sweep of
-every screen and form; midnight and month or season start in the display zone; user-visible external facts against the
-real world.
+principal × device class × goal — and keep the product's standing set in `EXPLORATORY.md`. A charter states its mission
+("explore <target> as <principal> on <device class> with <data> to discover <risk>"), where to wander (tours below), the
+oracles to check against (an independent calculation, an official source, `design.md` copy and states, the data
+contract) and the ids it targets (requirement, BR, EXT, RISK). The standing set always includes: the least-privileged
+principal hunting for leaks and paywall gaps; the admin through every lifecycle; a phone-only sweep of every screen and
+form (web-ui, native-app); midnight and month or season start in the display zone; user-visible external facts against
+the real world.
 - *Why:* one first session found ten issues, four Major, that no test had looked for — wrong prize order after a
   removal, paid content in a free account's response, a dialog wiped every second, a role lacking its core value
   (LL-9, LL-10, LL-12, LL-18).
 - *Check:* `test_plan.md` lists the cycle's charters with the ids they target; the standing set is in `EXPLORATORY.md`.
 - *Applies when:* the exploratory row is M or triggered R.
-- *Provenance:* LL-9, LL-10, LL-12, LL-18 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-9, LL-10, LL-12, LL-18 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **EXPL-2** — Time-box each session to 60–90 minutes with one charter, one principal and one device class (changing
 any of them starts a new session). Record the start state: build SHA, data set, account, device and runtime, zone and
@@ -54,16 +55,18 @@ questions, new charters and test ideas.
 **EXPL-3** — At Verify, run the agent pass: the Tester drives the built product on the real stack (E2E-3) per cycle
 charter on every declared device class — desktop and phone projects through the browser harness, native emulators, a
 terminal with TTY and pipe, an HTTP client as a consumer, the pipeline on recorded input — with the error harness on
-(E2E-1), and probes in every session: a screen left idle past its longest timer with a dialog open, lists at volume
-max, a foreign zone and locale, keyboard only, slow and failing network, back, refresh, a second tab. In-scope
-findings become TF-n in `test_report.md`; the session goes to `EXPLORATORY.md` marked "tester agent". The agent pass
-never replaces human sessions.
+(E2E-1). Probes in every session: lists or data at volume max, a foreign zone and locale, slow and failing dependencies;
+on web-ui and native-app also a screen left idle past its longest timer with a dialog open, keyboard only, back, refresh
+and a second tab; on cli interrupts, broken pipes and a non-TTY run; on data-pipeline a rerun, duplicates and late data.
+In-scope findings become TF-n in `test_report.md`; the session goes to `EXPLORATORY.md` marked "tester agent". The agent
+pass never replaces human sessions.
 - *Why:* nobody looked at the rendered product before users did, so raw enums, mixed formats and a screen that did not
   advance reached them (LL-19); a dialog wiped every second shows only to someone who stays on the screen (LL-12).
 - *Check:* `test_report.md` exploratory notes: a session per charter × device class with evidence paths; Gate 3
   routes the TFs.
-- *Applies when:* the exploratory row applies and the cycle changes something users or consumers see.
-- *Provenance:* LL-12, LL-19 (KatenatsioTipster, 2026-10)
+- *Applies when:* the exploratory row applies and the cycle changes something users or consumers see; probes by
+  profile as listed.
+- *Provenance:* LL-12, LL-19 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **EXPL-4** — Have people explore too: before users get a build (Mode R), at least one human session per affected
 principal on each device class its users use, by the user or someone they name; after a cycle with a visible change
@@ -88,16 +91,18 @@ a person's notes means Critical.
 - *Provenance:* LL-47 (KatenatsioTipster, 2026-10)
 
 **EXPL-6** — Route every finding to exactly one place: in the cycle's scope at Verify → TF-n in `test_report.md` (routed
-at Gate 3); outside the scope, or on a merged or released build → a DEF the Manager opens in `defect.md` (Mode D:
-failing test first; logged per ESC-1 when it escaped a gate); wrong only if the product wants otherwise → "Open — needs
-a product decision", taken to the user by the Manager and recorded as a brd Decision (Manager) or, through a cycle, a
-catalogue change (Analyst); specified → "by design" (EXPL-7). Nothing is fixed outside a mode; every fixed finding gets
-a test at the level that should have caught it and, if it reached a surface, an e2e regression test (E2E-17).
-- *Why:* a dozen exploratory fixes were made outside the pipeline, with no route, audit or recorded decision (LL-27).
-- *Check:* each finding row ends in a TF, DEF or decision id, or a by-design entry; the Auditor checks each fixed one
-  has its tests.
+at Gate 3); outside the scope, or on a merged or released build → a DEF row the Manager reserves in the `context.md` §16
+defect backlog, which a Mode D cycle takes into `defect.md` (failing test first; logged per ESC-1 when it escaped a
+gate), never growth of the current cycle; wrong only if the product wants otherwise → "Open — needs a product decision",
+taken to the user by the Manager and recorded as a brd Decision (Manager) or, through a cycle, a catalogue change
+(Analyst); specified → "by design" (EXPL-7). Nothing is fixed outside a mode; every fixed finding gets a test at the
+level that should have caught it and, if it reached a surface, an e2e regression test (E2E-17).
+- *Why:* a dozen exploratory fixes were made outside the pipeline, with no route, audit or recorded decision (LL-27);
+  out-of-scope DEFs opened in a per-cycle file were lost at the archive (LL-55, LL-56).
+- *Check:* each finding row ends in a TF, DEF or decision id, or a by-design entry; every DEF id is a backlog row; the
+  Auditor checks each fixed one has its tests.
 - *Applies when:* always.
-- *Provenance:* LL-27 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-27 (KatenatsioTipster, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 
 **EXPL-7** — Keep a "by design" list in `EXPLORATORY.md`: behaviour that looks wrong but is specified, each entry citing
 the requirement, BR or brd Decision behind it, so testers stop re-reporting it; review it at every Mode R (still
@@ -109,15 +114,15 @@ specified? still wanted?). An entry without an existing source id is a finding.
 - *Provenance:* industry baseline
 
 **EXPL-8** — Keep a manual acceptance checklist in `EXPLORATORY.md`, derived from the catalogue and UJs: each
-principal's core journeys; sign-in variants, on a phone too; each principal reaching exactly its own screens; each
-user-visible external fact against the real world (e.g. three times against an official source). A person runs it at
-Mode R on real devices and ticks each item with date, device and name; a failed item is a DEF. It confirms the feel of
-what automated journeys already prove; it never replaces a test.
+principal's core journeys; sign-in variants (on a phone too, for web-ui and native-app); each principal reaching exactly
+its own screens; each user-visible external fact against the real world (e.g. three times against an official source). A
+person runs it at Mode R on real devices and ticks each item with date, device and name; a failed item is a DEF. It
+confirms the feel of what automated journeys already prove; it never replaces a test.
 - *Why:* feed times were 8 h off until a person compared them with the official times (LL-1); the phone defects
   surfaced only when the owner used a phone (LL-4).
 - *Check:* the Mode R record holds the ticked checklist; each item maps to a catalogue or UJ id.
 - *Applies when:* Mode R; every profile with a human-facing surface.
-- *Provenance:* LL-1, LL-4 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-1, LL-4 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **EXPL-9** — Before a release, check on real devices — at least one real phone per mobile engine and OS the audience
 uses (e.g. Safari on iOS, Chrome on Android) and each declared tablet — what emulation cannot: pull-to-refresh, edge and
@@ -152,17 +157,17 @@ debrief; then the "Open — needs a product decision" and "By design" lists.
 
 ## Tours (where to wander)
 
-| Tour | Do |
-|---|---|
-| Interruption | back, forward, refresh mid-flow; a second tab or terminal; sign out in one of them |
-| Network | slow, offline, a failing dependency; retry after recovery |
-| Time | midnight and month or season start in the display zone; a deadline ± 1 min; a foreign zone and locale |
-| Volume | the longest lists, max entries, long names, every empty state |
-| Inputs | empty, max length + 1, Unicode and diacritics, pasted text, leading spaces, emoji |
-| Principals | the least-privileged; switch principal; impersonate and return; an expired entitlement |
-| Idle | a screen with an open dialog left longer than its longest timer |
-| Access | keyboard only, 200 % zoom, screen-reader names, both themes |
-| World | three user-visible values against an official source |
+| Tour | Do | Profiles |
+|---|---|---|
+| Interruption | back, forward, refresh mid-flow; a second tab or terminal; sign out in one of them; cli: Ctrl-C, broken pipe | all with a session or a run |
+| Network | slow, offline, a failing dependency; retry after recovery | all that call a dependency |
+| Time | midnight and month or season start in the display zone; a deadline ± 1 min; a foreign zone and locale | all with dates |
+| Volume | the longest lists, max entries, long names, every empty state | all |
+| Inputs | empty, max length + 1, Unicode and diacritics, pasted text, leading spaces, emoji | all |
+| Principals | the least-privileged; switch principal; impersonate and return; an expired entitlement | all with principals |
+| Idle | a screen with an open dialog left longer than its longest timer | web-ui, native-app |
+| Access | keyboard only, 200 % zoom, screen-reader names, both themes; cli: NO_COLOR, no TTY | web-ui, native-app, cli |
+| World | three user-visible values against an official source | all with external facts |
 
 ## Charter row (in `EXPLORATORY.md` and `test_plan.md`)
 
