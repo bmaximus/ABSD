@@ -16,6 +16,7 @@ its negative control (GATE-8), and its invocation and thresholds are indexed in 
 - [ ] A canary in every secret input; none in any log, report, artifact or diff (GATE-13)
 - [ ] ownership_check with `--base` and the whole T-SHA chain; catalogue report on every push (GATE-14)
 - [ ] Plan gates (trace_check, plan conformance) run while a cycle is active; else the "no active cycle" notice (GATE-14)
+- [ ] Merge: CI green at the Gate 3 product SHA; later commits only `absd-project/` or Log-step Lesson cells (GATE-14)
 - [ ] Ownership hook installed from the settings template (GATE-14)
 - [ ] Deploy only the exact commit of a green push-triggered run, one release at a time (GATE-15)
 
@@ -87,15 +88,18 @@ instead), once Gate T passed every T-SHA of the `cycle.md` chain oldest first (`
 (TRACE-6). Only while `absd-project/working/test_plan.md` exists (an active cycle): the plan-conformance run (TRACE-9)
 and `absd/tooling/trace_check.py` with the invocation recorded for each gate `cycle.md` lists as passed, so an edit
 reopening a passed gate turns CI red; without one the step prints the notice "no active cycle" — an *Applies when*
-condition, not a skip (GATE-1). Keep `absd/tooling/ownership_hook.py` installed as the blocking write-time hook from
-the settings template.
+condition, not a skip (GATE-1). The merge needs CI green at the Gate 3 product SHA, and every later commit changes only
+`absd-project/` (harvest, archive) or, in the Tester's Log commit, only the Lesson cells of `ESCAPED-DEFECTS.md`
+(`absd/RULES.md` §5). Keep `absd/tooling/ownership_hook.py` installed as the blocking write-time hook from the
+settings template.
 - *Why:* the orchestrator wrote other agents' artifacts and code after session limits (LL-26); tests written by the code
   author after the code had no independent oracle (LL-29); a catalogue report exposed untested requirements (LL-36);
   plan gates re-run after the archive had emptied `working/` exited 2 on the default branch, and a re-bind's new T-SHA
   turned earlier work-package commits into "production before Gate T" (LL-55).
 - *Check:* the steps sit in a Tester-owned workflow; a Builder-attributed commit to a test path on a throwaway branch
   turns ownership_check RED; the plan step's condition tests for the plan file; the `--t-sha` list equals the
-  `cycle.md` chain; the Auditor confirms the hook is configured (L8).
+  `cycle.md` chain; the Manager checks the post-Gate-3 commits before merging; the Auditor confirms the hook is
+  configured (L8).
 - *Applies when:* always; the plan gates while a cycle is active.
 - *Provenance:* LL-26, LL-29, LL-36 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
 

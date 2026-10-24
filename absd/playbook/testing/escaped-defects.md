@@ -129,10 +129,10 @@ only in the Log step (ESC-9).
 closes it with exactly one of: a playbook change proposed to ABSD through enrichment (a rule, taxonomy class or
 checklist item; ENR-1), or "rule existed, not followed → enforcement change" — the gate, lint, hook, fixture or template
 that makes the rule mechanical, with its commit. Then the Tester's Log step (before Archive; documentation only, no
-re-audit, one commit) fills each Lesson cell with the `<slug>-L<n>` the Manager's brief passes. LL ids, once the kit
-accepts a proposal, go into `lessons.md`, never the log (the LEDGER counts the escape under its gate, ENR-9).
-- *Why:* a log naming only the product's own fix leaves the kit unchanged for the next product; a rule relying on
-  discipline fails again the same way.
+re-audit, one commit changing only Lesson cells) fills each Lesson cell with the `<slug>-L<n>` the Manager's brief
+passes. LL ids, once the kit accepts a proposal, go into `lessons.md`, never the log (the LEDGER counts the escape under
+its gate, ENR-9).
+- *Why:* a log naming only the product's own fix leaves the kit unchanged; a rule relying on discipline fails again.
 - *Check:* the archive is refused while a row of the cycle reads `pending H`; each Lesson id resolves in `lessons.md`,
   whose status is proposed, sent or accepted, or names the enforcement commit.
 - *Applies when:* every Harvest after a Mode D cycle.

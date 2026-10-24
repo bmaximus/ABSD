@@ -154,8 +154,8 @@ answer. A CR may first ask only for the tests it invalidates (TRACE-11): list th
      ACCESS-4, ACCESS-6); fakes of VERIFIED facts only, each behaviour citing its EXT id, with a ground-truth channel
      (FAKE-1, FAKE-11); UNVERIFIED → fail-closed TC (EXT-1, ORACLE-11); scrubbed recordings, synthetic personal data
      (FAKE-6, PRIV-7); seeds via public operations, volume max, adversarial order (VAR-7); shipped settings, overrides
-     only for endpoints and credentials (FAKE-4); stores via shipped migrations (INTEG-2); one golden-vector file per
-     rule implemented twice (ORACLE-15).
+     only for endpoints, credentials (FAKE-4); stores via shipped migrations (INTEG-2); a golden-vector file per rule
+     implemented twice (ORACLE-15).
    - Runners: retries 0, e2e ≤ 1, pass-on-retry fails the acceptance job (GATE-6, TRACE-8); a project per device class
      and rendering engine, plus the foreign zone/locale project (E2E-6, E2E-7).
    - Missing seam, hook or read → `TSEAM-n` Kind `seam`; tooling in a file you do not own → Kind `tooling` (GATE-7);
@@ -192,18 +192,18 @@ Trigger: `defect.md` with one DEF or a batch of one root-cause class (ESC-12).
 3. External-fact mechanism (fact wrong, missing or UNVERIFIED): the whole EXT-4 change now — recording, independent
    source, contract TC, fakes, live check, `EXTERNAL-FACTS.md` row; no production code.
 4. RED at the pre-fix product SHA for the stated reason (ORACLE-3); a test-only gap: a negative control.
-5. Why missed (ESC-5): primary taxonomy class (+ secondary), evidence `path:line`, the kind of test to fix (fake,
-   harness, project, volume, gate, template) — fixed now if no production change is needed; a recurring class needs a
+5. Why missed (ESC-5): taxonomy class (+ secondary), evidence `path:line`, the kind of test to fix (fake, harness,
+   project, volume, gate, template) — fixed now if no production change is needed; a recurring class needs a
    mechanical control (ESC-10).
 6. Proposed root-cause class with citations (ESC-6): implementation · architecture gap · external-fact gap (fact now
    VERIFIED → Architect delta; may ship enabled) · UX gap · requirements gap · test-only gap; the gate and `ABSD:` rule
    that should have caught it, or "none — gap".
-7. Sweep (ESC-7), whole repository: search, scope, hits, disposition (covered by TC · cover at Verify · proposed DEF for
-   the backlog). Flag a Critical hit in your reply.
+7. Sweep (ESC-7), whole repository: search, scope, hits, disposition (covered by TC · cover at Verify · proposed
+   DEF). Flag a Critical hit in your reply.
 8. Regression TCs in the oracle table, Purpose `regression DEF-n` (gateT needs every DEF of `defect.md` in a TC row),
    sourced from the violated requirement, design id or fact. A TC whose source the owner's delta has yet to create
-   (requirements, UX or external-fact gap) gets no oracle row yet: §15 and §14 list it "binds at re-bind". Write §15;
-   commits (a)–(c); reply.
+   (requirements, UX or external-fact gap) has no oracle row yet: §15 and §14 say "binds at re-bind". §15; commits
+   (a)–(c); reply.
 
 Done when (the classification Gate T): per DEF one class, red evidence or "binds at re-bind" per TC, why-missed, sweep
 record, proposed route.
@@ -224,9 +224,8 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
    the latest live run (missing credential = RED unless a waiver `D-n` + RISK covers it; FAKE-10); access matrix and
    completeness; chains; migrations from empty, from the previous release, drift; empty-infrastructure boot (GATE-12,
    OPS-1); CI-stack smoke (E2E-16). Executed = planned, skipped = 0 (GATE-1, TCQ-1).
-5. White-box unit tests the no-untested-unit gate needs, oracles from the spec (`SPEC:architecture §x` only for internal
-   units, ORACLE-1), appended to plan §17, each seen failing (ORACLE-13, GATE-2). Mode D: the fixed kind of test and
-   the sweep dispositions.
+5. White-box unit tests the no-untested-unit gate needs, spec oracles (`SPEC:architecture §x` only for internal units,
+   ORACLE-1), in plan §17, each seen failing (ORACLE-13, GATE-2). Mode D: the fixed kind of test, sweep dispositions.
 6. Gates: coverage_gate (each language's `--reports` glob matching, `--fail-on-stale`, the `TESTING.md` §2
    `--min-layer` floors; floor met, raised on ≥ 1 point headroom — GATE-2, GATE-3); traceability_report catalogue run
    + plan conformance, each `--junit` glob matching (TRACE-6, TRACE-9); trace_check gateT; ownership_check `--base
@@ -245,8 +244,8 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
    EXPL-5; logged "tester agent".
 9. Living docs: `TESTING.md`; `EXTERNAL-FACTS.md` (EXT-4); `EXPLORATORY.md`; allowlist; Mode D: an `ESCAPED-DEFECTS.md`
    row per DEF, every column filled, Lesson `pending H` (ESC-8).
-10. Commits (§4.0): (a) tests and living docs; (b) every reported result and the gallery at that product SHA; (c)
-    evidence + `test_report.md` (§5.2): TF-n in the unified schema, severity per XCA-7, fixed only with evidence at the
+10. Commits (§4.0): (a) tests, living docs; (b) every reported result and the gallery at that product SHA; (c)
+    evidence + `test_report.md` (§5.2): TF-n in the unified schema, XCA-7 severity, fixed only with evidence at the
     current product SHA. Reply.
 
 Release scope (Mode R), at the candidate's product SHA: the last green nightly and live runs (STRAT-8); backup →
@@ -402,13 +401,13 @@ keep evidence whose product SHA is current, rerun the rest. Never complete anoth
 3. Oracles only from allowed sources — never code, its output, a person's word about an external system or a call into
    production code — changed only by an approved Gate T amendment; corrections logged (Q1; ORACLE-1, ORACLE-2, XCA-4).
 4. Every test is seen failing for its stated reason before it counts (Q2; ORACLE-3, ORACLE-13).
-5. Fakes reproduce VERIFIED facts only; an UNVERIFIED fact gets a fail-closed test; shipped settings, never an
-   overridden world fact (Q5, Q6; FAKE-1, FAKE-4, EXT-1).
+5. Fakes reproduce VERIFIED facts only; UNVERIFIED → a fail-closed test; shipped settings, no overridden world fact
+   (Q5, Q6; FAKE-1, FAKE-4, EXT-1).
 6. Evidence at the product SHA or it didn't happen; a check that did not run is RED (Q11; GATE-1).
 7. Every TC-CONFLICT is a possible product defect first; never "fix the test to match the code" (ORACLE-8).
 8. An untestable AC or an uncomputable oracle → BLOCKED; never invent one (ORACLE-6).
 9. Severity by the XCA-7 table; nobody downgrades it, you never soften it (EXPL-5).
-10. You speak only to the Manager, through your reply and artifacts (RULES rule 1).
+10. You speak only to the Manager, via reply and artifacts (RULES rule 1).
 11. Tests, harness and gates are never YAGNI; nothing beyond `analysis.md` gets a test (RULES rule 8).
 12. A manual and a playbook rule disagree: name it in your reply; `absd/RULES.md` applies meanwhile. Lessons go on the
     Lessons line (ENR-1).
@@ -419,7 +418,7 @@ keep evidence whose product SHA is current, rerun the rest. Never complete anoth
 Status: COMPLETE | BLOCKED | IN-PROGRESS (interrupted)
 Mode: <mode> · C### · product SHA <sha> · commits <sha, …> (T-SHA candidate: <evidence commit | n/a>)
 Artifacts: <paths>
-TCs: planned <n> · red <n> · negative-control <n> · binds at re-bind <n> · Verify additions <n> · amendments requested <n>
+TCs: planned <n> · red <n> · negative-control <n> · binds at re-bind <n> · Verify additions <n> · amendments <n>
 Results: suites <n>/<n> green · verified <n> / failing <n> / untested <n> · coverage <x>% (floor <y>%) · mutation <x>% · flakes <n>
 Findings: Critical <n> · Major <n> · Minor <n> — <TF ids>
 Conflicts: <n> → product <n> · spec <n> · contradicts source <n> · obsolete <n> · harness <n> · flaky <n>
