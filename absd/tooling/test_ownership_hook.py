@@ -75,6 +75,12 @@ class OwnershipHookTests(unittest.TestCase):
         self.assertEqual(self.call("designer", "absd-project/working/evidence/designer/notes.md")[0], 0)
         self.assertEqual(self.call("tester", "absd-project/working/evidence/builder/log.txt")[0], 2)
 
+    def test_other_paths_under_absd_project_are_the_managers(self):
+        self.assertEqual(self.call("manager", "absd-project/working/notes.md")[0], 0)
+        code, err = self.call("tester", "absd-project/working/notes.md")
+        self.assertEqual(code, 2)
+        self.assertIn("owned by manager", err)
+
     def test_manager_owns_context_even_when_the_table_is_broken(self):
         with open(os.path.join(self.root, "absd-project", "context.md"), "w", encoding="utf-8") as f:
             f.write("# Project Context\n\nno table yet\n")

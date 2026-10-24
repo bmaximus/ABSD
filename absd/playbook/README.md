@@ -25,7 +25,7 @@ row here in the same change that adds its first rule (ENR-6).
 
 | Topic | Code | File |
 |---|---|---|
-| Test types, applicability matrix per profile, N/A rules | STRAT | `absd/playbook/testing/strategy.md` |
+| Test types and levels (incl. component), applicability matrix per profile, N/A rules | STRAT | `absd/playbook/testing/strategy.md` |
 | Lanes (push, nightly, per cycle, release) and what runs in each | STRAT | `absd/playbook/testing/strategy.md` |
 | Test case ids and attributes; every REQ-NF as a measurable test case; adoption baseline of existing suites | STRAT | `absd/playbook/testing/strategy.md` |
 | Equivalence classes, boundaries, decision tables, pairwise, principal × operation expansion | VAR | `absd/playbook/testing/test-design.md` |
@@ -35,6 +35,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Time instants: midnights per zone, DST, month and season ends, foreign zone run | VAR | `absd/playbook/testing/test-design.md` |
 | Absent and invalid inputs, races, re-runs, failure injection, property-based and metamorphic cases | VAR | `absd/playbook/testing/test-design.md` |
 | Idle-screen network budget; flags and settings in both states; assert at the source of truth | VAR | `absd/playbook/testing/test-design.md` |
+| Variation catalogue (dimension → mandatory when); caches, ranges and intervals, update semantics, overrides vs recomputation, data-source and channel parity | VAR | `absd/playbook/testing/variation-catalogue.md` |
 | Oracle sources, independent calculation, worked numbers, source precedence | ORACLE | `absd/playbook/testing/oracles.md` |
 | Red before green, oracle amendments, dispute protocol, failure classification | ORACLE | `absd/playbook/testing/oracles.md` |
 | Characterization (CHAR) tests of inherited behaviour; oracle strength | ORACLE | `absd/playbook/testing/oracles.md` |
@@ -44,30 +45,32 @@ row here in the same change that adds its first rule (ENR-6).
 | Test clock and seams in tests; arranging data through public operations; exact outcome assertions | INTEG | `absd/playbook/testing/integration.md` |
 | Chain tests from recorded payloads; data-flow step tests; audit-entry assertions | INTEG | `absd/playbook/testing/integration.md` |
 | Background jobs, exactly-once races and notifications at the real boundary; HTTP status semantics | INTEG | `absd/playbook/testing/integration.md` |
-| Fake fidelity, recorded responses, contract tests, live contract checks, fake control channels | FAKE | `absd/playbook/testing/contracts-and-fakes.md` |
+| Fake fidelity, recorded responses, contract tests, live contract checks, fake control channels; eval sets for model-backed features | FAKE | `absd/playbook/testing/contracts-and-fakes.md` |
 | Configuration agreement, shipped settings only, start-up validation of plausible-but-harmful settings | FAKE | `absd/playbook/testing/contracts-and-fakes.md` |
 | External call failure classes, request assertions, parser fuzzing | FAKE | `absd/playbook/testing/contracts-and-fakes.md` |
-| External facts: evidence, UNVERIFIED → flag off and fail closed, platforms as external systems, replacement sweep | EXT | `absd/playbook/testing/contracts-and-fakes.md` |
-| End-to-end per profile: browser, native app, HTTP black box, CLI subprocess, installed library, pipeline run | E2E | `absd/playbook/testing/end-to-end.md` |
+| External facts: evidence, UNVERIFIED → flag off and fail closed, platforms as external systems, replacement sweep | EXT | `absd/playbook/testing/external-facts.md` |
+| End-to-end for every profile: error signals, the user's entry point, real stack, written before the interface | E2E | `absd/playbook/testing/end-to-end.md` |
+| End-to-end harness per profile: native app, HTTP black box, CLI subprocess, installed library, pipeline run | E2E | `absd/playbook/testing/end-to-end-profiles.md` |
 | Error-signal fixture, user-like selectors, device and zone/locale projects, real-time lifecycles, seeding | E2E | `absd/playbook/testing/end-to-end.md` |
 | Post-deploy smoke suite design; user-visible regression tests | E2E | `absd/playbook/testing/end-to-end.md` |
 | Requirement catalogue, test linking, verified/failing/untested report, plan conformance | TRACE | `absd/playbook/testing/traceability.md` |
 | Trace tables in artifacts; retired requirements; reserved prefixes in tests | TRACE | `absd/playbook/testing/traceability.md` |
 | A check that did not run is RED; coverage floor ratchet; no-untested-unit gate and allowlist | GATE | `absd/playbook/testing/gates.md` |
 | Strict compilation, mutation and flake gates; gate configuration ownership; gates proven able to fail | GATE | `absd/playbook/testing/gates.md` |
-| CI job graph, readable failures, hermetic CI; migration, secret-canary, pipeline-integrity and deploy gates | GATE | `absd/playbook/testing/gates.md` |
+| CI job graph, readable failures, hermetic CI; migration, secret-canary, pipeline-integrity and deploy gates | GATE | `absd/playbook/testing/ci-and-release-gates.md` |
 | Escaped defects: main rule, why-missed taxonomy, root-cause class, same-weakness sweep, log, recurrence, flakes | ESC | `absd/playbook/testing/escaped-defects.md` |
 | Exploratory charters and sessions (agent and human), finding routing, manual acceptance checklist, real devices | EXPL | `absd/playbook/testing/exploratory.md` |
 | Accessibility scans, keyboard paths, rendered contrast, CLI output without colour | A11Y | `absd/playbook/testing/nonfunctional.md` |
-| Performance budgets, round trips per operation (N+1), payload budgets | PERF | `absd/playbook/testing/nonfunctional.md` |
-| Timeouts and retries, partial failure, degradation and fail-closed behaviour | RESIL | `absd/playbook/testing/nonfunctional.md` |
+| Performance budgets, round trips per operation (N+1), payload budgets; load, stress and soak | PERF | `absd/playbook/testing/load-and-compatibility.md` |
+| Compatibility of the product's own interfaces: published-contract snapshot diff, previous clients, previous stored and queued messages | COMPAT | `absd/playbook/testing/load-and-compatibility.md` |
+| Timeouts and retries, partial failure, degradation and fail-closed behaviour; restarts and exhaustion of owned dependencies | RESIL | `absd/playbook/testing/nonfunctional.md` |
 | Screenshot gallery, visual regression, golden outputs | VIS | `absd/playbook/testing/nonfunctional.md` |
 | Boot on empty infrastructure, build once, deploy verification and rollback, deploy-script tests, backup and restore, fresh clone from the docs, log levels, alerting | OPS | `absd/playbook/testing/nonfunctional.md` |
 | Test code: naming with ids, shape, builders, determinism, waiting, isolation, parallel safety, never weakening a test | TCQ | `absd/playbook/testing/test-code.md` |
 | Design deliverables per profile, visual language, minimal effort, component–state matrix, motion | DSN | `absd/playbook/design/excellence.md` |
 | Journeys, device classes, no hover-only affordance, touch and scroll behaviour, long lists and default selection | DSN | `absd/playbook/design/excellence.md` |
 | User state surviving refresh, error message design per failure mode, accessible names, contrast and target sizes | DSN | `absd/playbook/design/excellence.md` |
-| CLI and machine-surface design, design rubric, Design QA, protected baselines | DSN | `absd/playbook/design/excellence.md` |
+| CLI and machine-surface design, design rubric per profile, Design QA, protected baselines | DSN | `absd/playbook/design/rubric-and-qa.md` |
 | Label maps (never raw enums), one formatter per kind, machine-output formats | LOC | `absd/playbook/design/content-and-locale.md` |
 | Clock style, display zones, label truthfulness, date buckets, number style, truncation | LOC | `absd/playbook/design/content-and-locale.md` |
 | Copy deck, tone, empty states, action and error wording, localisation readiness, format lint | LOC | `absd/playbook/design/content-and-locale.md` |
@@ -76,11 +79,11 @@ row here in the same change that adds its first rule (ENR-6).
 | Seams and test architecture, error catalogue, configuration keys, schema and migrations design | ARCH | `absd/playbook/engineering/architecture.md` |
 | Concurrency register, background job specification, flag register, external ports | ARCH | `absd/playbook/engineering/architecture.md` |
 | Security design and observability in the blueprint, ADRs, suppression-marker list, work packages, profile modules | ARCH | `absd/playbook/engineering/architecture.md` |
-| Architecture review checklist (Gate 2R) | ARCH | `absd/playbook/engineering/architecture.md` |
+| Architecture review checklist (Gate 2R) | ARCH | `absd/playbook/engineering/architecture-review.md` |
 | Static analysis, warnings as errors, formatting, complexity, naming, dead code, dependency hygiene, suppression markers in code | CODE | `absd/playbook/engineering/code-quality.md` |
 | Authentication, authorization (deny by default, object level), input validation, secret handling, headers, logging hygiene, dependency scanning, threat model | SEC | `absd/playbook/security/baseline.md` |
 | Personal data inventory, retention, deletion and export, consent, personal data in logs | PRIV | `absd/playbook/security/baseline.md` |
-| Elicitation lenses: actor × capability, visibility, role value, inherited behaviour, CRUD, states, time, money, external facts, devices, volume, privacy, operability, notifications, audit trail, concurrency | ELIC | `absd/playbook/process/requirements.md` |
+| Elicitation lenses: actor × capability, visibility, role value, inherited behaviour, CRUD, states, time, money and money movements, external facts, devices, volume, privacy, operability, notifications, audit trail, concurrency | ELIC | `absd/playbook/process/requirements.md` |
 | Specification by example, assumptions and contradictions, catalogue delta, Gate 1 sign-off, Mode S intake questions | ELIC | `absd/playbook/process/requirements.md` |
 | Definition of done: feature cycle, work package, defect, Foundation, brownfield ratchet, release readiness, upgrade, park | DOD | `absd/playbook/process/definition-of-done.md` |
 | Audit scope and independence, evidence rule, levels L1–L8, test changes since T-SHA, adversarial probes | XCA | `absd/playbook/process/audits.md` |
@@ -128,7 +131,7 @@ Stack, vendor and tool names appear only in labelled illustrations naming at lea
 
 - Products and artifacts cite `ABSD:CODE-n`; product and cycle ids follow `absd/RULES.md` §7.
 
-Reserved codes: `STRAT` `VAR` `ORACLE` `ACCESS` `INTEG` `FAKE` `EXT` `E2E` `TRACE` `GATE` `ESC` `EXPL` `A11Y` `PERF` `RESIL` `VIS` `OPS` `TCQ` `DSN` `LOC` `ARCH` `CODE` `SEC` `PRIV` `ELIC` `DOD` `XCA` `ENR` `TC` `DEF` `CR` `ADR` `UJ` `SCR` `DEBT` `RISK` `LL` `AR` `TF` `DQ` `F` `CLR` `WP` `INH` `TSEAM` `CHAR` `C` `A` `OQ` `D` `UXQ` `UXA`
+Reserved codes: `STRAT` `VAR` `ORACLE` `ACCESS` `INTEG` `FAKE` `EXT` `E2E` `TRACE` `GATE` `ESC` `EXPL` `A11Y` `PERF` `RESIL` `VIS` `OPS` `COMPAT` `TCQ` `DSN` `LOC` `ARCH` `CODE` `SEC` `PRIV` `ELIC` `DOD` `XCA` `ENR` `TC` `DEF` `CR` `ADR` `UJ` `SCR` `DEBT` `RISK` `LL` `AR` `TF` `DQ` `F` `CLR` `WP` `INH` `TSEAM` `CHAR` `C` `A` `OQ` `D` `UXQ` `UXA`
 
 `QC` is the one fixed area code every product shares: the Foundation quality capabilities (`QC-n` catalogue rows,
 Area "Quality"). No product area code (`absd-project/context.md` §1) may be a reserved code: the Analyst checks at Gate 1 (ELIC-20), and

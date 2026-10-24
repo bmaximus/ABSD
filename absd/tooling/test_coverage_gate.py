@@ -234,6 +234,23 @@ class CoverageGateTests(unittest.TestCase):
         self.assertEqual(data["layers"]["Api"], {"covered": 1, "lines": 2})
         self.assertEqual(data["total"], 75.0)
 
+    def test_layer_floors(self):
+        self.write("a/coverage.xml", cobertura([
+            ("Shop.Domain.Price", "src/Domain/Price.cs", [1, 1, 1, 0]),
+            ("Shop.Api.Controller", "src/Api/Controller.cs", [1, 1]),
+        ]))
+        layers = ("--layer", "Domain=/Domain/", "--layer", "Api=/Api/")
+        code, out = self.run_gate("--min-total", "0", *layers, "--min-layer", "Domain=75")
+        self.assertEqual(code, 0, out)
+        code, out = self.run_gate("--min-total", "0", *layers, "--min-layer", "Domain=80")
+        self.assertEqual(code, 1)
+        self.assertIn("Layer Domain line coverage 75.0% is below its 80% minimum.", out)
+        code, out = self.run_gate("--min-total", "0", "--layer", "Money=/Money/", "--min-layer", "Money=50")
+        self.assertEqual(code, 1)
+        self.assertIn("Layer Money has no coverable lines", out)
+        code, out = self.run_gate("--min-total", "0", *layers, "--min-layer", "Billing=50")
+        self.assertEqual(code, 2)   # a floor for an undeclared layer is a usage error
+
     def test_malformed_report_is_an_input_error(self):
         self.write("a/coverage.xml", "<coverage><class name='x'")
         code, out = self.run_gate("--min-total", "0")

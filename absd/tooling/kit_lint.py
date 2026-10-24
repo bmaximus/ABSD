@@ -23,7 +23,9 @@ Checks (numbers for --only):
                      paths and product-owned files the kit only names (PRODUCT_PATHS).
   5 mirrors          Each .claude/agents/<name>.md has a .github/agents/<Name>.agent.md (name compared ignoring case)
                      whose text contains ".claude/agents/<name>.md", and each mirror has its manual.
-  6 reserved codes   absd/playbook/README.md has a "Reserved codes" paragraph naming every playbook code.
+  6 reserved codes   absd/playbook/README.md has a "Reserved codes" paragraph naming every playbook code; the
+                     PLAYBOOK_CODES set of absd/tooling/trace_check.py and traceability_report.py (when present)
+                     equals the playbook codes, and PLAYBOOK_CODES | RESERVED equals the paragraph's codes.
   7 stack words      Outside absd/tooling/**, absd/CHANGELOG.md, absd/lessons/**, YAML frontmatter and "Provenance:"
                      lines (with their continuation lines), a Markdown block — paragraph, list item with its wrapped
                      lines, table row or heading — that names a STACK_WORDS entry (case-sensitive, whole word) names
@@ -77,6 +79,11 @@ MIRROR_SUFFIX = ".agent.md"
 ROOT_FILES = ("README.md", "CLAUDE.md", ".github/copilot-instructions.md")
 INBOX = "absd/lessons/inbox/"
 RESERVED_LABEL = "Reserved codes"
+# Tools that must know the reserved codes: `PLAYBOOK_CODES = {...}` and `RESERVED = PLAYBOOK_CODES | {...}` literals.
+CODE_TOOLS = ("absd/tooling/trace_check.py", "absd/tooling/traceability_report.py")
+PLAYBOOK_CODES_LITERAL = re.compile(r"^PLAYBOOK_CODES\s*=\s*\{(.*?)\}", re.MULTILINE | re.DOTALL)
+RESERVED_LITERAL = re.compile(r"^RESERVED\s*=\s*PLAYBOOK_CODES\s*\|\s*\{(.*?)\}", re.MULTILINE | re.DOTALL)
+QUOTED = re.compile(r"[\"']([A-Z][A-Z0-9]*)[\"']")
 TOMBSTONE_CITABLE = (CHANGELOG, LEDGER)          # history may name a retired id
 
 # Size budgets in characters (absd/RULES.md §9). Patterns: * = within one directory, **/ = any depth.
@@ -522,8 +529,35 @@ def check_reserved(kit: Kit, book: Playbook) -> tuple:
     start = next(i for i, (_, line) in enumerate(paragraph) if names_them(line))
     named = {code for _, line in paragraph[start:] for code in CODE_WORD.findall(line.replace("`", " "))}
     line_no = paragraph[start][0]
-    return [Finding(6, "error", README, line_no, f"playbook code {code} is not in the reserved codes")
-            for code in sorted(book.codes - named)], len(book.codes)
+    findings = [Finding(6, "error", README, line_no, f"playbook code {code} is not in the reserved codes")
+                for code in sorted(book.codes - named)]
+    for tool in CODE_TOOLS:
+        if kit.is_file(tool):
+            findings += tool_codes(kit, tool, book.codes, named)
+    return findings, len(book.codes)
+
+
+def tool_codes(kit: Kit, tool: str, playbook: set, reserved: set) -> list:
+    """The tool's PLAYBOOK_CODES equal the playbook's codes and its RESERVED set equals the README's reserved codes."""
+    text = kit.text(tool)
+    found = []
+    for label, pattern, expected in (("PLAYBOOK_CODES", PLAYBOOK_CODES_LITERAL, playbook),
+                                     ("RESERVED", RESERVED_LITERAL, reserved)):
+        match = pattern.search(text)
+        if match is None:
+            found.append(Finding(6, "error", tool, 0, f"no {label} set literal to compare with {README}"))
+            continue
+        codes = set(QUOTED.findall(match.group(1)))
+        if label == "RESERVED":
+            playbook_match = PLAYBOOK_CODES_LITERAL.search(text)
+            codes |= set(QUOTED.findall(playbook_match.group(1))) if playbook_match else set()
+        line_no = text[:match.start()].count("\n") + 1
+        missing, extra = sorted(expected - codes), sorted(codes - expected)
+        if missing or extra:
+            parts = [f"missing {', '.join(missing)}" if missing else "", f"extra {', '.join(extra)}" if extra else ""]
+            found.append(Finding(6, "error", tool, line_no, f"{label} differs from {README}: "
+                                 + "; ".join(p for p in parts if p)))
+    return found
 
 
 def word_pattern(word: str) -> re.Pattern:

@@ -11,7 +11,8 @@ the range this check proves that
        - the built-in table (ABSD contract §5; the context table cannot override it): the kit paths (read-only);
          the agent configuration .claude/, every CLAUDE.md, .github/copilot-instructions.md and
          .github/instructions/ (manager); for absd-project/ the per-cycle artifacts in working/ (also when split
-         into working/<artifact>/ parts), working/evidence/<agent>/, the living documents, and archive/ (manager);
+         into working/<artifact>/ parts), working/evidence/<agent>/, the living documents, archive/ and every other
+         path under absd-project/ (manager);
        - the table under the first context.md heading containing "Source Layout" (up to the next heading of the same
          or a higher level): its first table with a column named like "Path" or "Glob" (one or more globs per cell,
          separated by commas, spaces or <br>) and a column named "Owner" (an agent or "shared", any case).
@@ -163,6 +164,7 @@ def built_in_rules() -> list[Rule]:
             if path.startswith("working/") and path.endswith(".md"):
                 globs.append((path[:-len(".md")] + "/", owner))
     globs += [(f"working/evidence/{agent}/", agent) for agent in AGENTS]
+    globs.append(("", "manager"))   # anything else under absd-project/ (notes, a stray file) is the Manager's
     return (kit_rules() + [make_rule(glob, "manager", BUILT_IN) for glob in CONFIG_GLOBS]
             + [make_rule(f"{PROJECT_DIR}/{glob}", owner, BUILT_IN) for glob, owner in globs])
 

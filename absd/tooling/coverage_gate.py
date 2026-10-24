@@ -3,7 +3,7 @@
 
 Fails the build when
   1. total line coverage (merged across every report: a line counts as covered if any test run hit it) is below
-     --min-total, or
+     --min-total, or the coverage of a --layer is below its --min-layer floor (or the layer matches nothing), or
   2. a unit of code that NO test runs at all (not one of its lines) appears, unless it is listed in the allowlist
      together with its reason (ABSD playbook GATE-2). Allowlist entries without a reason are themselves an error.
 
@@ -29,7 +29,7 @@ to raise it to. Raising it is the Tester's change; lowering it needs the user's 
 usage:
   coverage_gate.py --reports "**/coverage.cobertura.xml" [--reports "<glob>" ...] --min-total 80
                    [--untested-allowlist tests/untested-allowlist.txt] [--fail-on-stale] [--unit class|file] [--min-lines 5]
-                   [--exclude "/Migrations/" ...] [--layer Domain=/Domain/ ...]
+                   [--exclude "/Migrations/" ...] [--layer Domain=/Domain/ ...] [--min-layer Domain=90 ...]
                    [--json coverage.json] [--summary-md coverage.md]
 
 Exit code: 0 pass, 1 gate failed, 2 usage/input error. Python 3.9+, standard library only.
@@ -161,6 +161,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--min-lines", type=int, default=5, help="units with fewer coverable lines are not gated (default 5)")
     parser.add_argument("--exclude", action="append", default=[], help="regex on file path to leave out (generated code, migrations)")
     parser.add_argument("--layer", action="append", default=[], help="NAME=REGEX on file path, for the per-layer table")
+    parser.add_argument("--min-layer", action="append", default=[],
+                        help="NAME=PERCENT: minimum line coverage of a --layer (money, time and access layers)")
     parser.add_argument("--json", dest="json_out", help="write the numbers as JSON")
     parser.add_argument("--summary-md", help="write the Markdown summary to this file (also appended to $GITHUB_STEP_SUMMARY)")
     args = parser.parse_args(argv)
@@ -173,6 +175,12 @@ def main(argv: list[str] | None = None) -> int:
             if not sep or not name:
                 raise ValueError(f"--layer expects NAME=REGEX, got '{spec}'")
             layers.append((name, re.compile(rx)))
+        layer_floors = {}
+        for spec in args.min_layer:
+            name, sep, value = spec.partition("=")
+            if not sep or name not in {n for n, _ in layers}:
+                raise ValueError(f"--min-layer expects NAME=PERCENT for a declared --layer, got '{spec}'")
+            layer_floors[name] = float(value)
     except (re.error, ValueError) as error:
         print(f"::error::{error}")
         return 2
@@ -202,6 +210,15 @@ def main(argv: list[str] | None = None) -> int:
     if total < args.min_total:
         failed = True
         messages.append(f"::error::Line coverage {total:.1f}% is below the {args.min_total:g}% minimum.")
+
+    for name, floor in sorted(layer_floors.items()):
+        covered, lines = per_layer.get(name, (0, 0))
+        if not lines:
+            failed = True
+            messages.append(f"::error::Layer {name} has no coverable lines — its --layer pattern matches nothing.")
+        elif 100.0 * covered / lines < floor:
+            failed = True
+            messages.append(f"::error::Layer {name} line coverage {100.0 * covered / lines:.1f}% is below its {floor:g}% minimum.")
 
     if total >= args.min_total + 1:
         messages.append(f"::notice title=Coverage ratchet::{total:.1f}% — raise the minimum from {args.min_total:g}% to {int(total)}%.")

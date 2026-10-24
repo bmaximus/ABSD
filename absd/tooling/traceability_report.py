@@ -60,7 +60,7 @@ TC_TOKEN = re.compile(r"\bTC-\d{4,}\b")
 # Ids with these prefixes are not requirements (ABSD reserved codes, the same set as trace_check.py): "[DEF-12]" on a
 # regression test or "[E2E-1]" citing a playbook rule is not a typo.
 PLAYBOOK_CODES = {"STRAT", "VAR", "ORACLE", "ACCESS", "INTEG", "FAKE", "EXT", "E2E", "TRACE", "GATE", "ESC", "EXPL",
-                  "A11Y", "PERF", "RESIL", "VIS", "OPS", "TCQ", "DSN", "LOC", "ARCH", "CODE", "SEC", "PRIV", "ELIC",
+                  "A11Y", "PERF", "RESIL", "VIS", "OPS", "COMPAT", "TCQ", "DSN", "LOC", "ARCH", "CODE", "SEC", "PRIV", "ELIC",
                   "DOD", "XCA", "ENR"}
 # QC is not reserved: it is the fixed area code of the Foundation quality capabilities (catalogue rows QC-n).
 RESERVED = PLAYBOOK_CODES | {"TC", "DEF", "CR", "ADR", "UJ", "SCR", "DEBT", "RISK", "EXT", "LL", "AR", "TF", "DQ", "F",

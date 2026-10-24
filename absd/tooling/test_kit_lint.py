@@ -506,6 +506,27 @@ class ReservedCodeTests(KitLintTestCase):
         self.remove("absd/playbook/README.md")
         self.assertFlags(6, "the playbook README (reserved codes) is missing", count=1)
 
+    TOOL = 'PLAYBOOK_CODES = {"GATE", "ORACLE",\n                  "FAKE"}\nRESERVED = PLAYBOOK_CODES | {"TC", "DEF"}\n'
+
+    def test_tool_code_sets_match_the_playbook(self):
+        self.write("absd/tooling/trace_check.py", self.TOOL)
+        self.write("absd/tooling/traceability_report.py", self.TOOL)
+        self.assertClean(6)
+
+    def test_a_tool_missing_or_adding_a_code_is_an_error(self):
+        self.write("absd/tooling/trace_check.py", self.TOOL.replace('"FAKE"', '"FAKES"'))
+        self.write("absd/tooling/traceability_report.py", self.TOOL.replace('{"TC", "DEF"}', '{"TC"}'))
+        self.assertFlags(6, "absd/tooling/trace_check.py:1: PLAYBOOK_CODES differs from absd/playbook/README.md: "
+                            "missing FAKE; extra FAKES",
+                         "absd/tooling/trace_check.py:3: RESERVED differs from absd/playbook/README.md: "
+                         "missing FAKE; extra FAKES",
+                         "absd/tooling/traceability_report.py:3: RESERVED differs from absd/playbook/README.md: "
+                         "missing DEF", count=3)
+
+    def test_a_tool_without_the_literals_is_an_error(self):
+        self.write("absd/tooling/trace_check.py", "CODES = set()\n")
+        self.assertFlags(6, "no PLAYBOOK_CODES set literal", "no RESERVED set literal", count=2)
+
 
 class StackWordTests(KitLintTestCase):
     def test_a_line_naming_one_stack_is_an_error(self):

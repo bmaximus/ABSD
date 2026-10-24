@@ -13,7 +13,7 @@ pick the **Manager** custom agent; delegation happens through handoffs the user 
 
 | Agent | Owns | Purpose |
 |---|---|---|
-| Manager | `cycle.md`, `brd.md`, `defect.md`, `context.md`, `lessons.md` | Only voice to the user. Intake, routing, coverage gates, archive, harvest, upgrade. Makes no technical decision. |
+| Manager | `cycle.md`, `brd.md`, `defect.md`, `context.md`, `lessons.md`, the agent configuration (`.claude/`, every `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/`) | Only voice to the user. Intake, routing, coverage gates, archive, harvest, upgrade. Makes no technical decision. |
 | Analyst | `analysis.md`, `catalogue.md` | Business language → stable, testable requirements with example values. |
 | Designer | `design.md`, `design-system.md`, `design_review.md` | The experience of every interface (screens, CLI grammar, API surface, data contracts); Design QA on the built product. |
 | Architect | `architecture.md` (+ `architecture/`) | Exhaustive blueprint, ADRs, work packages. |
@@ -21,7 +21,8 @@ pick the **Manager** custom agent; delegation happens through handoffs the user 
 | Builder | `build_log.md`, `clarification_needed.md`, production code | Implements the blueprint exactly; never edits tests. |
 | Auditor | `arch_review.md`, `audit.md` | Independent technical verdicts; runs everything itself; fixes nothing. |
 
-Per-cycle artifacts live in `absd-project/working/` and are archived to `absd-project/archive/NNN_YYYY-MM-DD_slug/`.
+Per-cycle artifacts live in `absd-project/working/` (skeletons: `absd/templates/artifacts/`) and are archived to
+`absd-project/archive/NNN_YYYY-MM-DD_slug/`.
 Living documents are never archived: `absd-project/context.md`, `catalogue.md`, `design-system.md`, `lessons.md`, and
 the Tester's `docs/testing/*` (paths per `context.md`). Source and tests live where `context.md` "Source Layout &
 Ownership" says — never under `absd/` (the vendored, read-only kit) or `absd-project/`.
@@ -29,21 +30,26 @@ Ownership" says — never under `absd/` (the vendored, read-only kit) or `absd-p
 ## 2. Routes
 
 **Mode F — feature (full):**
-Intake → Analyst → **Gate 1** → Designer → **Gate UX** → Architect → **Gate 2** → Auditor → **Gate 2R** →
-Tester *Plan & Bind* (oracles + executable tests committed RED) → **Gate T** → Builder (work package by work package) →
-Tester *Verify* → [Designer *Design QA* ∥ Auditor *Audit*] → **Gate 3** → Harvest → Archive → merge.
+Intake → Analyst → **Gate 1** → [Tester *Facts* when a new or changed external system is in scope] → Designer →
+**Gate UX** → Architect → **Gate 2** → Auditor → **Gate 2R** → Tester *Plan & Bind* (oracles + executable tests
+committed RED) → **Gate T** → Builder (work package by work package) → Tester *Verify* → [Designer *Design QA* ∥ Auditor
+*Audit*] → **Gate 3** → Harvest → [Tester *Log* when escaped defects were logged] → Archive → merge.
 
-**Mode S — small change:** only when the change touches no principal/permission, external integration, schema,
-public interface element, money, time/zone, auth/session, delete/retention, background job, config key or flag, and
+**Mode S — small change:** only when the change touches no principal/permission, external integration, schema, money,
+time/zone, auth/session, delete/retention, background job, config key or flag; adds or removes no screen, endpoint,
+command or public symbol and changes no interface contract (copy and layout on an existing screen stay eligible); and
 ≤ 10 production files. Same order, with deltas: brief in `brd.md` (Analyst only if catalogue entries change; Designer
 only if user-visible) → Architect delta → 2R on the delta → Plan & Bind → Gate T → Builder → Verify → Audit (+ Design
 QA if visible) → Gate 3. Never cut: oracles before code, the code/test split, the independent audit, the access rule,
 the escaped-defect rule. The Auditor checks eligibility against the real diff.
 
-**Mode D — defect:** `defect.md` → Tester *Reproduce* (regression test RED, why-missed analysis, proposed class, sweep
-plan) → Gate T → by class: implementation → Builder; architecture gap → Architect → 2/2R; UX gap → Designer → UX → …;
-missing requirement → Analyst → full route; test-only gap → Tester. Then Verify → Audit → Gate 3 → the Tester logs
-`ESCAPED-DEFECTS.md`.
+**Mode D — defect:** `defect.md` (a Critical on a live system is contained first: the user rolls back or turns the
+flag off — recorded as a decision and a RISK) → Tester *Reproduce* (regression test RED; an external-fact mechanism is
+verified now, ABSD:EXT-4; why-missed analysis, proposed class, sweep plan) → Gate T (one class per DEF) → by class:
+implementation → Builder; architecture or external-fact gap → Architect → 2/2R; UX gap → Designer → UX → …; missing
+requirement → Analyst → full route; test-only gap → Tester. Then Verify → [Design QA when the fix changes a visual or
+output surface, always for a UX gap] ∥ Audit → Gate 3 → Harvest → Tester *Log* → Archive. Findings outside the cycle's
+scope become DEF rows in the `context.md` defect backlog, never growth of the cycle.
 
 **Other modes:** **B** Bootstrap/Adopt (Foundation cycle; brownfield ratchet; v1 migration) · **C** Change request
 (re-enter at the earliest affected artifact; everything downstream re-passes its gate) · **X** Cross-cycle audit (every
@@ -51,7 +57,9 @@ missing requirement → Analyst → full route; test-only gap → Tester. Then V
 (between cycles only) · **P** Park/abandon. Details: `.claude/agents/manager.md`.
 
 **Limits:** max 3 Builder passes per cycle, 3 revision rounds per gate, 3 halts per cycle — then escalate to the
-user. An interrupted agent is re-invoked with a Resume brief (max 2), never finished by someone else.
+user. An interrupted agent is re-invoked with a Resume brief (max 2), never finished by someone else. A change request
+(Mode C) that re-enters at the analysis resets the gate-round counters downstream of its entry; Builder passes and halts
+count for the whole cycle.
 
 ## 3. Immutable rules
 
@@ -65,7 +73,8 @@ user. An interrupted agent is re-invoked with a Resume brief (max 2), never fini
 8. YAGNI: nothing beyond `analysis.md`. Tests, harness and gates are not features. Operability is not a feature:
    deploy, same-version redeploy, rollback (also while busy and after a migration), backup→restore drill, first start
    on empty infrastructure, fresh clone → running from the docs, health/version, correct log levels and alerting are
-   default non-functional requirements only the user can waive.
+   default non-functional requirements wherever the rule's *Applies when* covers the product's profiles (OPS, ELIC-14).
+   Within that scope only the user can waive one; an N/A by *Applies when* needs no waiver (the Auditor verifies it).
 9. No agent writes an artifact, test or code path it does not own — the Manager included, even to finish an
    interrupted run.
 10. Manager gates check coverage; technical quality is judged independently (Auditor at 2R and Audit, Designer at
@@ -98,18 +107,26 @@ user. An interrupted agent is re-invoked with a Resume brief (max 2), never fini
   any gate configuration is Critical unless the user approved it through a Gate T amendment.
 - One branch per cycle: `absd/C###-<slug>`. Every hand-off is a commit by its producer with trailers
   `ABSD-Agent: <name>` and `ABSD-Cycle: C###`; the working tree is clean at every hand-off. The Builder commits once
-  per work package; the Plan & Bind commit is **T-SHA**, an ancestor of every production change of the cycle.
+  per work package. Plan & Bind commits the tests, runs them, then commits the red evidence (only `absd-project/`):
+  that evidence commit is **T-SHA**, an ancestor of every production change of the cycle; each approved Gate T
+  amendment adds its own T-SHA to the chain in `cycle.md`.
+- Kit installs, upgrades and v1 migrations (`absd/tooling/absd_sync.py`) are committed on the default branch with the
+  trailer `ABSD-Sync: <install|upgrade|migrate-v1> <version>` instead of `ABSD-Agent`; they may change only the kit,
+  add the seeds and make the migration moves.
 - Enforced twice: at write time by the hook `absd/tooling/ownership_hook.py` (installed by the settings template; it
   refuses an ABSD agent's file write outside its own paths) and in history by `absd/tooling/ownership_check.py`
   (ownership and ordering per commit); the Auditor reviews every test change after T-SHA.
-- Only the Manager merges, only after Gate 3, per the merge policy in `context.md`. No change reaches the default
-  branch outside a mode.
+- Only the Manager merges, only after Gate 3, per the merge policy in `context.md`, when CI is green at the Gate 3
+  product SHA and every later commit changes only `absd-project/` (harvest, log, archive). No change reaches the default
+  branch outside a mode or a kit sync.
 
 ## 6. Evidence and findings
 
-- A test passes only with attached local output or a CI run at the exact commit. The Auditor runs every suite and
-  gate itself, in a clean checkout, before reading the Tester's report; if it cannot, the verdict is **BLOCKED**.
-  An environment limitation is a RISK, never a design decision.
+- A test passes only with attached local output or a CI run at the exact **product SHA**: the last commit that
+  changes a path outside `absd-project/`. Evidence taken at product SHA S stays valid while
+  `git diff --quiet S HEAD -- . ':!absd-project'` holds — pipeline commits (artifacts, evidence, reports) never
+  invalidate it. The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
+  if it cannot, the verdict is **BLOCKED**. An environment limitation is a RISK, never a design decision.
 - Findings everywhere use one row: `ID | Severity | Category | Rule cited | Evidence | Proposed route`.
   **Critical**: core function, security/privacy, data or money corruption. **Major**: wrong behaviour, missing
   requirement or test, significant drift, a Q-law broken. **Minor**: cosmetic. Clean = 0 Critical and 0 Major.

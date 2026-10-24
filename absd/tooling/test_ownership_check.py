@@ -124,7 +124,7 @@ class OwnershipRuleTests(unittest.TestCase):
             "working/evidence/builder/build.log": "builder",
             "working/arch_review.md": "auditor", "working/audit.md": "auditor",
             "working/evidence/auditor/probe.log": "auditor", "working/evidence/analyst/interview.md": "analyst",
-            "working/notes.md": "unowned", "working/test_report.md.bak": "unowned", "working/evidence/x.log": "unowned",
+            "working/notes.md": "manager", "working/test_report.md.bak": "manager", "working/evidence/x.log": "manager",
         }
         rules = ownership_check.built_in_rules()
         actual = self.owners(rules, [project + path for path in expected])
