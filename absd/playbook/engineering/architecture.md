@@ -1,8 +1,10 @@
 # Architecture Excellence
 
-Code **ARCH**: what `architecture.md` must specify. The Architect applies it, Gate 2 checks presence, the Auditor
-judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engineering/code-quality.md`), SEC, PRIV
-(`absd/playbook/security/baseline.md`), test-side INTEG, FAKE, EXT, ACCESS, VAR.
+Code **ARCH**: what `architecture.md` must specify (skeleton: `absd/templates/artifacts/architecture.md`). The Architect
+applies it, Gate 2 checks presence, the Auditor judges quality at Gate 2R with the checklist in
+`absd/playbook/engineering/architecture-review.md` and at audit L1, L7. Related: CODE
+(`absd/playbook/engineering/code-quality.md`), SEC, PRIV (`absd/playbook/security/baseline.md`), test-side INTEG, FAKE,
+EXT, ACCESS, VAR.
 
 ## Checklist
 
@@ -15,8 +17,8 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 - [ ] Blueprint standard; self-verification (ARCH-8)
 - [ ] Non-mutating reads (ARCH-9)
 - [ ] Data flows as numbered steps (ARCH-10)
-- [ ] Seam register (ARCH-11)
-- [ ] Test architecture + overrides register (ARCH-12)
+- [ ] Seam register; TSEAM answered by kind (ARCH-11)
+- [ ] Test architecture + overrides register; test tooling in Tester-owned files (ARCH-12)
 - [ ] Error catalogue (ARCH-13)
 - [ ] Config typed, fail-fast; one source per world fact (ARCH-14)
 - [ ] Schema, indexes, expand/contract migrations (ARCH-15)
@@ -28,7 +30,7 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 - [ ] Observability and audit catalogue (ARCH-21)
 - [ ] ADRs with ≥ 2 options; suppression markers listed (ARCH-22, ARCH-23)
 - [ ] Ordered WPs, ≤ ~15 files each (ARCH-24)
-- [ ] Module per declared profile (ARCH-25)
+- [ ] Module per declared profile; the design's public names adopted verbatim (ARCH-25)
 
 ## Rules
 
@@ -62,11 +64,11 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 - *Applies when:* always.
 - *Provenance:* industry baseline
 
-**ARCH-6** — Apply YAGNI to features only (nothing beyond `analysis.md`); fully specify every declared rule, invariant, operability default (RULES rule 8), security control, migration and test seam; deferring one needs the user's acceptance as a RISK, never an architecture note.
+**ARCH-6** — Apply YAGNI to features only (nothing beyond `analysis.md`); fully specify every declared rule, invariant, operability default whose OPS *Applies when* covers a declared profile (RULES rule 8), security control, migration and test seam; deferring one needs the user's acceptance as a RISK, never an architecture note.
 - *Why:* a client-declared value stayed "YAGNI" against a business rule (LL-48); "no migrations" stood three cycles (LL-21).
-- *Check:* each "YAGNI", "deferred", "later", "out of scope" maps to a feature (fine) or a rule/safety mechanism (Major; Critical on money or access).
+- *Check:* each "YAGNI", "deferred", "later", "out of scope" maps to a feature (fine) or a rule/safety mechanism (Major; Critical on money or access); an operability default outside its *Applies when* is N/A citing the rule, no waiver.
 - *Applies when:* always.
-- *Provenance:* LL-48, LL-21 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-48, LL-21 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **ARCH-7** — Open with "Gate decisions honoured": each brd Decision `D-n`, Gate 1 and Gate UX resolution and catalogue invariant the cycle touches → implementing section; no section, default or residual assumption contradicts one (changes go to the owner via the Manager).
 - *Why:* an architecture note ("missing values become 0") reversed a Gate 1 decision; every gate passed (LL-44).
@@ -94,15 +96,15 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 
 **ARCH-11** — Inject a seam for every nondeterministic or external dependency — clock (sole time source, entity defaults included), ids, randomness, each external system (port with real, Null/off, fake), flags, config — in a seam register: seam, production implementation, test double, fidelity rule (EXT ids), substitution point.
 - *Why:* wall-clock reads in entity defaults left boundaries untestable.
-- *Check:* the ARCH-1 test bans clock, random and I/O calls outside adapters; each TSEAM-n is a register gap.
+- *Check:* the ARCH-1 test bans clock, random and I/O calls outside adapters; each TSEAM-n of kind `seam` is a register gap (kind `tooling`: ARCH-12).
 - *Applies when:* always.
 - *Provenance:* industry baseline
 
-**ARCH-12** — Write the Testability & Test Architecture section: levels from `TESTING.md`; harness = production composition root over real transport, stores built only by shipped migrations (INTEG-2), faithful fakes (FAKE-1), seeding via public operations; e2e environment, ports, devices; overrides register (endpoints, credentials only); run-one-cycle seam per job; test hooks unreachable in production; access matrix as data; test paths.
-- *Why:* no test section; auto-created test schemas let a migration missing ~60% of columns pass four audits (LL-21); tests after code cost two build rounds a cycle (LL-29).
-- *Check:* no subsection blank or N/A on an M row (STRAT-4); overrides diffed with the register (INTEG-6).
+**ARCH-12** — Write the Testability & Test Architecture section: levels from `TESTING.md`; harness = production composition root over real transport, stores built only by shipped migrations (INTEG-2), faithful fakes (FAKE-1), seeding via public operations; e2e environment, ports, devices; overrides register (endpoints, credentials only); run-one-cycle seam per job; test hooks unreachable in production; access matrix as data; test paths, with a compilation or collection unit per work package where new symbols need one (ORACLE-3); test tooling: ADR-002 puts test dependencies, runner, coverage, mutation and test-lint configuration in standalone Tester-owned files where the stack allows, otherwise lists the sections of each shared file the Tester may change. A TSEAM-n has a kind: `seam` (production code, ARCH-11) or `tooling` (a test dependency or setting in a file the Tester does not own) — answered here and in ADR-002, never by the Builder editing a gate.
+- *Why:* no test section; auto-created test schemas let a migration missing ~60% of columns pass four audits (LL-21); tests after code cost two build rounds a cycle (LL-29); test dependencies and runner settings sat in Builder-owned build files, so the Tester's Foundation work was refused by the ownership hook (LL-57).
+- *Check:* no subsection blank or N/A on an M row (STRAT-4); overrides diffed with the register (INTEG-6); every test tooling setting sits in a Tester-owned file or a listed shared section (GATE-7).
 - *Applies when:* always.
-- *Provenance:* LL-21, LL-29 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-21, LL-29 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **ARCH-13** — Keep one error catalogue (failure → code → status, exit code or error type → body → `design.md` message key → log level → recovery) on one taxonomy (INTEG HTTP table), each operation's codes drawn from it; map conflicts, uniqueness and dependency failures explicitly; machine code apart from human text; expected client errors logged below error level.
 - *Why:* refusals logged as server errors with stack traces (LL-15); external failures shown as "Server error" (LL-11).
@@ -146,11 +148,11 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 - *Applies when:* any external system, deploy platforms included.
 - *Provenance:* LL-1, LL-2, LL-11 (KatenatsioTipster, 2026-10)
 
-**ARCH-20** — Design security: deny by default; one enforcing layer per rule; an Access & Visibility Matrix of every operation with visible records and fields (ACCESS-1, ACCESS-2, ACCESS-3); STRIDE threat model → mitigation → TC or user-accepted RISK; rate limits on anonymous secret checks and metered dependencies; restricted-state allowlists per operation, not path matching.
+**ARCH-20** — Design security: deny by default; one enforcing layer per rule; an Access & Visibility Matrix of every operation with visible records and fields (ACCESS-1, ACCESS-2, ACCESS-3); STRIDE threat model → mitigation → TC or user-accepted RISK; rate limits on anonymous secret checks and metered dependencies; restricted-state allowlists per operation, not path matching; service-identity grants as code, Builder-owned in ADR-002 (ACCESS-13).
 - *Why:* per-endpoint, per-role access let an allowed call return paid content to free accounts (LL-10).
 - *Check:* matrix rows = operations; reject a threat without TC or RISK and a rule enforced in two disagreeing layers (SEC rules).
 - *Applies when:* always (library: input validation, secret handling).
-- *Provenance:* LL-10 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-10 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **ARCH-21** — Specify observability: structured logs at catalogue levels; never-log list (secrets, URL keys, personal data); correlation id across requests, jobs, messages, audit rows; request logs with status sent; readiness (store, migrations, dependencies) + version endpoint/output for version-aware smoke; metrics per operation, job, external budget; alerts with threshold and first action; audit catalogue (action → operation, same transaction, real actor under impersonation, append-only below the application, never on reads).
 - *Why:* refusals logged as errors (LL-15); a version-blind health check passed an unchanged deploy (LL-32); reads wrote audit rows (LL-42).
@@ -170,17 +172,17 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 - *Applies when:* always.
 - *Provenance:* industry baseline
 
-**ARCH-24** — Cut the build into ordered work packages `WP-n` of ≤ ~15 files, each compiling and running its fast suite alone (no later-WP reference) and listing files, generated migrations and TCs it turns green; first the public surface the red tests compile against.
+**ARCH-24** — Cut the build into ordered work packages `WP-n` of ≤ ~15 files, each compiling and running its fast suite alone (no later-WP reference) and listing files, generated migrations, the new public symbols it introduces (their test units are keyed to it, ORACLE-3) and the TCs it turns green; first the public surface the red tests compile against; Foundation includes the split of CI into Builder and Tester workflow files.
 - *Why:* monolithic builds hit session limits and the orchestrator finished the code itself (LL-26).
 - *Check:* trace_check gate2 finds ≥ 1 WP; each file in exactly one WP; no forward reference; the Builder commits per WP and resumes at the first uncommitted one.
 - *Applies when:* always.
-- *Provenance:* LL-26 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-26 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
-**ARCH-25** — Add a module per declared profile (table); none is N/A while its interface exists.
-- *Why:* web-only assumptions left CLI grammar and exit codes unspecified (LL-41).
-- *Check:* `context.md` profiles map to modules; examples run as consumer tests (DSN-19).
-- *Applies when:* always.
-- *Provenance:* LL-41 (ABSD v2 design review, 2026-10)
+**ARCH-25** — Add a module per declared profile (table); none is N/A while its interface exists. For cli, http-api and library adopt the public names `design.md` gives (commands and flags; resources, fields, error body and named examples; public symbols and error types) verbatim and bind each to its route, operation key or handler in the §5.0 binding table; a name that cannot be bound goes back to the Designer through the Manager, never renamed here.
+- *Why:* web-only assumptions left CLI grammar and exit codes unspecified (LL-41); with neither agent allowed to name the public surface, design examples had no operations to bind to (LL-55, LL-56).
+- *Check:* `context.md` profiles map to modules; every public name in `design.md` appears verbatim in §5.0 with its binding; examples run as consumer tests (DSN-18).
+- *Applies when:* always; the naming clause for cli, http-api, library.
+- *Provenance:* LL-41 (ABSD v2 design review, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 
 | Profile | Module specifies |
 |---|---|
@@ -189,31 +191,3 @@ judges quality at Gate 2R and audit L1, L7. Related: CODE (`absd/playbook/engine
 | cli | command tree → handler; precedence flag > env > file > default; stdout/stderr; exit codes; `--json` schema; TTY vs pipe |
 | library | public signatures and errors; semver (what breaks), deprecation window, runtimes; public-surface snapshot |
 | data-pipeline | dataset schemas (types, units, zones, nullability, keys); idempotent writes; duplicate, late data; replay, backfill, dead letter |
-
-## Architecture review checklist (Gate 2R)
-
-The Auditor checks each row against its rules, records each miss as an AR citing `ABSD:ARCH-n`, may raise a severity,
-never lowers one.
-
-| Item | Rules | Severity if missing |
-|---|---|---|
-| Dependency direction | ARCH-1, ARCH-2 | Major |
-| Decisions honoured | ARCH-7 | Major |
-| Blueprint | ARCH-8 | Major |
-| Reads | ARCH-9 | Major |
-| Derived values | ARCH-3 | Critical on money, else Major |
-| Seams & harness | ARCH-11, ARCH-12 | Major |
-| Migrations | ARCH-15 | Major |
-| Error catalogue | ARCH-13 | Major |
-| Access matrix | ARCH-20 | Critical |
-| Threat model | ARCH-20 | Major; Critical for auth, money, personal data |
-| External facts | ARCH-14, ARCH-19 | Critical |
-| Configuration | ARCH-14 | Major |
-| Flags | ARCH-18 | Major |
-| Concurrency, idempotency, jobs | ARCH-16, ARCH-17 | Major; Critical on money |
-| Observability | ARCH-21 | Major |
-| Data flows | ARCH-10 | Major |
-| Work packages | ARCH-24 | Major |
-| YAGNI vs correctness | ARCH-5, ARCH-6 | Major; Critical on money or access |
-| N/A vs applicability | STRAT-4, ARCH-22 | Major |
-| Profiles, ADRs, markers | ARCH-22, ARCH-23, ARCH-25 | Major |

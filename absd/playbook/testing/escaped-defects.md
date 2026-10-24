@@ -3,26 +3,24 @@
 Code **ESC**. What happens when a defect gets past the check that should have caught it: the main rule, what counts as
 an escape, the regression test, the why-missed taxonomy, root-cause routing, the sweep, the log, closing the loop into
 the kit, recurrence, flakes and batching. Route: Mode D (`absd/RULES.md` §2). Log: `ESCAPED-DEFECTS.md` (Tester;
-template `absd/templates/project/ESCAPED-DEFECTS.md`). User-visible regression tests: E2E-17. Harvest: ENR-1. Over time
-the tests must catch what people used to find.
+template `absd/templates/project/ESCAPED-DEFECTS.md`). Over time the tests must catch what people used to find.
 
 ## Checklist
 
-- [ ] Done only when it fails without the fix, that kind of test is fixed, it is swept and logged (ESC-1)
+- [ ] Done only when: fails without the fix, that kind of test fixed, swept, logged (ESC-1)
 - [ ] Every escape is a backlog DEF run in Mode D; nothing is fixed outside a mode (ESC-2)
 - [ ] In-cycle TF, F and DQ findings are no escapes: failing TC first, then Builder Fix (ESC-2)
-- [ ] Regression TC RED on the pre-fix commit (or `binds at re-bind`), at the lowest level that shows it (ESC-3)
-- [ ] Plus a regression test at the surface (screen, output, response) when it reached one (ESC-3)
+- [ ] Regression TC RED pre-fix (or `binds at re-bind`) at the lowest level, plus at the surface it reached (ESC-3)
 - [ ] Title carries `(DEF-n, date: what broke)`, tag `regression`, TC id and requirement ids (ESC-3)
-- [ ] Asserts the mechanism with a discriminating input; unreproducible trigger → mechanism + its undo (ESC-4)
+- [ ] Mechanism asserted with a discriminating input; unreproducible trigger → mechanism + undo (ESC-4)
 - [ ] Why-missed: taxonomy class with evidence; a kind of test changed, not only a case added (ESC-5)
 - [ ] Root-cause class with citations (external-fact gap: EXT-4 at Reproduce); the missing gate named (ESC-6)
-- [ ] Whole-repository sweep: searches, hits, dispositions; new DEFs to the backlog; the Auditor reruns it (ESC-7)
+- [ ] Whole-repository sweep: searches, hits, dispositions; new DEFs to the backlog; Auditor reruns (ESC-7)
 - [ ] Log row written at Verify with every column filled; Lesson reads `pending H` (ESC-8)
-- [ ] Every log row closed in `lessons.md`; the Tester's Log step fills Lesson before the archive (ESC-9)
+- [ ] Each row closed in `lessons.md`; the Log step fills Lesson before the archive (ESC-9)
 - [ ] A class seen before gets a mechanical control, not one more case (ESC-10)
 - [ ] Flake in this cycle's tests: reproduced deterministically, fixed now; older test → backlog DEF (ESC-11)
-- [ ] A batch holds only DEFs with one root-cause class and route; each keeps its own records (ESC-12)
+- [ ] A batch: one root-cause class and route; each DEF keeps its own records (ESC-12)
 
 ## Rules
 
@@ -38,29 +36,27 @@ archive is refused until step 4's row exists with its Lesson filled (ESC-9).
 - *Applies when:* every escaped defect, every profile, from the first one.
 - *Provenance:* LL-1, LL-2, LL-4 (KatenatsioTipster, 2026-10)
 
-**ESC-2** — Treat as an escape every defect found after its change passed its own push lane — by a user, the live
-system, exploratory testing outside the cycle's scope, the nightly or live lane, CI on a later change, a later audit or
-Mode X, or reasoning. The Manager reserves `DEF-n` in the `context.md` §16 defect backlog (found by, evidence,
-severity); a Mode D cycle copies it into `defect.md`, however small (a live Critical is first contained by the user's
-rollback or flag-off: a decision and a RISK). Nothing is fixed outside a mode. The cycle's own findings are no
-escapes: push-lane and Verify failures are TFs; an in-cycle audit (`F-n`) or Design QA (`DQ-n`) finding is routed at
-Gate 3 — the Tester adds a failing TC (a Verify sub-step; an amendment if an oracle changes) → Builder Fix → Verify →
-re-audit or re-QA.
+**ESC-2** — Treat as an escape every defect found after its change passed its own push lane (by a user, the live
+system, out-of-scope exploration, the nightly or live lane, CI on a later change, a later audit or Mode X, reasoning).
+The Manager reserves `DEF-n` in the `context.md` §16 defect backlog (found by, evidence, severity); Mode D copies it
+into `defect.md`, however small (a live Critical is first contained by the user's rollback or flag-off: a decision +
+RISK); nothing is fixed outside a mode. The cycle's own findings are no escapes: push-lane and Verify failures are
+TFs; an in-cycle audit (`F-n`) or Design QA (`DQ-n`) finding is routed at Gate 3 — the Tester adds a failing TC (Verify
+sub-step; an amendment if an oracle changes) → Builder Fix → Verify → re-audit or re-QA.
 - *Why:* a whole suite and a dozen fixes were made outside the pipeline, with no route, audit or record (LL-27); the
-  one slip CI caught before release shows the target: the suite, not people, finds it (LL-20); an audit finding
-  treated as an escape got its fix with no failing test first (LL-55).
+  one slip CI caught shows the target: the suite finds it, not people (LL-20); an audit finding fixed as an escape had
+  no failing test first (LL-55).
 - *Check:* every default-branch commit belongs to a cycle (`ABSD-Cycle` trailer, ownership_check) or a kit sync; every
   closed DEF has a log row; every F/DQ fix follows its red TC; EXPL-6 routes exploratory findings here.
 - *Applies when:* always.
 - *Provenance:* LL-27, LL-20 (KatenatsioTipster, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 
 **ESC-3** — In Mode D Reproduce, write the regression test before any fix, at the lowest level that can show the
-mechanism (STRAT-6) — unit for a rule, integration for a boundary, contract for an external reading, chain for a flow —
-plus, when the defect reached a screen or other user-visible output, a regression test at that surface on the device
-class, zone, locale and data volume where it slipped (E2E-17). Show each RED on the pre-fix commit for the stated
-reason (ORACLE-3), or mark it `binds at re-bind` when its source does not exist yet (ORACLE-8). Title it with the
-behaviour and `(DEF-n, YYYY-MM-DD: what broke)`, tag it `regression`, link the requirement it protects and its
-`TC-nnnn` (STRAT-11, TRACE-3); a test moved to another level keeps its id.
+mechanism (STRAT-6: unit, integration, contract, chain) — plus, when the defect reached a screen or other user-visible
+output, a regression test at that surface on the device class, zone, locale and data volume where it slipped (E2E-17).
+Show each RED on the pre-fix commit for the stated reason (ORACLE-3), or mark it `binds at re-bind` when its source does
+not exist yet (ORACLE-8). Title it with the behaviour and `(DEF-n, YYYY-MM-DD: what broke)`, tag it `regression`, link
+the requirement it protects and its `TC-nnnn` (STRAT-11, TRACE-3); a test moved to another level keeps its id.
 - *Why:* a results reader with no test at all sat behind flows that passed (LL-2); a phone-only failure needed a test
   at phone size, not one more desktop test (LL-4).
 - *Check:* red evidence per regression TC at the pre-fix SHA; its level matches the why-missed class; a surface test
@@ -81,12 +77,12 @@ undone when it should be (lock → unlock), and the user-visible outcomes; say i
 - *Provenance:* LL-2, LL-4 (KatenatsioTipster, 2026-10)
 
 **ESC-5** — Name why the tests missed it: one primary taxonomy class per DEF (table below) and any secondary ones, each
-with evidence — the fake, setting, device list, fixture, coverage line, oracle or catalogue gap that let it through
-(path:line) — then fix that kind of test so the whole class is caught: the fake, the harness, the device projects, the
-data volume, the gate or the plan template, and only then the case. "A case was missing" is not a class. Record it in
+with evidence (path:line of the fake, setting, device list, fixture, coverage line, oracle or catalogue gap) — then fix
+that kind of test so the whole class is caught — fake, harness, device projects, data volume, gate or plan template —
+and only then the case. "A case was missing" is not a class. Record it in
 the DEF's Reproduce section of `test_plan.md`.
-- *Why:* fakes answered as the team assumed, so the fix was their fidelity plus contract tests, not one more test in
-  the right zone (LL-1); they also served a day the feed never serves (LL-3).
+- *Why:* fakes answered as the team assumed and served a day the feed never serves; the fix was their fidelity plus
+  contract tests, not one more test in the right zone (LL-1, LL-3).
 - *Check:* the log's "How the tests improved" names a fake, harness, project, volume, gate or template change besides
   the new TCs; the Auditor checks the evidence path shows the weakness.
 - *Applies when:* every DEF.
@@ -99,9 +95,8 @@ then Architect delta; the corrected, now VERIFIED fact may ship enabled) · UX g
 QA runs) · requirements gap (no catalogue entry, empty actor × capability cell, inherited behaviour never decided) ·
 test-only gap (product meets its spec; only the tests missed it). Name the gate whose checklist should have stopped it
 and the ABSD rule, or "none — gap" when no rule covers it.
-- *Why:* admins who could not take part and a "clear all" that filled blank rows were requirement gaps a code fix would
-  have left in the catalogue (LL-5, LL-6); a wrong external fact, the most frequent escape, had no class and its fix
-  could not ship enabled (LL-56).
+- *Why:* admins who could not take part and a "clear all" that filled blank rows were requirement gaps (LL-5, LL-6); a
+  wrong external fact, the most frequent escape, had no class and its fix could not ship enabled (LL-56).
 - *Check:* Mode D Gate T reads one class per DEF with citations; a requirements gap routed straight to the Builder is a
   Major process finding.
 - *Applies when:* every DEF.
@@ -112,9 +107,9 @@ never a narrowed scope: from the class's sweep column list each search run (patt
 and its disposition: already covered (TC), covered now (new TC this cycle), or a new DEF row the Manager reserves in
 the `context.md` §16 defect backlog (Critical → this cycle with the user's agreement). After the fix the Auditor reruns
 the searches and checks every disposition.
-- *Why:* the sweep after the unread reader found six more units no test ran (LL-2); after an integration was replaced
-  a status card still named the old one (LL-17); a narrowed audit search let a secret survive outside it (LL-43);
-  sweep DEFs with no home vanished at the archive (LL-55).
+- *Why:* the sweep after the unread reader found six more units no test ran (LL-2); a replaced integration was still
+  named on a status card (LL-17); a narrowed search let a secret survive (LL-43); homeless sweep DEFs vanished at the
+  archive (LL-55).
 - *Check:* the Auditor's rerun finds no hit missing from the record; the log's sweep cell names what was found; each
   new DEF id is a backlog row.
 - *Applies when:* every DEF.
@@ -124,21 +119,21 @@ the searches and checks every disposition.
 (living, never archived, newest first; columns per its template) with every column filled except Lesson, which reads
 `pending H`; an empty finding says what was searched ("none found: …"), never a blank cell. After Gate 3 a row changes
 only in the Log step (ESC-9).
-- *Why:* an order-dependent ranking regression was fixed but never logged, so its class left no trace for the next
-  sweep (LL-49); a row due after Gate 3 with a lesson id born at Harvest could be completed by nobody (LL-56, LL-57).
+- *Why:* a ranking regression fixed but never logged left no trace for the next sweep (LL-49); a row due after Gate 3
+  with a lesson id born at Harvest could be completed by nobody (LL-56, LL-57).
 - *Check:* every DEF the cycle closes has a row; its TC ids exist in the test tree.
 - *Applies when:* every DEF.
 - *Provenance:* LL-49 (KatenatsioTipster, 2026-10); LL-56, LL-57 (ABSD v2 kit review, 2026-10)
 
 **ESC-9** — Close the loop at Harvest (Mode H): the Manager adds an `absd-project/lessons.md` row per new log row and
-closes it with exactly one of: a playbook change proposed to ABSD through enrichment (a new or amended rule, taxonomy
-class or checklist item; ENR-1), or "rule existed, not followed → enforcement change" — the gate, lint, hook, fixture
-or template that makes the rule mechanical, with its commit. Then the Tester's Log step (before Archive; documentation
-only, no re-audit, one commit) fills each Lesson cell with the `<slug>-L<n>` the Manager's brief passes. LL ids, once
-the kit accepts a proposal, go into `lessons.md`, never the log; the kit maintainer counts the escape on the LEDGER
-scoreboard under the gate that missed it.
-- *Why:* an escape log naming only the product's own fix leaves the kit unchanged, so the next product repeats the
-  class; a rule that relies on discipline fails again the same way.
+closes it with exactly one of: a playbook change proposed to ABSD through enrichment (a rule, taxonomy class or
+checklist item; ENR-1), or "rule existed, not followed → enforcement change" — the gate, lint, hook, fixture or template
+that makes the rule mechanical, with its commit. Then the Tester's Log step (before Archive; documentation only, no
+re-audit, one commit) fills each Lesson cell with the `<slug>-L<n>` the Manager's brief passes. LL ids, once the kit
+accepts a proposal, go into `lessons.md`, never the log; the kit maintainer counts the escape on the LEDGER scoreboard
+under the gate that missed it.
+- *Why:* a log naming only the product's own fix leaves the kit unchanged for the next product; a rule relying on
+  discipline fails again the same way.
 - *Check:* the archive is refused while a row of the cycle reads `pending H`; each Lesson id resolves in `lessons.md`,
   whose status is proposed, sent or accepted, or names the enforcement commit.
 - *Applies when:* every Harvest after a Mode D cycle.
@@ -147,8 +142,8 @@ scoreboard under the gate that missed it.
 **ESC-10** — Escalate recurrence: when a row's primary class already appears in an earlier row of this log or on the
 LEDGER, the fix must be mechanical — a gate, lint, generator, shared fixture, fake-parity test or plan-template item
 that fails on the whole class — and the row reports "rule existed, not followed" against that rule.
-- *Why:* one class — a fake answering as the team assumed — escaped three times: a time zone, a calendar, and a
-  deploy platform faked as synchronous (LL-1, LL-3, LL-7).
+- *Why:* assumption-fed fakes escaped three times: a time zone, a calendar, a deploy platform faked as synchronous
+  (LL-1, LL-3, LL-7).
 - *Check:* the Auditor groups log rows by class; a repeated class without a mechanical control in the same DEF is
   Major.
 - *Applies when:* every DEF whose class recurs.
@@ -161,8 +156,8 @@ harness (isolation, waits, injected time, unique data; TCQ), evidence the seeded
 race → a TF for Builder Fix with a VAR-12 test. A flake in an older test is a backlog DEF, and a TF of this cycle only
 if it leaves an in-scope requirement unverified. Never retry, quarantine, skip or lengthen a timeout to get green
 (TCQ-1).
-- *Why:* a silent retry turns a flaky proof green and the report counts it as verified; a visibility test passed only
-  by run order; a this-cycle flake routed to a later Mode D left Gate 3 blocked (LL-57).
+- *Why:* a silent retry turns a flaky proof green and verified; a this-cycle flake routed to a later Mode D left Gate 3
+  blocked (LL-57).
 - *Check:* the flake report in `test_report.md` maps each retried test to its harness fix (seeded red, then green), TF
   or DEF.
 - *Applies when:* any pass-on-retry, order-only, parallel-only or host-only failure.
@@ -171,7 +166,7 @@ if it leaves an in-scope requirement unverified. Never retry, quarantine, skip o
 **ESC-12** — Batch in one `defect.md` only DEFs with the same root-cause class and route; each keeps its own regression
 tests, why-missed entry, sweep record and log row. Non-Critical sweep findings become new backlog DEFs (ESC-7), never
 scope growth; a batch whose items turn out to need different routes is split at Gate T.
-- *Why:* the only route was the heavy feature route, so a day of escapes was fixed outside the pipeline (LL-27).
+- *Why:* with only the heavy feature route, a day of escapes was fixed outside the pipeline (LL-27).
 - *Check:* Mode D Gate T: one class and one route per `defect.md`; one log row per DEF.
 - *Applies when:* Mode D with more than one DEF.
 - *Provenance:* LL-27 (KatenatsioTipster, 2026-10)

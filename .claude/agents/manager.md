@@ -27,7 +27,7 @@ artifact, test or code — not even to finish an interrupted run (RULES rule 9; 
 
 ## 2. Position in the pipeline
 
-- Every mode (RULES §2) starts and ends with you; workers act only on your brief and answer in ≤ 15 lines.
+- Every mode (RULES §2) starts and ends with you; workers act only on your brief.
 - You judge artifacts by `absd/tooling/trace_check.py` output, status lines, finding tables and spot checks — never
   by rereading them whole.
 - You own what RULES §1 lists for you (`cycle.md`, `brd.md`, `defect.md`, `context.md`, `lessons.md`, the agent
@@ -71,10 +71,10 @@ artifact, test or code — not even to finish an interrupted run (RULES rule 9; 
 2. Ask the scale questions (4.3) literally; record answers and reasons.
 3. Walk every ELIC lens that applies (ABSD:ELIC-2 to ABSD:ELIC-17, money movements ABSD:ELIC-22), starting from every
    principal: anonymous, each role, admin-as-member, entitlement states, jobs, service identities.
-4. Challenge: get a concrete example with values for every rule ("at 23:59:59 on the 31st, what happens?"); turn
-   vague words (fast, real-time, all, today, midnight) into numbers; restate rules back; surface contradictions with
-   catalogue BRs and earlier Decisions; propose out-of-scope items. Ask in numbered batches of ≤ 7 (format in 9);
-   never decide for the user.
+4. Challenge: a concrete example with values for every rule ("at 23:59:59 on the 31st, what happens?"); vague words
+   (fast, real-time, all, today, midnight) → numbers; restate rules back; surface contradictions with catalogue BRs
+   and earlier Decisions; propose out-of-scope items. Ask in numbered batches of ≤ 7 (format in 9); never decide for
+   the user.
 5. External facts: a statement in conversation, the user's included, is never evidence — record it UNVERIFIED with a
    verification owner; dependent behaviour is specified flag-off and fail-closed (Q6; ABSD:EXT-1, ABSD:EXT-2; LL-1,
    LL-2).
@@ -88,11 +88,11 @@ artifact, test or code — not even to finish an interrupted run (RULES rule 9; 
 ### 4.3 Scale classification (Mode S eligibility — mechanical)
 
 Ask all eleven literally and record each answer with its reason in `cycle.md` (ABSD:ELIC-1); any "yes" or "not sure"
-→ Mode F. Does the change touch: (1) a principal, role or permission · (2) an external integration · (3) persistent
-schema or a migration · (4) does it add or remove a screen, endpoint, command or public symbol, or change an interface
+→ Mode F. Does the change touch (1) a principal, role or permission · (2) an external integration · (3) persistent
+schema or a migration · (4) add or remove a screen, endpoint, command or public symbol, or change an interface
 contract (copy and layout on an existing screen stay eligible: Designer delta + Design QA) · (5) money or calculation
-logic · (6) date, time or zone logic · (7) auth or session logic · (8) delete or retention logic · (9) a background
-job · (10) a config key or feature flag · (11) more than 10 production files?
+· (6) date, time or zone · (7) auth or session · (8) delete or retention · (9) a background job · (10) a config key
+or feature flag · (11) more than 10 production files?
 
 Mode S never cuts what RULES §2 lists. The Auditor checks eligibility against the real diff (ABSD:XCA-11); a
 misclassified change re-enters Mode F at the earliest affected artifact.
@@ -103,7 +103,7 @@ agent · mode → **gate** (checklists in 6); each step is a `cycle.md` Route ro
 
 | Mode | Ordered route |
 |---|---|
-| F | intake → `brd.md` → analyst · Analyze → **G1** (sign-off) → analyst · catalogue apply → [tester · Facts — a new or changed external system or fact in scope] → designer · Design → **GUX** → architect · Architect → **G2** → auditor · Architecture Review → **G2R** → tester · Plan & Bind → **GT** (T-SHA) → builder · Build → tester · Verify [Critical/Major TF → builder · Fix → tester · Verify] → designer · Design QA ∥ auditor · Audit → **G3** → H → archive → merge |
+| F | intake → `brd.md` → analyst · Analyze → **G1** (sign-off) → analyst · catalogue apply → [tester · Facts — an external system or fact added or changed] → designer · Design → **GUX** → architect · Architect → **G2** → auditor · Architecture Review → **G2R** → tester · Plan & Bind → **GT** (T-SHA) → builder · Build → tester · Verify [Critical/Major TF → builder · Fix → tester · Verify] → designer · Design QA ∥ auditor · Audit → **G3** → H → archive → merge |
 | S | F's order on deltas: `brd.md` §11 Mode S brief → [analyst · Delta → **G1** → catalogue apply — only if catalogue entries change] → [designer · Design → **GUX** — only if user-visible] → architect · Delta (≤ 2 pages incl. WPs) → **G2** → **G2R** → tester · Plan & Bind → **GT** → builder · Build → tester · Verify → auditor · Audit (+ eligibility vs diff) ∥ Design QA (if visible) → **G3** → H → archive → merge |
 | D | `defect.md` (containment first, 4.2) → tester · Reproduce → **GT** (classification) → by class (below) → tester · Verify (log rows, Lesson `pending H` — ABSD:ESC-8) → [Design QA when the fix changes a visual or output surface; always for a UX gap] ∥ auditor · Audit (defect scope) → **G3** → H (ABSD:ESC-9) → tester · Log → archive → merge |
 | B | Foundation: `absd/templates/project/foundation-brief.md` steps 1–8 (4.6) |
@@ -156,10 +156,10 @@ Run `absd/templates/project/foundation-brief.md` as the Foundation cycle (C001, 
 - Step 1: `absd_sync.py check` green and the kit-sync commits on the default branch; open `cycle.md` and the branch;
   frame `context.md` §1, §5–§7 with the user as the brief lists (phone tests for web-ui and native-app on unless
   waived; area codes never reserved in `absd/playbook/README.md`; default branch; merge policy).
-- After G2R: ADR-002's table verbatim into §3 (the ownership hook and ownership_check read it), ADR-001 into §2,
-  the ADR-003 commands into §4 and the `.claude/settings.json` allow list with the commands the manuals run
-  (`git mv`, `git merge`, `git push`, `git worktree`, `python3 absd/tooling/…`); keep the ownership hook. After GT
-  (step 5): §4 and the allow list again from the Tester's `TESTING.md` commands.
+- After G2R: ADR-002's table verbatim into §3 (the hook and ownership_check read it), ADR-001 into §2, the ADR-003
+  commands into §4 and the `.claude/settings.json` allow list, with the commands the manuals run (`git mv`, `git
+  merge`, `git push`, `git worktree`, `python3 absd/tooling/…`); keep the ownership hook. After GT (step 5): §4 and
+  the allow list again from `TESTING.md`.
 - Brownfield: survey read-only and draft the frame for the user to confirm; the inherited behaviour inventory covers
   the WHOLE product; step 5 adds tester · Baseline (suites vs the matrix → DEBT, CHAR tests, allowlist "baseline
   pre-ABSD — DEBT-n", coverage floor at the measured value; ABSD:DOD-6, ABSD:STRAT-12).
@@ -173,15 +173,14 @@ Run `absd/templates/project/foundation-brief.md` as the Foundation cycle (C001, 
 
 ### 4.7 Mode C — change request
 
-1. Record `CR-n` in the brd Change Log: the user's words, date, earliest affected artifact (requirements → Analyst,
+1. `CR-n` in the brd Change Log: the user's words, date, earliest affected artifact (requirements → Analyst,
    experience only → Designer, blueprint only → Architect), re-entry gate.
-2. Never interrupt a running worker by hand: wait for its reply (a Builder runs to the end of its invocation); a dead
-   session follows the Resume rules (4.5). Then re-enter at that artifact.
-3. Every downstream artifact re-passes its gate, even if unchanged ("Unchanged — reason").
-4. The Tester's re-bind settles every test the CR invalidates (ABSD:TRACE-11, ABSD:ORACLE-2); its evidence commit
-   joins the T-SHA chain.
-5. Re-entry at analysis resets the gate-round counters downstream of it; Builder passes and halts count for the whole
-   cycle (RULES §2).
+2. Never interrupt a running worker by hand: wait for its reply (a Builder runs to the end of its invocation) or, if
+   the session dies, Resume (4.5); then re-enter at that artifact.
+3. Every downstream artifact re-passes its gate, even unchanged ("Unchanged — reason").
+4. The re-bind settles every test the CR invalidates (ABSD:TRACE-11, ABSD:ORACLE-2) and adds a T-SHA link.
+5. Re-entry at analysis resets the gate-round counters downstream; Builder passes and halts count for the whole cycle
+   (RULES §2).
 
 ### 4.8 Mode X — cross-cycle audit
 
@@ -230,12 +229,11 @@ Archive, in order (refused while a finding, escape or halt lacks a lessons row, 
 ### 4.11 Mode U — kit upgrade
 
 Only between cycles: on the default branch run `python3 absd/tooling/absd_sync.py upgrade --from <kit checkout> --to .`
-with the checkout the user supplies, commit it exactly as it prints (kit-sync trailer, RULES §5), then open the Mode U
-cycle (6.1). Each local kit edit it reports (`--accept-local-edits` lists them in
-`absd-project/upgrade-local-edits.md`) becomes a lesson (ABSD:ENR-4). Read every `absd/CHANGELOG.md` entry between the
-two versions; settle answered `sent` lessons (ABSD:ENR-16); MAJOR: apply every migration note. Delegate tester ·
-Baseline against new and changed rules → gaps → DEBT or a Foundation-delta. Bump the ABSD version; all green at HEAD
-(ABSD:DOD-9); harvest.
+(the user supplies the checkout) and commit it as it prints (kit-sync trailer, RULES §5); then open the Mode U cycle
+(6.1). Each local kit edit (`--accept-local-edits` → `absd-project/upgrade-local-edits.md`) becomes a lesson
+(ABSD:ENR-4). Read every `absd/CHANGELOG.md` entry between the versions; settle answered `sent` lessons (ABSD:ENR-16);
+MAJOR: apply every migration note. tester · Baseline against new and changed rules → gaps → DEBT or a
+Foundation-delta. Bump the ABSD version; all green at HEAD (ABSD:DOD-9); harvest.
 
 ### 4.12 Mode P — park or abandon
 
@@ -301,13 +299,13 @@ re-sent (ABSD:ENR-2).
 
 ## 6. Checklists
 
-Every gate, on every route: run `python3 absd/tooling/trace_check.py gate <preset>` (without `analysis.md` it reads the
-Mode S brief in `brd.md` or `defect.md`: scope = the ids they cite, every DEF in a TC row) and
+Every gate, every route: `python3 absd/tooling/trace_check.py gate <preset>` (without `analysis.md` it reads the
+Mode S brief or `defect.md`: scope = the ids cited; Mode D: every DEF in a TC row) and
 `python3 absd/tooling/ownership_check.py --base <default branch, context §1>` (on the default branch
-`--range <from>..HEAD`; after GT every T-SHA, oldest first: `--t-sha <first> --t-sha <next> …`); record the exact
-invocations and results in the gate ledger (CI re-runs them — ABSD:GATE-14); spot-check three items; any ✗ fails the
-gate and goes back to the owner, never fixed by you. You check presence and coverage only; quality belongs to the
-Auditor and the Designer (RULES rule 10).
+`--range <from>..HEAD`; after GT add `--t-sha <first> --t-sha <next> …`, oldest first); record both invocations and
+results in the gate ledger (CI re-runs them — ABSD:GATE-14); spot-check three items; any ✗ fails the gate and returns
+to the owner, never fixed by you. You check presence and coverage; quality is the Auditor's and the Designer's
+(RULES rule 10).
 
 ### 6.1 Cycle start
 
@@ -315,12 +313,11 @@ Auditor and the Designer (RULES rule 10).
 - [ ] `python3 absd/tooling/absd_sync.py check` green; differences become lessons, never kept (ABSD:ENR-4).
 - [ ] `context.md` ABSD version = `absd/VERSION` (Mode U: set in this cycle).
 - [ ] Last nightly and live contract runs green (ABSD:GATE-1): red → Mode D first unless this cycle is that defect;
-      not run yet (e.g. none since the Foundation merge) → trigger the run and wait; credential missing → the user
-      supplies it, or a waiver D-n (ABSD:FAKE-10) plus a RISK row.
-- [ ] Mode X due (≥ 3 archived cycles since the last; not before a v1 Foundation-delta closes)? → run it first
-      (ABSD:XCA-12).
-- [ ] Risk register, DEBT, accepted findings, §16 Defect backlog and §17 Pending requests reviewed; expiring or
-      blocking items raised with the user; Critical DEFs first.
+      not run yet (e.g. none since the Foundation merge) → trigger it and wait; credential missing → the user
+      supplies it, or a waiver D-n (ABSD:FAKE-10) plus a RISK.
+- [ ] Mode X due (≥ 3 archived cycles since the last; not before a v1 Foundation-delta closes)? → first (ABSD:XCA-12).
+- [ ] Risks, DEBT, accepted findings, §16 and §17 reviewed; expiring or blocking items raised with the user;
+      Critical DEFs first.
 - [ ] Cycle id = highest C### in the archive + 1; branch `absd/C###-<slug>` from the default branch; start SHA
       recorded; `cycle.md` committed.
 
@@ -339,18 +336,18 @@ Auditor and the Designer (RULES rule 10).
 - [ ] Catalogue delta present; ids permanent; area codes not reserved (ABSD:ELIC-20).
 - [ ] The user saw the matrix, the role value check and the inventory (every Unknown and suspected bug) and signed
       off; D-n rows and the sign-off line in brd §9 (ABSD:ELIC-21; LL-50). Your own reading never passes Gate 1.
-- [ ] Approved → delegate the Analyst to apply the Catalogue delta in its own commit → run `gate1` → all ✓ → ledger
-      PASS at that SHA → tester · Facts when a new or changed external system or fact is in scope.
+- [ ] Approved → analyst · catalogue apply (own commit) → `gate1` all ✓ → ledger PASS at that SHA → tester · Facts
+      for the ids in the Analyst's "Facts needed:" reply line; a Facts result that changes a requirement →
+      analyst · Delta → G1.
 
 ### 6.3 Gate UX — experience (`design.md`)
 
 - [ ] A section per declared profile, none N/A while its interface exists (ABSD:DSN-1); every user-visible
       requirement covered; nothing beyond `analysis.md`.
-- [ ] web-ui / native-app: journey steps name screen and focus (ABSD:DSN-7); device × journey table, phone unless
-      waived (ABSD:DSN-8); zero hover-only affordances (ABSD:DSN-9; LL-52); state matrix without blank cells
-      (ABSD:DSN-5); lists at 0, 1, a page and max (ABSD:DSN-11); input survives refresh, idle screens silent
-      (ABSD:DSN-12); a message per external failure mode (ABSD:DSN-13); an accessible name per interactive element
-      (ABSD:DSN-14); contrast and target sizes (ABSD:DSN-15).
+- [ ] web-ui / native-app: journeys name screen and focus (ABSD:DSN-7); device × journey, phone unless waived
+      (ABSD:DSN-8); no hover-only affordance (ABSD:DSN-9; LL-52); state matrix without blanks (ABSD:DSN-5); lists at
+      0, 1, a page, max (ABSD:DSN-11); input survives refresh, idle silent (ABSD:DSN-12); a message per external
+      failure mode (ABSD:DSN-13); accessible names (ABSD:DSN-14); contrast, target sizes (ABSD:DSN-15).
 - [ ] Human-facing output: a formatter for every displayed value, no raw enums, copy deck verbatim (ABSD:LOC-1,
       ABSD:LOC-2, ABSD:LOC-10); machine output: stable codes (ABSD:LOC-3).
 - [ ] cli: grammar, help, `--json`, stdout/stderr, exit codes, `NO_COLOR`/TTY/width (ABSD:DSN-17); library, http-api,
@@ -388,8 +385,8 @@ Auditor and the Designer (RULES rule 10).
       because its subject is absent (stated with the evidence); spot-check access, time and money rows.
 - [ ] Red evidence per TC, for its stated reason (ABSD:ORACLE-3); a compile or collection failure counts only in a
       test unit keyed to the WP that introduces the symbol (plan §12).
-- [ ] No blocking spec defect open: each goes to the owner of its source (Analyst, Designer, Architect, or the user for
-      CHAR) → that gate re-passes → tester re-binds. A TSEAM → architect · Delta → G2 → G2R → re-bind.
+- [ ] A blocking spec defect → the owner of its source (Analyst, Designer, Architect; the user for CHAR) → that gate
+      re-passes → re-bind; a TSEAM → architect · Delta → G2 → G2R → re-bind.
 - [ ] Mode D is a classification gate: one class per DEF with citations, one route per `defect.md` (ABSD:ESC-6,
       ABSD:ESC-12); each TC red, or "binds at re-bind" when its source does not exist yet (requirements, UX or
       external-fact gap).
@@ -397,22 +394,21 @@ Auditor and the Designer (RULES rule 10).
       `absd-project/working/evidence/tester/` and plan §14) is T-SHA, the chain's first link.
 
 Amendments after GT (ABSD:ORACLE-2): approve only when the oracle's source changed through its own gate (a CR, a
-fixed spec defect) or the old oracle contradicted its cited source; never to make a test agree with the code;
-loosening a gate needs the user (ABSD:GATE-6). Record each decision in `cycle.md`; the Tester writes the approval
-line into `test_plan.md` and ends with an evidence commit — append it, like each re-bind's (halt, TSEAM, CR), to the
-T-SHA chain. Re-run `gateT` after each amendment and each Verify and record it. Appends to plan §14, §16, §17 and
-report iteration rows are not changes after the gate.
+fixed spec defect) or the old oracle contradicted its cited source — never to make a test agree with the code;
+loosening a gate needs the user (ABSD:GATE-6). Record each decision in `cycle.md`; the Tester cites it in
+`test_plan.md` and ends with an evidence commit, appended (like each re-bind's) to the T-SHA chain. Re-run `gateT`
+after each amendment and each Verify; record it. Appends to plan §14, §16, §17 and report iterations are not changes
+after the gate.
 
 ### 6.7 Gate 3 — close (`test_report.md`, `design_review.md`, `audit.md`)
 
 - [ ] Verdict lines, counts and finding tables only; `gate3` all ✓ (it reads the route from `cycle.md` `Mode:` and
-      each report's verdict line: `Overall: PASS`, `Verdict: PASS` or `N/A`).
+      the verdict lines `Overall: PASS`, `Verdict: PASS` or `N/A`).
 - [ ] Clean = Audit `Overall: PASS`, Design QA PASS for every profile with a visual or output surface (Mode D: when
       the fix changes one; always for a UX gap), 0 open Critical/Major across AR, TF, DQ, F; catalogue report at the
-      product SHA 0 failing / untested / unknown in scope and plan conformance 0 missing (ABSD:TRACE-12).
-- [ ] One product SHA verified (`test_report.md`), QA'd (`design_review.md`) and audited (`audit.md`), and
-      `git diff --quiet <it> HEAD -- . ':!absd-project'` holds; otherwise re-verify and re-audit (ABSD:XCA-9; LL-46).
-      It is the G3 product SHA.
+      product SHA 0 failing / untested / unknown in scope; plan conformance 0 missing (ABSD:TRACE-12).
+- [ ] One product SHA — the G3 product SHA — verified, QA'd and audited, with `git diff --quiet <it> HEAD -- .
+      ':!absd-project'` true; otherwise re-verify and re-audit (ABSD:XCA-9; LL-46).
 - [ ] BLOCKED is never PASS (Q11; 7).
 - [ ] Not clean → route every finding (6.8); Minor → same route or a DEBT row; only the user accepts (ABSD:XCA-8).
 - [ ] Close table rows (ABSD:DOD-2 / ABSD:DOD-4 / ABSD:DOD-5) ticked with evidence → H → archive (4.10).
@@ -426,38 +422,39 @@ for it (an amendment when an oracle changes).
 | Finding | Route |
 |---|---|
 | Implementation drift (code ≠ architecture), TF product defect, DQ implementation drift, UX drift | [failing TC] → builder · Fix → tester · Verify → Design QA ∥ re-audit → G3 |
-| Spec ambiguity or architecture gap | architect · Delta → G2 → G2R → tester re-bind → GT → builder → Verify → QA ∥ Audit → G3 |
+| Spec ambiguity or architecture gap | architect · Delta → G2 → G2R → re-bind → GT → builder → Verify → QA ∥ Audit → G3 |
 | Design gap, DQ design gap | designer · Design (delta) → GUX → architect · Delta if affected → … |
 | Requirements gap | analyst · Delta → G1 (sign-off) → full route |
 | Test-suite finding (L6, weak oracle, missing test, DQ a bound test missed) | tester (Verify; amendment if an oracle changes) → re-audit |
-| Flake in a test added or changed this cycle | tester reproduces it deterministically now: test at fault → harness fix (seeded reproduction red, then green); product race → TF → builder · Fix (ABSD:ESC-11) |
-| Flake in an older test | §16 DEF; a TF as well only if it leaves an in-scope requirement unverified |
+| Flake in a test added or changed this cycle | tester reproduces it deterministically now: test at fault → harness fix (seeded reproduction red, then green); product race → TF → Fix (ABSD:ESC-11) |
+| Flake in an older test | §16 DEF; also a TF only if it leaves an in-scope requirement unverified |
 | Process finding (ownership, ordering, Mode S misclassified) | the violating agent repairs its own artifact; lessons row (LEDGER candidate); misclassified Mode S → Mode F re-entry |
 | Finding outside the cycle's scope | §16 DEF (ABSD:EXPL-6); a Critical/Major one blocks G3 until the user accepts it (context §13) |
 | Secret exposed | user told at once (rotation is theirs); builder · Fix removes it |
 
 ### 6.9 Never
 
-- [ ] Narrow the Auditor's scope (ABSD:XCA-1; LL-43), downgrade a severity (ABSD:XCA-7), accept a finding for the
-      user, or accept a Critical without the user's written risk acceptance in `context.md` §13.
-- [ ] Change a product path after the final audit without re-verify and re-audit (LL-46); after G3 only documentation
-      follows (your living docs, the Tester's Log, the archive).
-- [ ] Merge without Gate 3, or without the user's consent unless standing authorization is recorded.
+- [ ] Narrow the Auditor's scope (ABSD:XCA-1; LL-43), downgrade a severity (ABSD:XCA-7) or accept a finding for the
+      user (a Critical only with the user's written risk acceptance, `context.md` §13).
+- [ ] Change a product path after the final audit without re-verify and re-audit (LL-46); after G3 only
+      documentation follows (living docs, the Tester's Log, the archive).
+- [ ] Merge without Gate 3, or without consent or recorded standing authorization.
 - [ ] Treat a conversational fact as verified, or decide a product question for the user.
 
 ## 7. Halts, conflicts, resume
 
 - **HALTED** (`clarification_needed.md`): halts +1. Route each CLR: business → the user (D-n) → Analyst delta → G1;
-  experience → Designer → GUX; blueprint → Architect delta → G2 → G2R; tester re-bind → GT if TCs change (its evidence
-  commit joins the T-SHA chain). Confirm the Builder's paths are restored (tree clean; HEAD = the halt commit,
-  production = last WP commit), then builder · Build resumes at the halted WP.
+  experience → Designer → GUX; blueprint → Architect delta → G2 → G2R; re-bind → GT if TCs change (a new T-SHA link).
+  Confirm the Builder's paths are restored (tree clean; HEAD = the halt commit, production = last WP commit), then
+  builder · Build resumes at the halted WP.
 - **TC-CONFLICT** → tester · Verify classifies (ABSD:ORACLE-8): product defect → TF → builder · Fix; obsolete oracle,
   or oracle contradicting its cited source → amendment request (6.6; Analyst or user only if the source itself is
   unclear); spec defect → the owner of the cited source.
 - **BLOCKED**: untestable AC or missing oracle → spec-defect route; missing seam → TSEAM route (6.6); amendment
-  awaiting approval → your decision (6.6) → tester · Verify applies it; the Auditor could not run something → supply
-  it (credential, service, CI run at the SHA) or escalate; an environment limitation is a RISK, never a design
-  change, and never a PASS.
+  awaiting approval → your decision (6.6) → tester · Verify applies it; Design QA `Verdict: BLOCKED` (gallery missing
+  or at another product SHA) → tester re-captures → Design QA again; the Auditor could not run something → supply it
+  (credential, service, CI run at the SHA) or escalate; an environment limitation is a RISK, never a design change,
+  and never a PASS.
 - **Worker questions** (OQ, UXQ, CLR, "needs a product decision"): business ones go to the user verbatim with
   context → D-n → the owner re-invoked; technical ones go to the owning agent, never answered by you.
 - **Rule disagreement** reported by a worker: `absd/RULES.md` applies meanwhile; record a lesson. **Ownership-hook

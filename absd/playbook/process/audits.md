@@ -39,8 +39,8 @@ the brief says; an instruction to narrow is itself recorded as a process finding
 the project) of the product SHA under audit (`absd/RULES.md` §6) — every device and zone/locale project, recorded contracts, access matrix, coverage, traceability, mutation, ownership and
 trace checks; then reconcile test case by test case: executed = planned, skipped = 0, counts per file. A CI run
 substitutes only at that product SHA with its job logs pulled and reconciled by you. The evidence stays valid while
-`git diff --quiet <product SHA> HEAD -- . ':!absd-project'` holds: pipeline commits (artifacts, evidence, the Design QA
-running in parallel) are never a reason to restart; a changed product path is. Anything you cannot run makes the
+`git diff --quiet <product SHA> HEAD -- . ':!absd-project'` holds: pipeline commits (artifacts, evidence, a parallel Design
+QA) are never a reason to restart; a changed product path is. Anything you cannot run makes the
 verdict BLOCKED, never PASS; the limitation becomes a RISK, never a design decision.
 - *Why:* audits certified backend tests they had never run because "CI is the designated gate" (LL-24); measurable
   criteria passed by code reading (LL-45); "audited SHA = HEAD" broke at the next hand-off commit (LL-55).
@@ -85,7 +85,7 @@ expected value. Anything else is Major (Q1); a loosened gate is Critical.
 
 ### Adversarial stance
 
-**XCA-5** — Probe, do not only read: in a throwaway worktree outside the project (e.g. under `$TMPDIR`, never
+**XCA-5** — Probe, do not only read: in a throwaway worktree outside the project (under `$TMPDIR`, never
 committed), inject at least one fault per money, time and access rule (flip a comparison, drop a filter, swap a field,
 shift a zone) and confirm a test fails; derive three fresh cases per money and time rule from `analysis.md` and run
 them; rerun every same-weakness sweep (ESC-7). Leave the audited tree byte-identical (`git status` clean, same HEAD). A
@@ -101,9 +101,8 @@ surviving fault is a missing test: Critical on these paths.
 playbook rule are a finding even when "backward compatible", "safe default", "YAGNI" or "same behaviour as before"; a
 deviation from the blueprint noted as "resolved inline" or improvised (a mutating call used as a read, a class moved) is a
 Major process finding plus the defect it hides.
-- *Why:* an audit called a client-trusted value "the correct backward-compatible interpretation" against a rule
-  (LL-48); the Builder improvised around a missing read and a dependency cycle instead of halting (LL-42); a gate
-  decision was silently reversed (LL-44).
+- *Why:* an audit called a client-trusted value "the correct backward-compatible interpretation" (LL-48); the Builder
+  improvised around a missing read and a dependency cycle instead of halting (LL-42); a decision was reversed (LL-44).
 - *Check:* the Auditor greps `build_log.md` and code comments for deviation wording and maps each to a finding.
 - *Applies when:* always.
 - *Provenance:* LL-42, LL-44, LL-48 (KatenatsioTipster, 2026-10)
@@ -111,8 +110,8 @@ Major process finding plus the defect it hides.
 **XCA-7** — Grade every finding by the table: by its worst effect on any principal or data, not by likelihood; when two
 rows fit, the higher wins; the same class gets the same severity in every cycle; only the finder sets it and the
 Manager never downgrades it.
-- *Why:* the same class, a missing test for a money rule, was Major in one cycle and Minor in another (LL-47).
-- *Check:* each finding cites its table row; the Auditor compares classes with earlier `audit.md` files.
+- *Why:* a missing test for a money rule was Major in one cycle, Minor in another (LL-47).
+- *Check:* each finding cites its table row; the Auditor compares classes with earlier audits.
 - *Applies when:* every finding (AR, TF, DQ, F).
 - *Provenance:* LL-47 (KatenatsioTipster, 2026-10)
 
@@ -149,10 +148,9 @@ never overwrite an earlier iteration. A commit touching only `absd-project/` nee
 
 ### Reviews by mode
 
-**XCA-10** — At Gate 2R judge the blueprint with the review checklist in
-`absd/playbook/engineering/architecture-review.md` (technical excellence, security, testability, operability, consistency with `analysis.md` and every recorded decision,
-dependency direction, non-mutating reads, VERIFIED or flag-gated external facts, N/A vs matrix) and write AR findings
-with a resolution table. The post-build audit reads only that resolution table, not the 2R reasoning, and may raise new
+**XCA-10** — At Gate 2R judge the blueprint against every row of the review checklist in
+`absd/playbook/engineering/architecture-review.md` (technical excellence, security, testability, operability,
+consistency with `analysis.md` and every recorded decision) and write AR findings with a resolution table. The post-build audit reads only that resolution table, not the 2R reasoning, and may raise new
 architecture findings. The Architect may contest one AR with an ADR; if still disputed, the user decides.
 - *Why:* nobody judged architecture quality, so a missing read, a dependency cycle and a reversed decision reached the
   Builder (LL-42, LL-44).
@@ -175,9 +173,8 @@ candidate, and the cycle re-enters Mode F at the earliest affected artifact.
 release (DOD-8) and on request. Inputs: the integration seams list, `context.md`, the code at HEAD and the catalogue —
 not every archive. Execute, do not only read: run the product with each environment's default configuration, the
 recorded contracts, the chain tests and the device projects; apply every lens of XCA-13.
-- *Why:* a migration snapshot missing ~60% of the columns passed four per-cycle audits, each correct against its own
-  spec (LL-21); a static cross-cycle audit then missed every defect needing real data, devices or responses (LL-1,
-  LL-4).
+- *Why:* a snapshot missing ~60% of the columns passed four per-cycle audits (LL-21); a static cross-cycle audit
+  missed every defect needing real data, devices or responses (LL-1, LL-4).
 - *Check:* `cycle.md` and `context.md` §15 show a Mode X within every 3 archived cycles and before each release.
 - *Applies when:* ≥ 3 archived cycles since the last Mode X; before any release; after brownfield adoption (a v1
   project: once its Foundation-delta has closed).
