@@ -2,14 +2,17 @@
 
 > Living product memory — owned by the Manager, read by every agent, NEVER archived. Current state only (≤ 25 KB);
 > history lives in `absd-project/archive/`. Machine-read sections (Source Layout & Ownership, Execution Environment)
-> keep their table headers exactly as below. Fill every `<…>`; write "none" rather than leaving a section empty.
+> keep their table headers exactly as below. Fill every `<…>`; write "none" rather than leaving a section empty. While
+> §1 holds a `<…>` placeholder or §15 has no Foundation row, the Manager starts Mode B (`ABSD:DOD-5`).
 
 ## 1. Product frame
 - Product: <name — one-line purpose>
 - Repository: <owner/repo> · default branch: <main> · merge policy: <"ask the user at every Gate 3" | "standing authorization for …">
 - ABSD version: <x.y.z> (see `absd/VERSION`) · active cycle: <C### slug | none>
+- Kit sync: the user runs `absd_sync.py install | upgrade | migrate-v1` from a kit checkout and commits it on the default
+  branch with the trailer it prints (`ABSD-Sync: <operation> <version>`); the Manager only verifies (`absd_sync.py check`)
 - Interface profiles: <web-ui | native-app | http-api | cli | library | data-pipeline — one or more>
-- Audiences and devices: <who uses it, on what: e.g. members on phones (portrait), admins on desktop> · phone tests waived: <no | yes — user's decision, date>
+- Audiences and devices: <who uses it, on what: e.g. members on phones (portrait), admins on desktop> · phone tests waived (web-ui, native-app): <no | yes — user's decision, date | n/a>
 - Principals: <every role and identity: anonymous, each role, admin-as-member, service identities, jobs>
 - Entitlement states: <e.g. active, expired, suspended, impersonated — or none>
 - Requirement area codes: <AREA = meaning; must not collide with the reserved codes in `absd/playbook/README.md`>
@@ -23,16 +26,20 @@
 - Key libraries: <…>
 
 ## 3. Source Layout & Ownership (ADR-002)
-First matching row wins. Owners: builder, tester, manager, analyst, designer, architect, auditor, shared.
+First matching row wins. Owners: builder, tester, manager, analyst, designer, architect, auditor, shared. Never listed
+here (built in): the kit (`absd/`, `.claude/agents/`, `.github/agents/`), the Manager's agent configuration (`.claude/`,
+every `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/`) and everything under `absd-project/`.
 
 | Path | Owner | Purpose |
 |---|---|---|
 | `<src/**>` | builder | production source |
 | `<migrations/**>` | builder | schema migrations |
 | `<.github/workflows/build.yml>` | builder | build, package, deploy |
+| `<infra/**>` | builder | infrastructure, IAM and grants as code |
 | `<tests/**>` | tester | all tests, fakes, fixtures, seeds, recordings |
 | `<.github/workflows/tests.yml>` | tester | test, gate and nightly jobs |
-| `<test runner / coverage / mutation configs>` | tester | thresholds, retries, reporters |
+| `<test runner / coverage / mutation / test-lint configs>` | tester | thresholds, retries, reporters (standalone files) |
+| `<package manifest shared by tests and production>` | shared | only where the stack cannot split it; the test-dependency sections are the Tester's (architecture §11.8) |
 | `docs/testing/**` | tester | TESTING, ESCAPED-DEFECTS, EXPLORATORY, EXTERNAL-FACTS |
 | `<README.md, docs/**>` | shared | product docs |
 
@@ -51,8 +58,8 @@ First matching row wins. Owners: builder, tester, manager, analyst, designer, ar
 | mutation | `<…>` | | |
 | lint / format / type check | `<…>` | | |
 
-A suite that cannot run here is proven only by a CI run at the exact commit (`ABSD:GATE-1`). Environment limitations
-go to the Risk register, never into the architecture.
+A suite that cannot run here is proven only by a CI run at the product SHA, the last commit outside `absd-project/`
+(`ABSD:GATE-1`). Environment limitations go to the Risk register, never into the architecture.
 
 ## 5. Locale & Time Profile
 - Display time zone(s): <…> · server zone: <UTC> · provider zones: <EXT ids>
@@ -63,7 +70,7 @@ go to the Risk register, never into the architecture.
 | Collection | Typical | Max observed | Real ordering | Source |
 |---|---|---|---|---|
 
-## 7. External systems (facts live in `docs/testing/EXTERNAL-FACTS.md`)
+## 7. External systems (facts live in `docs/testing/EXTERNAL-FACTS.md`; a new fact id is the highest `EXT-<SYS>-n` here or there + 1)
 | System | Purpose | Interface | Facts (EXT ids) | Unverified facts → feature flag |
 |---|---|---|---|---|
 
@@ -98,6 +105,14 @@ go to the Risk register, never into the architecture.
 ## 14. Conventions (the single home for project conventions)
 - <naming, error model, API style, commit style, copy tone, UI language…>
 
-## 15. Completed cycles
+## 15. Completed cycles (the first row is the Foundation, Mode B; the merge is recorded here)
 | Cycle | Date | Mode | Module | Gate 3 | Archive |
 |---|---|---|---|---|---|
+
+## 16. Defect backlog (DEF ids reserved here: next = highest in repo and archive + 1; a Mode D cycle copies its rows into `defect.md`)
+| DEF | Title | Found by, date | Severity | Proposed class | Source (cycle/finding) | Status |
+|---|---|---|---|---|---|---|
+
+## 17. Pending requests (asks not yet in a cycle)
+| # | Request | From, date | Proposed mode | Status |
+|---|---|---|---|---|

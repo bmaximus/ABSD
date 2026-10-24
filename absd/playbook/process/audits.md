@@ -49,15 +49,14 @@ verdict BLOCKED, never PASS; the limitation becomes a RISK, never a design decis
 - *Applies when:* every audit (cycle, defect, cross-cycle).
 - *Provenance:* LL-24, LL-45 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
 
-**XCA-3** — Report each level below with a verdict (PASS, FAIL, BLOCKED, or N/A with the profile reason) and evidence.
+**XCA-3** — Report each level below with a verdict (PASS, FAIL, BLOCKED, or N/A with its reason) and evidence.
 Overall PASS only when no level is FAIL or BLOCKED and 0 Critical and 0 Major are open (new, carried or re-raised);
 any BLOCKED level makes Overall BLOCKED.
 - *Why:* per-level checks that read code passed four cycles whose missing migrations, untested criteria and broken
   defaults surfaced later (LL-14, LL-21, LL-45); tests written by the code author were never judged (LL-29).
-- *Check:* `audit.md` has eight level sections and the line `Overall: PASS | FAIL | BLOCKED` outside any table;
-  `trace_check.py gate gate3` requires `Overall: PASS` and finds no open blocking finding.
-- *Applies when:* every audit; N/A by profile (`TESTING.md` X) or because the subject is absent (no jobs, flags,
-  secrets, persistent state), stated with the evidence.
+- *Check:* eight level sections; each N/A by profile (`TESTING.md` X) or an absent subject (no jobs, flags, secrets,
+  state) with the evidence; `Overall: PASS | FAIL | BLOCKED` outside any table (gate3 requires PASS, no open finding).
+- *Applies when:* every audit.
 - *Provenance:* LL-14, LL-21, LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 
 | Level | What it checks (execute, then read) |
@@ -77,9 +76,9 @@ threshold must cite an approved Gate T amendment, or be a mechanical correction 
 expected value. Anything else is Major (Q1); a loosened gate is Critical.
 - *Why:* when tests come after code, triage by whoever sees the code turns oracles into echoes of it (LL-29); one
   T-SHA made every re-bind "production before Gate T" or unamended test changes (LL-55).
-- *Check:* `ownership_check.py --t-sha <first> --t-sha <next> …` (oldest first) proves every Builder commit descends
-  from the first and lists the test files changed after it outside the T-SHA commits; the Auditor reconciles that list
-  row by row with the amendments in `test_plan.md` §16.
+- *Check:* `ownership_check.py --base <default branch> --t-sha <first> --t-sha <next> …` (oldest first) proves every
+  Builder commit descends from the first and lists test files changed after it outside T-SHA commits; the Auditor
+  reconciles the list with the amendments in `test_plan.md` §16.
 - *Applies when:* every cycle with a T-SHA.
 - *Provenance:* LL-29 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
 
@@ -141,8 +140,8 @@ failing TC first (Tester), then Builder Fix, Verify, re-audit or re-QA. Append e
 never overwrite an earlier iteration. A commit touching only `absd-project/` needs no re-audit.
 - *Why:* post-audit fixes were never re-audited, and fix passes introduced new defects three times (LL-46); a finding
   routed straight to a fix landed with no failing test (LL-55).
-- *Check:* the last iteration's audited product SHA is the one verified (`test_report.md`) and QA'd
-  (`design_review.md`) at Gate 3 and no product path changed since; earlier iterations remain in the file.
+- *Check:* the last iteration's product SHA S is the one verified (`test_report.md`) and QA'd (`design_review.md`), and
+  `git diff --quiet S HEAD -- . ':!absd-project'` holds at Gate 3; earlier iterations remain.
 - *Applies when:* every iteration ≥ 2 and any post-audit product change.
 - *Provenance:* LL-46 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
 

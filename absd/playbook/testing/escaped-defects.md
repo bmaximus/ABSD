@@ -3,7 +3,7 @@
 Code **ESC**. What happens when a defect gets past the check that should have caught it: the main rule, what counts as
 an escape, the regression test, the why-missed taxonomy, root-cause routing, the sweep, the log, closing the loop into
 the kit, recurrence, flakes and batching. Route: Mode D (`absd/RULES.md` §2). Log: `ESCAPED-DEFECTS.md` (Tester;
-template `absd/templates/project/ESCAPED-DEFECTS.md`). Over time the tests must catch what people used to find.
+template `absd/templates/project/ESCAPED-DEFECTS.md`).
 
 ## Checklist
 
@@ -11,12 +11,12 @@ template `absd/templates/project/ESCAPED-DEFECTS.md`). Over time the tests must 
 - [ ] Every escape is a backlog DEF run in Mode D; nothing is fixed outside a mode (ESC-2)
 - [ ] In-cycle TF, F and DQ findings are no escapes: failing TC first, then Builder Fix (ESC-2)
 - [ ] Regression TC RED pre-fix (or `binds at re-bind`) at the lowest level, plus at the surface it reached (ESC-3)
-- [ ] Title carries `(DEF-n, date: what broke)`, tag `regression`, TC id and requirement ids (ESC-3)
+- [ ] Title `(DEF-n, date: what broke)`, tag `regression`, TC and requirement ids (ESC-3)
 - [ ] Mechanism asserted with a discriminating input; unreproducible trigger → mechanism + undo (ESC-4)
 - [ ] Why-missed: taxonomy class with evidence; a kind of test changed, not only a case added (ESC-5)
 - [ ] Root-cause class with citations (external-fact gap: EXT-4 at Reproduce); the missing gate named (ESC-6)
 - [ ] Whole-repository sweep: searches, hits, dispositions; new DEFs to the backlog; Auditor reruns (ESC-7)
-- [ ] Log row written at Verify with every column filled; Lesson reads `pending H` (ESC-8)
+- [ ] Log row at Verify, every column filled, Lesson `pending H` (ESC-8)
 - [ ] Each row closed in `lessons.md`; the Log step fills Lesson before the archive (ESC-9)
 - [ ] A class seen before gets a mechanical control, not one more case (ESC-10)
 - [ ] Flake in this cycle's tests: reproduced deterministically, fixed now; older test → backlog DEF (ESC-11)
@@ -30,7 +30,7 @@ existing tests missed it is named from the taxonomy below and that kind of test 
 the ABSD gate or rule that should have caught it. Gate 3 of a Mode D cycle fails while steps 1–3 lack evidence; the
 archive is refused until step 4's row exists with its Lesson filled (ESC-9).
 - *Why:* about ten escapes after go-live came from systemic weaknesses — assumption-fed fakes, desktop-only runs,
-  three-item lists, a reader no test ran — not from single missing cases (LL-1, LL-2, LL-4).
+  three-item lists, an unread reader — not single missing cases (LL-1, LL-2, LL-4).
 - *Check:* per DEF the Auditor finds red evidence at the pre-fix commit, a why-missed entry naming a changed kind of
   test, a sweep record and the log row (ESC-3, ESC-5, ESC-7, ESC-8).
 - *Applies when:* every escaped defect, every profile, from the first one.
@@ -47,7 +47,7 @@ sub-step; an amendment if an oracle changes) → Builder Fix → Verify → re-a
   one slip CI caught shows the target: the suite finds it, not people (LL-20); an audit finding fixed as an escape had
   no failing test first (LL-55).
 - *Check:* every default-branch commit belongs to a cycle (`ABSD-Cycle` trailer, ownership_check) or a kit sync; every
-  closed DEF has a log row; every F/DQ fix follows its red TC; EXPL-6 routes exploratory findings here.
+  closed DEF has a log row; every F/DQ fix follows its red TC.
 - *Applies when:* always.
 - *Provenance:* LL-27, LL-20 (KatenatsioTipster, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 
@@ -56,9 +56,9 @@ mechanism (STRAT-6: unit, integration, contract, chain) — plus, when the defec
 output, a regression test at that surface on the device class, zone, locale and data volume where it slipped (E2E-17).
 Show each RED on the pre-fix commit for the stated reason (ORACLE-3), or mark it `binds at re-bind` when its source does
 not exist yet (ORACLE-8). Title it with the behaviour and `(DEF-n, YYYY-MM-DD: what broke)`, tag it `regression`, link
-the requirement it protects and its `TC-nnnn` (STRAT-11, TRACE-3); a test moved to another level keeps its id.
-- *Why:* a results reader with no test at all sat behind flows that passed (LL-2); a phone-only failure needed a test
-  at phone size, not one more desktop test (LL-4).
+the requirement it protects and its `TC-nnnn` (STRAT-11, TRACE-3).
+- *Why:* a results reader with no test at all sat behind flows that passed (LL-2); a phone-only failure needed a
+  phone-size test, not one more desktop test (LL-4).
 - *Check:* red evidence per regression TC at the pre-fix SHA; its level matches the why-missed class; a surface test
   exists for every row marked "reached a surface".
 - *Applies when:* every DEF.
@@ -66,9 +66,9 @@ the requirement it protects and its `TC-nnnn` (STRAT-11, TRACE-3); a test moved 
 
 **ESC-4** — Test the mechanism, not the symptom: assert the rule, mapping or conversion that was wrong, with an input
 where the known-wrong reading gives a different answer (a provisional field read as the final one; an instant whose
-provider-zone date differs from its UTC date). When the test environment cannot reproduce the trigger (a touch
-gesture, an OS dialog, hardware, a store-channel install), assert the mechanism that prevents it, that the mechanism is
-undone when it should be (lock → unlock), and the user-visible outcomes; say in the test which part is simulated.
+provider-zone date differs from its UTC date). When the test environment cannot reproduce the trigger (a touch gesture,
+an OS dialog, hardware, a store-channel install), assert the mechanism that prevents it, its undo (lock → unlock) and
+the user-visible outcomes; say in the test which part is simulated.
 - *Why:* scores where the wrong field settles differently pinned a half-time misreading (LL-2); headless emulation
   cannot pull-to-refresh, so overscroll containment and the page lock were asserted (LL-4).
 - *Check:* adversarial probe — the Auditor reverts the fix in a throwaway worktree outside the project (ORACLE-13) and
@@ -90,11 +90,11 @@ the DEF's Reproduce section of `test_plan.md`.
 
 **ESC-6** — Propose the root-cause class with artifact citations, so the Manager routes without judging technology:
 implementation (code ≠ architecture: section + diverging line) · architecture gap (blueprint silent or wrong) ·
-external-fact gap (a fact wrong or unverified: the Tester makes the EXT-4 change at Reproduce, no production code,
-then Architect delta; the corrected, now VERIFIED fact may ship enabled) · UX gap (`design.md` silent or wrong; Design
-QA runs) · requirements gap (no catalogue entry, empty actor × capability cell, inherited behaviour never decided) ·
-test-only gap (product meets its spec; only the tests missed it). Name the gate whose checklist should have stopped it
-and the ABSD rule, or "none — gap" when no rule covers it.
+external-fact gap (the Tester makes the EXT-4 change at Reproduce, then Architect delta; the corrected, now VERIFIED
+fact may ship enabled) · UX gap (`design.md` silent or wrong; Design QA runs) · requirements gap (no catalogue entry,
+empty actor × capability cell, inherited behaviour never decided) · test-only gap (product meets its spec; only the
+tests missed it). Name the gate whose checklist should have stopped it and the ABSD rule, or "none — gap" when no rule
+covers it.
 - *Why:* admins who could not take part and a "clear all" that filled blank rows were requirement gaps (LL-5, LL-6); a
   wrong external fact, the most frequent escape, had no class and its fix could not ship enabled (LL-56).
 - *Check:* Mode D Gate T reads one class per DEF with citations; a requirements gap routed straight to the Builder is a
@@ -130,8 +130,7 @@ closes it with exactly one of: a playbook change proposed to ABSD through enrich
 checklist item; ENR-1), or "rule existed, not followed → enforcement change" — the gate, lint, hook, fixture or template
 that makes the rule mechanical, with its commit. Then the Tester's Log step (before Archive; documentation only, no
 re-audit, one commit) fills each Lesson cell with the `<slug>-L<n>` the Manager's brief passes. LL ids, once the kit
-accepts a proposal, go into `lessons.md`, never the log; the kit maintainer counts the escape on the LEDGER scoreboard
-under the gate that missed it.
+accepts a proposal, go into `lessons.md`, never the log (the LEDGER counts the escape under its gate, ENR-9).
 - *Why:* a log naming only the product's own fix leaves the kit unchanged for the next product; a rule relying on
   discipline fails again the same way.
 - *Check:* the archive is refused while a row of the cycle reads `pending H`; each Lesson id resolves in `lessons.md`,
@@ -191,7 +190,7 @@ scope growth; a batch whose items turn out to need different routes is split at 
 | 14 | Foreign zone or locale untested | Runs only in the audience's zone and locale; host-zone reliance hidden (LL-13) | Foreign zone/locale project; boundary instants · every date, time and number formatter | VAR-8, E2E-7, LOC-5 |
 | 15 | Race or late response | An action inside a debounce or latency window is lost (LL-20) | Deterministic race TC with held responses · every debounced or async input | VAR-12 |
 | 16 | Environment limitation turned into design | "Cannot run X here" became "do not do X"; store auto-created (LL-21) | RISK + BLOCKED evidence; store via migrations; migration gates · specs and harness workarounds | INTEG-2, GATE-12, GATE-1 |
-| 17 | Retry-to-green flake | Passes on retry; fails only in random order, repeated or parallel | Retries 0; random + parallel nightly; isolation fixed (ESC-11) · retry report, nightly seeds | GATE-6, GATE-9, INTEG-4 |
+| 17 | Retry-to-green flake | Passes on retry; fails only in random order, repeated or parallel | Retries 0; random + parallel nightly; isolation fixed · retry report, nightly seeds | GATE-6, GATE-9, INTEG-4 |
 | 18 | Default-config path never run | Shipped defaults, flag-off path or first start never executed (LL-14, LL-22, LL-23) | Shipped artifact on empty infrastructure; both flag states · every flag and default | OPS-1, VAR-19, FAKE-4 |
 | 19 | Docs drift | Run guide, examples or comments contradict the product (LL-17, LL-22) | Fresh clone → running from the docs; config agreement · docs, examples, env templates | OPS-6, FAKE-3, EXT-5 |
 | 20 | Check that did not run | Required job skipped, credential missing, report glob matching nothing, exit 0 with a warning (LL-24, LL-25) | Missing = RED; "input missing" negative control · every job's run conditions | GATE-1, GATE-8 |

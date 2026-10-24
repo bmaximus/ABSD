@@ -143,7 +143,7 @@ eslint-disable|@ts-ignore|@ts-expect-error|@ts-nocheck|istanbul ignore|c8 ignore
 
 ## L4 review checklist (Auditor)
 
-Run at the cycle HEAD in a clean checkout (XCA-2); record each miss as an F-n citing `ABSD:CODE-n`.
+Run at the audited product SHA in a clean checkout (XCA-2); record each miss as an F-n citing `ABSD:CODE-n`.
 
 | Item | Evidence attached to `audit.md` | Severity if failing |
 |---|---|---|

@@ -24,7 +24,7 @@ is N/A, without a waiver, where its condition does not hold, stated with the evi
 **DOD-1** — Declare a cycle, defect or mode done only when every row of its table holds at one product SHA, each
 linked from `cycle.md` to its evidence (command output or a CI run at that product SHA, artifact section, commit).
 Evidence taken at product SHA S stays valid while `git diff --quiet S HEAD -- . ':!absd-project'` holds; pipeline
-commits (artifacts, evidence, reports, archive) never invalidate it. A row that could not be checked is open. Only the
+commits (artifacts, evidence, reports, archive; the Tester's Log, which changes only Lesson cells) never invalidate it. A row that could not be checked is open. Only the
 user waives a row: a brd Decision plus a RISK in `context.md`.
 - *Why:* audits certified tests they never ran (LL-24); post-audit fixes were never re-audited, so "done" rested on the
   orchestrator's word (LL-46); "at the exact HEAD" could never hold, since every hand-off is a commit (LL-55).
@@ -54,7 +54,7 @@ user waives a row: a brd Decision plus a RISK in `context.md`.
 | 10 | Risk register holds every unresolved assumption, open question, UNVERIFIED fact and environment limitation (ELIC-19) | `context.md` §11 |
 | 11 | Harvest done: a `lessons.md` row per lesson (ENR-1) | `lessons.md` |
 | 12 | Mode S: eligibility confirmed against the real diff (XCA-11) | `audit.md` L8 |
-| 13 | Archived in one Manager commit (`git mv absd-project/working/*` → `absd-project/archive/NNN_…/`); merged per the merge policy when CI is green at the Gate 3 product SHA and every later commit changes only `absd-project/` | archive folder, merge commit, `context.md` §15 |
+| 13 | Archived in one Manager commit (`git mv absd-project/working/*` → `absd-project/archive/NNN_…/`); merged per the merge policy when CI is green at the Gate 3 product SHA and every later commit changes only `absd-project/` (harvest, archive) or, in the Tester's Log commit, only the Lesson cells of `ESCAPED-DEFECTS.md` | archive folder, merge commit, `context.md` §15 |
 | 14 | When escaped defects were logged: Tester Log done, no `ESCAPED-DEFECTS.md` row of the cycle reads `pending H` (ESC-8) | the rows |
 
 **DOD-3** — Finish a work package only when it compiles with every test unit whose work package is done (units keyed
@@ -64,8 +64,7 @@ declared `TC-CONFLICT-n` (test, failing assertion, cited architecture or analysi
 suppression marker outside the `architecture.md` list; no deviation from the blueprint (one would have been a halt);
 one commit with trailers.
 - *Why:* interrupted builders left half-written code that others finished (LL-26); deviations were "resolved inline"
-  instead of halting (LL-42); one new symbol failed a whole compiled test project, so "compiles with every test
-  project" could not hold at WP-1 (LL-57).
+  instead of halting (LL-42); one new symbol failed a whole compiled test project at WP-1 (LL-57).
 - *Check:* `build_log.md` WP row links commit and command outputs; the Auditor greps for markers and deviation notes.
 - *Applies when:* every Builder pass (Build and Fix).
 - *Provenance:* LL-26, LL-42 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
@@ -130,7 +129,7 @@ external system's version or contract change; an infrastructure change (host, pl
 deploy tooling). `cycle.md` records the trigger and the scope it puts under DOD-8.
 - *Why:* the escapes clustered on the first day the real feed credential was used (LL-1, LL-3); a platform's change to
   asynchronous deploys broke redeploy and rollback (LL-7); a flag turned on at runtime did not rewire (LL-23); a live
-  Critical had no containment step while the defect route ran (LL-56).
+  Critical had no containment step (LL-56).
 - *Check:* every flag change, credential change and infrastructure change in history has a Mode R record (a
   containment: right after it).
 - *Applies when:* always.
