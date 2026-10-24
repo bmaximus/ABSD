@@ -60,7 +60,8 @@ steps only, each gated) when `absd-project/archive/` holds pre-v2 cycle folders.
 
 ## v1 projects (Foundation-delta)
 - The user runs `migrate-v1`, then `install` (step 0); `context.md` and the archive move into `absd-project/`.
-- In-flight v1 work is parked (Mode P) and its intake redone as the first cycle after the delta; numbering continues
+- In-flight v1 work is parked as a Foundation-delta step (`git mv` into `absd-project/archive/NNN_<date>_<slug>_parked/`;
+  not Mode P — it has no `cycle.md`) and its intake redone as the first cycle after the delta; numbering continues
   after the highest v1 cycle, the parked one included.
 - `CLAUDE.md` or other guidance that conflicts with `absd/RULES.md` (merge, branch or direct-fix authorizations) moves
   into the `context.md` §1 merge policy, or is deleted.
