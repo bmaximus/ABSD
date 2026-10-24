@@ -33,7 +33,7 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 
 **ACCESS-1** — Give every operation a row in the Access & Visibility Matrix, and keep a build-time completeness test that fails when an operation exists without a row or a row names an operation that no longer exists.
 - *Why:* authorization spread over annotations is forgotten on the next new operation, and a stale row hides a renamed one; the practice that worked was one table of every operation × every role with a build-failing completeness test (LL-35).
-- *Check:* the test runs on every push in the default suite, diffs both directions and prints every missing and stale key; it is shown RED once by a negative control (an unruled operation) at Foundation; rows marked public equal the code's explicit allow-anonymous set. Brownfield: pre-existing operations may be `unverified` (DEBT burn-down); a new operation never is.
+- *Check:* the test runs on every push in the default suite, diffs both directions and prints every missing and stale key, and fails on an operation without a cell for each principal of the matrix's set (ACCESS-2); it is shown RED once by a negative control (an unruled operation) at Foundation; rows marked public equal the code's explicit allow-anonymous set. Brownfield: pre-existing operations may be `unverified` (DEBT burn-down); a new operation never is.
 - *Applies when:* ACCESS is M or R in `TESTING.md`; with a single role the matrix is still required (anonymous vs signed-in).
 - *Provenance:* LL-35 (KatenatsioTipster, 2026-10)
 

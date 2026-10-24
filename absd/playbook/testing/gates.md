@@ -28,9 +28,9 @@ tools: `absd/tooling/`. Thresholds and invocations are indexed in the Tester's `
 
 **GATE-1** — Treat a mandated check that did not run as RED: a missing secret or credential, an unset environment
 variable, a skipped, cancelled or timed-out required job, a missing or empty report (a `--junit` glob matching no file
-with a test case, a `--reports` glob matching no report with a coverable line: exit 2), zero tests collected, a focus marker or CI-only filter that drops tests, a test skipped
-at run time, or a harness that reached no verdict fails the run with its reason — never exit 0 with a warning. Lanes
-select tests by declared category, never by skipping. A check outside its *Applies when* is not a skip: the plan gates
+with a test case, a `--reports` glob matching no report with a coverable line: exit 2), zero tests collected, a focus
+marker or CI-only filter that drops tests, a test skipped at run time, or a harness that reached no verdict fails the
+run with its reason — never exit 0 with a warning. Lanes select tests by declared category, never by skipping. A check outside its *Applies when* is not a skip: the plan gates
 need `absd-project/working/test_plan.md` and, with no active cycle, print the notice "no active cycle" (GATE-14);
 the catalogue gate runs on every push. Merge, Gate 3 and deploy conditions require each check's success, not the
 absence of its failure.
@@ -71,9 +71,8 @@ cycle. Exclusions are reviewed path patterns for generated code only, listed in 
   plumbing (LL-57).
 - *Check:* `coverage_gate.py --reports <glob per language> --min-total <floor> --layer <name=regex> --min-layer
   <name=pct>`, per-layer table in the run summary; a glob matching no report with a coverable line exits 2 and a layer
-  matching nothing fails
-  (RED, GATE-1); the Auditor maps every language in `context.md` Source Layout to a glob; the floor's history never
-  decreases without an approved amendment.
+  matching nothing fails (RED, GATE-1); the Auditor maps every language in `context.md` Source Layout to a glob; the
+  floor's history never decreases without an approved amendment.
 - *Applies when:* always; `--min-layer` wherever money, time or access rules exist.
 - *Provenance:* industry baseline; LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -160,13 +159,13 @@ Foundation DoD: every row RED once by its negative control, then GREEN (GATE-8).
 |---|---|---|---|---|
 | Ran at all | CI conditions, exit codes | not run, skipped, no input, no credential | unset a required credential | GATE-1 |
 | Untested unit | `coverage_gate.py --untested-allowlist` | unit no test runs; entry without reason | add an untested unit | GATE-2 |
-| Coverage floor | `coverage_gate.py --min-total`, `--min-layer` | total or a layer below its floor; a glob without a report | floor 1 point above measured | GATE-3 |
+| Coverage floor | `coverage_gate.py --min-total`, `--min-layer` | total or a layer below its floor; a glob without coverable lines | floor 1 point above measured | GATE-3 |
 | Static | compilers, linters, layer test | any warning or finding | an unused variable; a layer breach | GATE-4 |
 | Mutation | mutation tool, changed lines | score below threshold; rule survivor | delete one money-TC assertion | GATE-5 |
 | Flake | runner retry report | a pass on retry | a test failing only on first attempt | GATE-6 |
 | Access completeness | matrix completeness test | operation without row or row without operation | add an unruled operation | ACCESS-1 |
 | Error signals | shared end-to-end fixture | page/console error, 5xx, stderr, error log | emit one console error | E2E-1 |
-| Catalogue + plan | `traceability_report.py` | failing, unknown or untested id, missing planned TC, a glob without a report | link an unknown id | TRACE-1 |
+| Catalogue + plan | `traceability_report.py` | failing, unknown or untested id, missing planned TC, a glob without test cases | link an unknown id | TRACE-1 |
 | Artifact coverage | `trace_check.py gate <g>` | upstream id missing downstream | drop one AC from `test_plan.md` | GATE-14 |
 | Ownership + order | `ownership_check.py` | foreign path, code before T-SHA, unattributed | Builder commit to a test path | GATE-14 |
 | Migrations | empty, previous release, drift | error, data lost, drift | model change, no migration | GATE-12 |

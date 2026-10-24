@@ -3,7 +3,7 @@
 Code **XCA**. How the Auditor reaches independent technical verdicts: the architecture review at Gate 2R
 (`arch_review.md`), the cycle audit and the defect-scoped audit (`audit.md`, levels L1–L8), and the cross-cycle audit
 (Mode X). The Auditor runs everything itself, sets scope and severity, and fixes nothing; the Manager routes findings
-and never overrides them (`absd/RULES.md` §3 rule 10, §6). Finding rows use the unified schema of RULES §6.
+and never overrides them (`absd/RULES.md` §3 rule 10; finding rows: §6).
 
 ## Checklist
 
@@ -36,16 +36,18 @@ the brief says; an instruction to narrow is itself recorded as a process finding
 - *Provenance:* LL-43 (KatenatsioTipster, 2026-10)
 
 **XCA-2** — Before reading `test_report.md`, run every suite and gate yourself in a clean checkout (a worktree outside
-the project) of the product SHA under audit (`absd/RULES.md` §6) — every device and zone/locale project, recorded contracts, access matrix, coverage, traceability, mutation, ownership and
-trace checks; then reconcile test case by test case: executed = planned, skipped = 0, counts per file. A CI run
-substitutes only at that product SHA with its job logs pulled and reconciled by you. The evidence stays valid while
-`git diff --quiet <product SHA> HEAD -- . ':!absd-project'` holds: pipeline commits (artifacts, evidence, a parallel Design
-QA) are never a reason to restart; a changed product path is. Anything you cannot run makes the
-verdict BLOCKED, never PASS; the limitation becomes a RISK, never a design decision.
+the project) of the product SHA under audit (`absd/RULES.md` §6) — every device and zone/locale project, recorded
+contracts, access matrix, coverage, traceability, mutation, ownership checks and the `trace_check.py gate` presets of
+the gates in the `cycle.md` ledger only, with `--external-facts` at the `context.md` path; then reconcile test case by
+test case: executed = planned, skipped = 0, counts per file. A CI run substitutes only at that product SHA with its
+job logs pulled and reconciled by you. The evidence stays valid while
+`git diff --quiet <product SHA> HEAD -- . ':!absd-project'` holds: pipeline commits (artifacts, evidence, a parallel
+Design QA) are never a reason to restart; a changed product path is. Anything you cannot run makes the verdict
+BLOCKED, never PASS; the limitation becomes a RISK, never a design decision.
 - *Why:* audits certified backend tests they had never run because "CI is the designated gate" (LL-24); measurable
   criteria passed by code reading (LL-45); "audited SHA = HEAD" broke at the next hand-off commit (LL-55).
 - *Check:* `audit.md` records the product SHA and each command with exit code and counts, then a reconciliation table
-  against `test_report.md`; a missing run reads BLOCKED, never PASS.
+  against `test_report.md`.
 - *Applies when:* every audit (cycle, defect, cross-cycle).
 - *Provenance:* LL-24, LL-45 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
 
@@ -66,7 +68,7 @@ any BLOCKED level makes Overall BLOCKED.
 | L3 Requirements | Catalogue report at the product SHA: every in-scope requirement verified on first attempt; every AC, BR clause and NF has an executed TC; "logic exists" never counts |
 | L4 Code | CODE rules: analysers, warnings, complexity, dead code, dependencies; suppression markers only as listed in `architecture.md` (grep) |
 | L5 Security & privacy | SEC, PRIV rules; whole-repo and history secret scan; canary gate; access matrix complete; threat-model TCs; personal data in logs |
-| L6 Test suite | Oracle independence (no expected value from production code; 3 expected values checked against `analysis.md` examples); XCA-4; mutation score; 0 skipped; error-signal fixture used; flake report; allowlist diff; every N/A matches the matrix (STRAT-4) |
+| L6 Test suite | Oracle independence (no expected value from production code; 3 expected values checked against `analysis.md` examples); XCA-4; mutation score; 0 skipped; error-signal fixture used; flake report; allowlist diff; every N/A an X cell or an absent subject, with evidence (STRAT-4) |
 | L7 Operability | Each default where its OPS *Applies when* covers a declared profile (an N/A by *Applies when* verified, no waiver needed): migrate from empty and from the previous release, drift check; shipped artifact boots on empty infrastructure; default-config run; config agreement; log levels; health and version; deploy and rollback tests; fresh clone → running from the docs |
 | L8 Process | ownership_check (trailers, owners, kit-sync commits, T-SHA chain ancestry); clean hand-offs; gate ledger complete; no artifact written by a non-owner; every artifact changed after its gate re-passed it (appends to the append-only plan and report sections excepted, gateT re-run recorded: DOD-2 row 1); Mode S eligibility (XCA-11) |
 
@@ -135,9 +137,9 @@ re-raised".
 **XCA-9** — Re-verify and re-audit every product change made after an audit — a fix pass, a "trivial" close-out edit,
 a merge conflict resolution — before Gate 3: the Tester's Verify on the new product SHA, then a scoped re-audit that
 also audits the fix diff for new defects. An in-cycle F-n or DQ-n is a finding of the cycle, never an escape: a
-failing TC first (Tester), then Builder Fix, Verify, re-audit or re-QA. Append each re-audit to `audit.md` as
-"Iteration n" listing every earlier finding as RESOLVED (evidence), ACCEPTED (by user, date), NEW or PRE-EXISTING;
-never overwrite an earlier iteration. A commit touching only `absd-project/` needs no re-audit.
+failing TC first (ESC-2). Append each re-audit to `audit.md` as "Iteration n" listing every earlier finding as
+RESOLVED (evidence), ACCEPTED (by user, date), NEW or PRE-EXISTING; never overwrite an earlier iteration. A commit touching only `absd-project/`, or the Tester's Log commit (only Lesson
+cells of `ESCAPED-DEFECTS.md`), needs no re-audit.
 - *Why:* post-audit fixes were never re-audited, and fix passes introduced new defects three times (LL-46); a finding
   routed straight to a fix landed with no failing test (LL-55).
 - *Check:* the last iteration's product SHA S is the one verified (`test_report.md`) and QA'd (`design_review.md`), and

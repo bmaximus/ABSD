@@ -1,10 +1,9 @@
 # Definition of done — cycles, defects, foundation, release, upgrade, park
 
 Code **DOD**. When each kind of work is finished, as tables the Manager ticks at the mode's close and the Auditor
-verifies against evidence at the product SHA — the last commit that changes a path outside `absd-project/`
-(`absd/RULES.md` §6; GATE-1, XCA-2). Routes and modes: `absd/RULES.md` §2; Builder and Tester steps: their manuals. A
-row is done only with linked evidence; only the user waives one. A row conditioned by a profile or subject ("when …")
-is N/A, without a waiver, where its condition does not hold, stated with the evidence (the Auditor verifies).
+verifies against evidence at the product SHA (`absd/RULES.md` §6; GATE-1, XCA-2). A row conditioned by a profile or
+subject ("when …") is N/A, without a waiver, where its condition does not hold or its subject is absent, stated with
+the evidence (STRAT-4; the Auditor verifies).
 
 ## Checklist
 
@@ -24,8 +23,10 @@ is N/A, without a waiver, where its condition does not hold, stated with the evi
 **DOD-1** — Declare a cycle, defect or mode done only when every row of its table holds at one product SHA, each
 linked from `cycle.md` to its evidence (command output or a CI run at that product SHA, artifact section, commit).
 Evidence taken at product SHA S stays valid while `git diff --quiet S HEAD -- . ':!absd-project'` holds; pipeline
-commits (artifacts, evidence, reports, archive; the Tester's Log, which changes only Lesson cells) never invalidate it. A row that could not be checked is open. Only the
-user waives a row: a brd Decision plus a RISK in `context.md`.
+commits (artifacts, evidence, reports, archive) never invalidate it, nor does the Tester's Log commit (only Lesson
+cells of `ESCAPED-DEFECTS.md`; no re-audit), the one later commit outside `absd-project/` the merge allows
+(`absd/RULES.md` §5, §6). A row that could not be checked is open. Only the user waives a row: a brd Decision plus a
+RISK in `context.md`.
 - *Why:* audits certified tests they never ran (LL-24); post-audit fixes were never re-audited, so "done" rested on the
   orchestrator's word (LL-46); "at the exact HEAD" could never hold, since every hand-off is a commit (LL-55).
 - *Check:* the close section of `cycle.md` links every row; the Auditor re-runs what it cites (XCA-2).
@@ -54,7 +55,7 @@ user waives a row: a brd Decision plus a RISK in `context.md`.
 | 10 | Risk register holds every unresolved assumption, open question, UNVERIFIED fact and environment limitation (ELIC-19) | `context.md` §11 |
 | 11 | Harvest done: a `lessons.md` row per lesson (ENR-1) | `lessons.md` |
 | 12 | Mode S: eligibility confirmed against the real diff (XCA-11) | `audit.md` L8 |
-| 13 | Archived in one Manager commit (`git mv absd-project/working/*` → `absd-project/archive/NNN_…/`); merged per the merge policy when CI is green at the Gate 3 product SHA and every later commit changes only `absd-project/` (harvest, archive) or, in the Tester's Log commit, only the Lesson cells of `ESCAPED-DEFECTS.md` | archive folder, merge commit, `context.md` §15 |
+| 13 | Archived in one Manager commit (`git mv absd-project/working/*` → `absd-project/archive/NNN_…/`); merged per the merge policy when CI is green at the Gate 3 product SHA and every later commit changes only `absd-project/` (harvest, archive) or is the Tester's Log commit (DOD-1) | archive folder, merge commit, `context.md` §15 |
 | 14 | When escaped defects were logged: Tester Log done, no `ESCAPED-DEFECTS.md` row of the cycle reads `pending H` (ESC-8) | the rows |
 
 **DOD-3** — Finish a work package only when it compiles with every test unit whose work package is done (units keyed
@@ -84,7 +85,7 @@ ESC-1.
 | 3 | Same-weakness sweep recorded; every hit covered or a DEF row in the `context.md` §16 backlog; the Auditor reran it (ESC-7, XCA-5) | sweep table |
 | 4 | Fixed in the earliest faulty artifact by its owner (root-cause class route); green at the Gate 3 product SHA as DOD-2 rows 4–5 | `cycle.md` route; CI at the product SHA |
 | 5 | Audit (defect scope) PASS; Design QA PASS when the fix changes a visual or output surface, always for a UX gap | `audit.md`, `design_review.md` |
-| 6 | A Critical on a live system: contained first by the user (shipped rollback or flag off), recorded as a D-n and a RISK; re-enabling is a Mode R trigger (DOD-7) | `defect.md`, `context.md` §11 |
+| 6 | A Critical on a live system: contained at intake by the user (rollback, flag off, or "none possible — why"), recorded as a D-n and a RISK; Verify covers the contained state; re-enabling later is a DOD-7 trigger, outside this cycle and its merge | `defect.md`, `context.md` §11 |
 | 7 | `ESCAPED-DEFECTS.md` row complete at Verify (Lesson `pending H`), incl. the ABSD gate or rule that should have caught it; Lesson filled by the Tester's Log step after Harvest (ESC-8) | the row |
 | 8 | `lessons.md` row closes it: a proposed playbook change or "rule existed, not followed → enforcement change" (ESC-9) | `lessons.md` |
 
@@ -124,22 +125,20 @@ conflicting guidance moved or deleted, `context.md` restructured to ≤ 25 KB, i
 - *Provenance:* LL-6, LL-27 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **DOD-7** — Run release readiness (Mode R) before users get a build and at every trigger: first use of real credentials
-for any external system; a flag turned on in a user-facing environment, or turned off for containment (Mode D); an
-external system's version or contract change; an infrastructure change (host, platform, region, store major version,
-deploy tooling). `cycle.md` records the trigger and the scope it puts under DOD-8.
+for any external system; a flag turned on in a user-facing environment (re-enabling a feature contained in Mode D
+included: DOD-4 row 6); an external system's version or contract change; an infrastructure change (host, platform,
+region, store major version, deploy tooling). `cycle.md` records the trigger and the scope it puts under DOD-8.
 - *Why:* the escapes clustered on the first day the real feed credential was used (LL-1, LL-3); a platform's change to
   asynchronous deploys broke redeploy and rollback (LL-7); a flag turned on at runtime did not rewire (LL-23); a live
   Critical had no containment step (LL-56).
-- *Check:* every flag change, credential change and infrastructure change in history has a Mode R record (a
-  containment: right after it).
+- *Check:* every flag turned on, credential change and infrastructure change in history has a Mode R record before it.
 - *Applies when:* always.
 - *Provenance:* LL-1, LL-3, LL-7, LL-23 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **DOD-8** — Release only when every row holds for the release candidate commit; an open row blocks the release.
 - *Why:* the blocking zone and calendar facts and the phone defects were found by people on the live system (LL-1,
   LL-4); a version-blind health check passed a blank page (LL-32); a registry lost every image (LL-34).
-- *Check:* the Mode R record in `cycle.md` links each row's evidence; the user's go is a recorded Decision; a
-  conditioned row whose condition does not hold reads N/A with the evidence.
+- *Check:* the Mode R record in `cycle.md` links each row's evidence; the user's go is a recorded Decision.
 - *Applies when:* Mode R.
 - *Provenance:* LL-1, LL-4, LL-32, LL-34 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
@@ -175,7 +174,7 @@ deploy tooling). `cycle.md` records the trigger and the scope it puts under DOD-
 **DOD-10** — Park or abandon a cycle (Mode P) only when every row holds; nothing else of it reaches the default branch.
 - *Why:* interrupted runs without saved state were finished by the wrong agent or lost (LL-26).
 - *Check:* the archive folder name ends `_abandoned`; its `cycle.md` names the branch and resume point.
-- *Applies when:* Mode P.
+- *Applies when:* Mode P; not to parking in-flight v1 work, a Foundation-delta step (DOD-6) with no `cycle.md`.
 - *Provenance:* LL-26 (KatenatsioTipster, 2026-10)
 
 | # | Done when |
