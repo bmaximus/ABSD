@@ -12,8 +12,9 @@
 3. Write each finding as you go: **what you did → what happened → what you expected**, with evidence (screenshot,
    output, time, account, device/runtime).
 4. Rate it: **Critical/blocker** (cannot continue, wrong money or results, data loss, security) · **Major** (works
-   wrongly) · **Minor** (cosmetic, wording, small annoyance). Every finding becomes a DEF (Mode D) or a recorded
-   product decision.
+   wrongly) · **Minor** (cosmetic, wording, small annoyance). Every finding becomes a DEF row in the
+   `absd-project/context.md` defect backlog (the Manager reserves the id; a finding in the cycle's own scope is a TF of
+   that cycle) or a recorded product decision.
 
 ## Charters (one per principal × goal; add one for every new journey)
 | # | Principal | Device | Charter (goal + where to wander) |

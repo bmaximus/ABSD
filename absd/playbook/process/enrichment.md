@@ -35,13 +35,13 @@ user correction and practice that worked becomes a row in `absd-project/lessons.
 for this product's stack, domain or people → `context.md` §14 Conventions or `TESTING.md` §4) or **universal** (another
 product with another stack and domain could repeat it → an enrichment proposal with provenance). Every
 `ESCAPED-DEFECTS.md` row is closed there with a proposed playbook change or "rule existed, not followed → enforcement
-change" (ESC-9).
+change", and the Tester's Log step writes the row's lesson id into its Lesson cell (ESC-9).
 - *Why:* the source project's testing system and its lessons were built outside the kit and never flowed back (LL-27);
   its kit adaptations lived only as prose in the product (LL-28).
-- *Check:* archive is refused while a finding, escape or halt of the cycle has no `lessons.md` row; every universal row
-  reaches `proposed` or later by the next Harvest.
+- *Check:* archive is refused while a finding, escape or halt of the cycle has no `lessons.md` row or a log row reads
+  `pending H`; every universal row reaches `proposed` or later by the next Harvest.
 - *Applies when:* always.
-- *Provenance:* LL-27, LL-28 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-27, LL-28 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **ENR-2** — Keep `lessons.md` as a ledger: ids `<slug>-L<n>` never reused; per row cycle, lesson (what happened → what
 we learned), evidence ids, class, target (`ABSD:CODE-n` to amend, or a new rule in a named file) and status `local`,

@@ -38,8 +38,8 @@ every `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/`) a
 | `<infra/**>` | builder | infrastructure, IAM and grants as code |
 | `<tests/**>` | tester | all tests, fakes, fixtures, seeds, recordings |
 | `<.github/workflows/tests.yml>` | tester | test, gate and nightly jobs |
-| `<test runner / coverage / mutation / test-lint configs>` | tester | thresholds, retries, reporters (standalone files) |
-| `<package manifest shared by tests and production>` | shared | only where the stack cannot split it; the test-dependency sections are the Tester's (architecture §11.8) |
+| `<test-config-files>` | tester | runner, coverage, mutation and test-lint configuration (standalone files): thresholds, retries, reporters |
+| `<shared-package-manifest>` | shared | only where the stack cannot split it; its test-dependency sections are the Tester's (architecture §11.8) |
 | `docs/testing/**` | tester | TESTING, ESCAPED-DEFECTS, EXPLORATORY, EXTERNAL-FACTS |
 | `<README.md, docs/**>` | shared | product docs |
 

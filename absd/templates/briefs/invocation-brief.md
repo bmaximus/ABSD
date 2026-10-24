@@ -9,10 +9,10 @@ whole prompt. A worker that receives a request without a brief refuses and answe
 | Field | Value |
 |---|---|
 | Cycle | C### — <slug> (branch `absd/C###-<slug>`) |
-| Route | Mode F / S / D / B / C / X / R / U — step <n> of `absd-project/working/cycle.md` |
-| Agent mode | e.g. Analyze · Design · Design QA · Architect · Architecture Review · Plan & Bind · Reproduce · Verify · Build · Fix · Audit · Baseline |
+| Route | Mode F / S / D / B / C / X / R / U / H — step <n> of `absd-project/working/cycle.md` |
+| Agent mode | one of — Analyst: Analyze · Delta · Catalogue apply · Designer: Design · Design System · Design QA · Architect: Architect · Delta · Foundation · Tester: Baseline · Facts · Plan & Bind · Reproduce · Verify · Log · Builder: Build · Fix · Auditor: Architecture Review · Audit (cycle, defect, Mode S, cross-cycle) · Re-audit |
 | Iteration | Builder pass <n>/3 · gate round <n>/3 · halts <n>/3 |
-| Revision | HEAD <sha> · T-SHA <sha or "not yet"> |
+| Revision | HEAD <sha> · product SHA <sha> (last commit outside `absd-project/`) · T-SHA chain <sha, …, oldest first, or "not yet"> |
 | Resume | "fresh start" or "resume from <artifact section / WP-n>; artifact status IN-PROGRESS" |
 
 ## Read first
@@ -22,7 +22,9 @@ whole prompt. A worker that receives a request without a brief refuses and answe
 
 ## Produce
 - <artifact path(s)> — full / delta (unchanged sections: "Unchanged — <reason>")
-- Commit with trailers `ABSD-Agent: <agent>` and `ABSD-Cycle: C###`; leave the working tree clean
+- Commit only your own paths (+ `absd-project/working/evidence/<agent>/`) with trailers `ABSD-Agent: <agent>` and
+  `ABSD-Cycle: C###`; leave the working tree clean
+- Tester Log only: the lesson ids to write (`DEF-n → <slug>-L<n>`), from `absd-project/lessons.md`
 
 ## Address (only when routed back)
 | Finding | Severity | Source | What is expected |
@@ -31,6 +33,7 @@ whole prompt. A worker that receives a request without a brief refuses and answe
 
 ## Constraints for this run
 - <scope limits: Mode S delta, defect ids, profiles in scope, sections to leave untouched>
+- <Facts: the external systems and EXT ids in scope; Design QA ∥ Audit: the product SHA both review>
 
 ## Reply format (≤ 15 lines, never artifact contents)
 Status: COMPLETE | COMPLETE-WITH-CONFLICTS | HALTED | BLOCKED | IN-PROGRESS (interrupted)

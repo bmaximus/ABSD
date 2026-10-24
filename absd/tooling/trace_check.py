@@ -34,8 +34,8 @@ Gates (artifacts read from --working):
   gate2    every requirement in scope, every DEF defined in defect.md (Mode D), every UJ/SCR defined in design.md and
            every EXT referenced in the requirement source is referenced in architecture.md; it defines at least one WP.
   gateT    test_plan.md defines at least one TC; every AC in scope, every NF and BR requirement in scope, every DEF
-           defined in defect.md (Mode D), every UJ/SCR defined in design.md and every EXT referenced in
-           architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
+           defined in defect.md (Mode D — or its "### DEF-n" Reproduce section says "binds at re-bind: <TCs>"), every
+           UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
            or in its heading's section, and every source resolves (ABSD:ORACLE-1): SPEC:<AC|requirement> exists in
            the source or catalogue, SPEC:<UJ|SCR>[.state] exists in design.md, SPEC:architecture only on a TC that
            cites no requirement, FACT:<EXT> is VERIFIED in --external-facts (form only when the register is absent),
@@ -122,6 +122,7 @@ GATE3_REQUIRED = ("arch_review.md", "test_report.md", "audit.md")      # Mode F,
 GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md"), "R": ("test_report.md", "audit.md")}
 GATE3_OPTIONAL = ("arch_review.md", "test_report.md", "design_review.md")
 DESIGN_QA_YES = re.compile(r"\bDesign QA:\s*[*_`]*yes\b", re.IGNORECASE)                     # defect.md route line
+REBIND = re.compile(r"binds at re-bind:\s*[*_`]*(?!none\b|<)[^\s*_`]", re.IGNORECASE)   # plan §15, a DEF's section
 UX_GAP_CLASS = re.compile(r"^\s*[-*]\s*Class:\s*[*_`]*UX gap\b", re.IGNORECASE | re.MULTILINE)   # a DEF's class
 REQUIREMENT_SOURCES = ("analysis.md", "brd.md", "defect.md")
 MODE_LINE = re.compile(r"\bMode:\s*\**\s*([A-Z])\b")
@@ -575,8 +576,9 @@ def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
                  {r for r in requirements if "-BR-" in r}, plan.tc_referenced("requirement")),
     ]
     if source.label == "defect.md":
-        result.checks.append(coverage("every DEF defined in defect.md is referenced in a TC row of test_plan.md",
-                                      source.defined("def"), plan.tc_referenced("def")))
+        rebind = {d.id for d in plan.definitions if in_family(d.id, "def") and REBIND.search(d.context)}
+        result.checks.append(coverage("every DEF defined in defect.md is referenced in a TC row of test_plan.md or "
+                                      "binds at re-bind", source.defined("def"), plan.tc_referenced("def") | rebind))
     design_checks(result, design, working, plan, in_tc_rows=True)
     if architecture is None:
         result.notes.append(("notice", f"architecture.md not found in {working} — EXT check skipped (no architecture change on this route)"))

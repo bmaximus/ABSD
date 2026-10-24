@@ -7,12 +7,18 @@
 >    it reached a screen or a user-visible output);
 > 2. we name **why the existing tests missed it** (taxonomy in `absd/playbook/testing/escaped-defects.md`) and fix
 >    **that kind of test**, not only add a case;
-> 3. we **look for the same weakness elsewhere** and cover it (the Auditor verifies the sweep);
+> 3. we **look for the same weakness elsewhere** and cover it (the Auditor verifies the sweep; hits outside the cycle
+>    become DEF rows in the `absd-project/context.md` defect backlog);
 > 4. the slip is **logged here**, with the ABSD gate or rule that should have caught it, and the Manager closes it in
 >    `absd-project/lessons.md` (playbook change, or "rule existed, not followed → enforcement change").
 >
-> Over time the tests must catch what people used to find. Newest first.
+> **When rows are written (`ABSD:ESC-8`, `ABSD:ESC-9`):** the Tester writes the whole row at Verify of the Mode D cycle,
+> every cell filled (an empty sweep says what was searched: "none found: …"), with Lesson = `pending H`. After Harvest
+> the Tester's **Log** step fills each Lesson cell with the `<slug>-L<n>` id the Manager's brief passes — one commit
+> changing only Lesson cells; the archive is refused while a row of the cycle reads `pending H`. LL ids, once the kit
+> accepts a proposal, are recorded in `absd-project/lessons.md`, never here. Over time the tests must catch what people
+> used to find. Newest first.
 
-| DEF | Date | What slipped | Found by | Why the tests missed it (taxonomy) | How the tests improved | Same weakness looked for elsewhere | ABSD gate/rule that should have caught it | Lesson / rule changed |
-|---|---|---|---|---|---|---|---|---|
-| <DEF-n> | <YYYY-MM-DD> | <symptom, impact> | <user / live / exploratory / CI / reasoning> | <e.g. assumption-fed fake; desktop-only; tiny data; test-only override; no test ran the unit; missing requirement; inherited behaviour unspecified; oracle from code; real-time race> | <tests and test kinds added/changed> | <where else, what was found> | <Gate T / ABSD:VAR-8 / …> | <slug-L n → LL-n or "enforcement"> |
+| DEF | Date | What slipped | Found by | Why the tests missed it (taxonomy #: primary; secondary) | Root-cause class | How the tests improved (TC ids) | Same weakness looked for elsewhere | ABSD gate/rule that should have caught it | Lesson |
+|---|---|---|---|---|---|---|---|---|---|
+| <DEF-n> | <YYYY-MM-DD> | <symptom, impact> | <user / live / exploratory / CI / reasoning> | <e.g. #1 assumption-fed fake; #3 single device class> | <implementation / architecture / external-fact / UX / requirements / test-only gap> | <tests and test kinds added or changed, TC-nnnn> | <where else, what was found, DEF ids raised> | <Gate T / ABSD:VAR-8 / …> | <pending H → slug-Ln> |

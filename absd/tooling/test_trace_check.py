@@ -735,9 +735,17 @@ class TraceCheckTests(unittest.TestCase):
         self.write("working/defect.md", "| DEF | Title | Severity |\n|---|---|---|\n| DEF-7 | wrong zone | Critical |\n"
                    "| DEF-8 | stale card | Minor |\n")
         self.edit("working/test_plan.md", "| TC |", "| TC-0901 | regression DEF-7 | SPEC:ACC-1.AC1 |\n| TC |")
+        name = "every DEF defined in defect.md is referenced in a TC row of test_plan.md or binds at re-bind"
         code, out, checks = self.gate_json("gateT")
-        self.assertEqual(checks["every DEF defined in defect.md is referenced in a TC row of test_plan.md"]["missing"],
-                         ["DEF-8"])
+        self.assertEqual(checks[name]["missing"], ["DEF-8"])
+        reproduce = "\n## 15. Reproduce\n### DEF-8 — stale card\nwhy missed: #4 · binds at re-bind: {}\n"
+        for placeholder in ("<TCs, owner delta | none>", "none"):
+            self.write("working/test_plan.md", TEST_PLAN + "| TC-0901 | DEF-7 | SPEC:ACC-1.AC1 |\n"
+                       + reproduce.format(placeholder))
+            self.assertEqual(self.gate_json("gateT")[2][name]["missing"], ["DEF-8"], placeholder)
+        self.write("working/test_plan.md", TEST_PLAN + "| TC-0901 | DEF-7 | SPEC:ACC-1.AC1 |\n"
+                   + reproduce.format("TC-0950 after the Designer delta"))
+        self.assertEqual(self.gate_json("gateT")[2][name]["missing"], [])   # a UX gap binds after Gate UX
 
     # --- generic check ----------------------------------------------------------------------------------------
 

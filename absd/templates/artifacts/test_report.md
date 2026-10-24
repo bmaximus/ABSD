@@ -2,10 +2,10 @@
      Owner: tester. -->
 # Test report — C### <slug>
 Cycle: C### | Mode: … | Status: IN-PROGRESS | COMPLETE | BLOCKED | Date: YYYY-MM-DD
-Product SHA: <sha> — every result was taken there; valid while `git diff --quiet <sha> HEAD -- . ':!absd-project'`
+Product SHA: <sha> — the last commit outside `absd-project/` this report verified; every result was taken there (valid while `git diff --quiet <sha> HEAD -- . ':!absd-project'`)
 T-SHA chain: <sha, …> · Builder pass <n>/3 · Verify iteration <n>
 Findings: Critical <n> · Major <n> · Minor <n>
-Progress: [ ] conflicts [ ] additions [ ] exploratory [ ] docs [ ] tests commit [ ] suites [ ] gates [ ] gallery [ ] evidence commit
+Progress: [ ] conflicts [ ] suites [ ] additions [ ] gates [ ] gallery [ ] exploratory [ ] docs [ ] tests commit [ ] evidence run [ ] report commit
 
 Append-only: §17 iteration rows.
 

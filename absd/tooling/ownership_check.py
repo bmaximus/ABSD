@@ -15,7 +15,8 @@ the range this check proves that
          path under absd-project/ (manager);
        - the table under the first context.md heading containing "Source Layout" (up to the next heading of the same
          or a higher level): its first table with a column named like "Path" or "Glob" (one or more globs per cell,
-         separated by commas, spaces or <br>) and a column named "Owner" (an agent or "shared", any case).
+         separated by commas, spaces or <br>; a cell that is one unfilled `<…>` placeholder is skipped) and a column
+         named "Owner" (an agent or "shared", any case).
      The FIRST matching row wins: list specific globs before general ones. Globs match the whole repo-relative path:
      `**` any number of directories (also none), `*` and `?` within one path segment, a trailing `/` the whole
      directory. A file that no row matches is "unowned": a warning, an error with --strict.
@@ -91,6 +92,7 @@ CYCLE_ID = re.compile(r"C\d{3,}")
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
 SEPARATOR_CELL = re.compile(r":?-{3,}:?")
 GLOB_SEPARATORS = re.compile(r"<br\s*/?>|[,\s]+")
+PLACEHOLDER = re.compile(r"<(?!br\b)[^<>]*>")   # a whole path cell that is a template placeholder
 
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -232,7 +234,10 @@ def table_rules(rows: list[tuple[int, str]], path_col: int, owner_col: int, path
         owner = plain(cells[owner_col]).lower()
         if owner not in OWNERS:
             raise InputError(f"{origin}: unknown owner '{cells[owner_col]}' — use one of {', '.join(OWNERS)}")
-        globs = [glob for glob in GLOB_SEPARATORS.split(cells[path_col].replace("`", "")) if glob]
+        path_cell = cells[path_col].replace("`", "").strip()
+        if PLACEHOLDER.fullmatch(path_cell):
+            continue   # an unfilled template row (`<src/**>`, `<test runner configs>`) owns nothing
+        globs = [glob for glob in GLOB_SEPARATORS.split(path_cell) if glob]
         if not globs:
             raise InputError(f"{origin}: the row has no path glob")
         rules += [make_rule(glob, owner, origin) for glob in globs]

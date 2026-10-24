@@ -1,8 +1,10 @@
 # External facts — what we know about every system we do not control
 
 > Living, owned by the Tester, NEVER archived (`ABSD:FAKE-2`, `ABSD:EXT-1`, `ABSD:EXT-2`). Every external system the
-> product talks to — data feeds, payment, mail, push, OCR/LLM, identity providers, **and the platforms we deploy and run
-> on** (CI, container platform, registry, hosting) — has a section here. A fact is **VERIFIED** only with a recorded
+> product talks to — data feeds, payment, mail, push, OCR/LLM, identity providers, managed stores we cannot run locally,
+> **and the platforms we deploy and run on** (CI, container platform, registry, hosting) — has a section here. New fact
+> ids are reserved by the Analyst (`analysis.md` §7: highest here or in `context.md` §7 + 1) and adopted here, filled
+> by the Tester's Facts mode right after Gate 1, or at Reproduce when a defect's mechanism is an external fact (`ABSD:EXT-4`). A fact is **VERIFIED** only with a recorded
 > real response committed in the test tree **and** an independent source (official documentation, a published
 > schedule, a known real event). A person's statement or a configuration default is not evidence. Behaviour that
 > depends on an UNVERIFIED fact ships disabled and fails closed. Fakes answer exactly as the VERIFIED facts say.

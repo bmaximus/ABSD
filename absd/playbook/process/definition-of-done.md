@@ -34,9 +34,9 @@ user waives a row: a brd Decision plus a RISK in `context.md`.
 
 **DOD-2** — Close a feature cycle (Mode F, or Mode S on its delta route) only when every row holds.
 - *Why:* every pre-v2 cycle closed with criteria nobody tested (LL-45) and fixes nobody re-audited (LL-46).
-- *Check:* the Manager ticks rows 1–8 and 12 at Gate 3, rows 9–11 once Harvest has updated the living docs, the Risk
-  register and `lessons.md`, row 14 after the Tester's Log, and records row 13 in `context.md` §15 after the merge;
-  the Auditor verifies rows 2–7 and 12.
+- *Check:* the Manager ticks rows 1–8 and 12 at Gate 3, row 11 after Harvest, row 14 after the Tester's Log, rows
+  9–10 once archive step 2 has updated the living docs and the Risk register, and records row 13 in `context.md` §15
+  after the merge; the Auditor verifies rows 2–7 and 12.
 - *Applies when:* Modes F and S.
 - *Provenance:* LL-45, LL-46 (KatenatsioTipster, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 

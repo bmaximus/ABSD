@@ -137,6 +137,14 @@ class OwnershipRuleTests(unittest.TestCase):
         rules = ownership_check.read_source_layout(path)
         self.assertEqual(self.owners(rules, ["lib/a.rb", "spec/a_spec.rb"]), {"lib/a.rb": "builder", "spec/a_spec.rb": "shared"})
 
+    def test_unfilled_template_placeholders_own_nothing(self):
+        path = write(os.path.join(self.dir.name, "seed.md"),
+                     "## Source Layout\n| Path | Owner |\n|---|---|\n| `<src/**>` | builder |\n"
+                     "| `<test runner / coverage / mutation configs>` | tester |\n| `lib/**`<br>`bin/*` | builder |\n")
+        rules = ownership_check.read_source_layout(path)
+        self.assertEqual([rule.glob for rule in rules], ["lib/**", "bin/*"])
+        self.assertEqual(self.owners(rules, ["runner", "coverage"]), {"runner": "unowned", "coverage": "unowned"})
+
     def test_malformed_context_tables_are_input_errors(self):
         cases = {
             "no heading": ("# Context\n| Path | Owner |\n|---|---|\n| src/ | builder |\n", "no heading"),

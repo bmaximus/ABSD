@@ -1,8 +1,8 @@
 # Design system
 
 > Living, owned by the Designer, NEVER archived. Created in the Foundation cycle, amended at Gate UX (every `design.md`
-> references it instead of re-declaring tokens). Rules: `absd/playbook/design/excellence.md` (DSN) and
-> `absd/playbook/design/content-and-locale.md` (LOC). Keep only the sections for the product's interface profiles.
+> references it instead of re-declaring tokens). Rules: `absd/playbook/design/excellence.md` and
+> `absd/playbook/design/rubric-and-qa.md` (DSN), `absd/playbook/design/content-and-locale.md` (LOC). Keep only the sections for the product's interface profiles.
 
 ## 1. Character
 - Personality in three words: <e.g. calm, precise, warm>

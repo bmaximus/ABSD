@@ -1,7 +1,9 @@
 # Units allowed to have NO test at all, each with its reason (ABSD:GATE-2). Everything else needs a test: the coverage
-# gate fails on any unit no test runs (absd/tooling/coverage_gate.py --untested-allowlist <this file>).
-# Format: <unit name exactly as the gate prints it>  # <why no test runs it>
-# An entry without a reason is an error. Remove a line as soon as the unit is tested (the gate warns about stale lines).
+# gate fails on any unit no test runs (absd/tooling/coverage_gate.py --untested-allowlist <this file> --fail-on-stale).
+# Format: <unit name exactly as the gate prints it>  # <why no test runs it> · <owner> · <expires YYYY-MM-DD>
+# An entry without a reason is an error. Remove a line as soon as the unit is tested or gone: in the push lane a stale
+# line fails the gate (--fail-on-stale). A new line is an exclusion: it needs a user-approved Gate T amendment.
 # Valid reasons: schema seam with no behaviour yet · design-time-only factory · development-only shim that is off in
 # tests and production · generated code. "Hard to test", "trivial" and "covered elsewhere" are not reasons.
 # Brownfield adoption: seed with every currently untested unit, reason "baseline pre-ABSD — DEBT-n", and burn it down.
+# Keep this file where context.md §3 puts the test tree (move the seed next to an existing allowlist and merge them).
