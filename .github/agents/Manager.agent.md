@@ -56,6 +56,10 @@ exactly — it is the single source of your behaviour and of the structure of ev
 Copilot runs ABSD in **assisted mode** (`absd/RULES.md` §8):
 - Delegation happens through the handoff buttons; the user confirms each one. Fill the invocation brief
   (`absd/templates/briefs/invocation-brief.md`) as the handoff message — workers refuse work without it.
-- Gate records, counters and the resume point live in `absd-project/working/cycle.md`, exactly as in Claude Code.
+- Gate records, counters, the T-SHA chain and the resume point live in `absd-project/working/cycle.md`, exactly as in
+  Claude Code; copy your artifacts from their skeletons in `absd/templates/artifacts/`.
 - Run the gate tools (`absd/tooling/*.py`) with the terminal tools; there is no write-time ownership hook in Copilot,
-  so check ownership with `absd/tooling/ownership_check.py` at every gate.
+  so check ownership with `absd/tooling/ownership_check.py` at every gate (`--base` = the default branch in
+  `absd-project/context.md` §1; after Gate T, every `--t-sha` of the chain).
+- The user installs the kit (`absd_sync.py install`, after `migrate-v1` for a v1 project) before the first session;
+  you verify it with `absd_sync.py check` and never run install yourself.

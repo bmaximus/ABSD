@@ -117,8 +117,8 @@ count for the whole cycle.
   refuses an ABSD agent's file write outside its own paths) and in history by `absd/tooling/ownership_check.py`
   (ownership and ordering per commit); the Auditor reviews every test change after T-SHA.
 - Only the Manager merges, only after Gate 3, per the merge policy in `context.md`, when CI is green at the Gate 3
-  product SHA and every later commit changes only `absd-project/` (harvest, log, archive). No change reaches the default
-  branch outside a mode or a kit sync.
+  product SHA and every later commit changes only `absd-project/` (harvest, archive) — or, in the Tester's Log commit,
+  only the Lesson cells of `ESCAPED-DEFECTS.md`. No change reaches the default branch outside a mode or a kit sync.
 
 ## 6. Evidence and findings
 

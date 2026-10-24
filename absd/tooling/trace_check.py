@@ -43,7 +43,8 @@ Gates (artifacts read from --working):
            blocking spec defect is open (a row of a table with a "Blocking" column saying yes, whose Status does not
            start with answered, resolved, closed, withdrawn or fixed).
   gate3    the reports the cycle's route produces exist (read from the "Mode:" line of cycle.md: X → audit.md;
-           D and R → test_report.md, audit.md; any other mode, or no cycle.md → arch_review.md, test_report.md, audit.md;
+           D and R → test_report.md, audit.md, and in Mode D also design_review.md when defect.md says
+           "Design QA: yes" or a DEF's "- Class: UX gap"; any other mode, or no cycle.md → arch_review.md, test_report.md, audit.md;
            design_review.md and an arch_review.md the route does not require are read when present); each carries
            its verdict on a line outside any table (audit.md "Overall: PASS"; arch_review.md and design_review.md
            "Verdict: PASS" or "Verdict: N/A") and holds no open blocking finding. A finding is a table row whose
@@ -120,6 +121,8 @@ BLOCKING = ("critical", "major")
 GATE3_REQUIRED = ("arch_review.md", "test_report.md", "audit.md")      # Mode F, S, B, C, R — and when unknown
 GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md"), "R": ("test_report.md", "audit.md")}
 GATE3_OPTIONAL = ("arch_review.md", "test_report.md", "design_review.md")
+DESIGN_QA_YES = re.compile(r"\bDesign QA:\s*[*_`]*yes\b", re.IGNORECASE)                     # defect.md route line
+UX_GAP_CLASS = re.compile(r"^\s*[-*]\s*Class:\s*[*_`]*UX gap\b", re.IGNORECASE | re.MULTILINE)   # a DEF's class
 REQUIREMENT_SOURCES = ("analysis.md", "brd.md", "defect.md")
 MODE_LINE = re.compile(r"\bMode:\s*\**\s*([A-Z])\b")
 
@@ -630,6 +633,9 @@ def route_mode(working: str) -> str:
 def gate3(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     mode = route_mode(working)
     required = GATE3_BY_MODE.get(mode, GATE3_REQUIRED)
+    defects = artifact(working, "defect.md", required=False) if mode == "D" else None
+    if defects is not None and (DESIGN_QA_YES.search(defects.text) or UX_GAP_CLASS.search(defects.text)):
+        required = required + ("design_review.md",)   # the fix changes a visual or output surface, or a UX gap
     docs = [artifact(working, name) for name in required]
     docs += [doc for doc in (artifact(working, name, required=False) for name in GATE3_OPTIONAL if name not in required)
              if doc]

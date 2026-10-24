@@ -3,7 +3,7 @@
 # Cycle C### — <slug>
 Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's letter> | Status: IN-PROGRESS/COMPLETE/PARKED | Date: YYYY-MM-DD
 - Scale: <F | S> · Profiles in scope: <…> · ABSD version: <x.y.z> · Trigger (D/R/X/U): <…>
-- Branch: `absd/C###-<slug>` · Default branch: <name, context.md §1> · Start SHA: <sha>
+- Branch: `absd/C###-<slug>` · Default branch: <name, context.md §1 — ownership_check `--base`> · Start SHA: <sha>
 - T-SHA chain: <first T-SHA | not yet> → <later links, see "T-SHA chain"> · G3 product SHA: <sha | not yet>
 - Start checks (manager.md 6.1): kit check <green> · nightly/live <green | run triggered <date> | waiver D-n + RISK-n> ·
   Mode X due <no | ran in C###> · backlog reviewed <date>
@@ -14,7 +14,7 @@ Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's lett
 | 1 | a principal, role or permission | <no> | <…> |
 | 2 | an external integration | | |
 | 3 | persistent schema or a migration | | |
-| 4 | adds or removes a screen, endpoint, command or public symbol, or changes an interface contract | | |
+| 4 | adds or removes a screen, endpoint, command or public symbol, or changes an interface contract (copy and layout on an existing screen stay eligible: Designer delta + Design QA) | | |
 | 5 | money or calculation logic | | |
 | 6 | date, time or zone logic | | |
 | 7 | auth or session logic | | |
@@ -61,6 +61,6 @@ Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's lett
 ## Decisions (process; product decisions live in brd §9 or defect.md)
 - <date> — <decision> — <who>
 
-## Close (DOD rows)
+## Close (DOD rows; DOD-2 rows 9–10 after archive step 2; row 13 goes into context.md §15 after the merge)
 | Row | Holds | Evidence (command output, CI run at the product SHA, artifact §, commit) |
 |---|---|---|

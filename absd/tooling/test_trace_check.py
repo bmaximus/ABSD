@@ -576,6 +576,24 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(code, 1, out)
         self.assertIn("AR-9 (Major)", out)
 
+    def test_gate3_mode_d_needs_design_qa_when_the_fix_is_visual_or_a_ux_gap(self):
+        self.write("working/cycle.md", "Cycle: C011 | Mode: D | Status: IN-PROGRESS\n")
+        self.remove("working/arch_review.md")
+        template = "- Route after Gate T: x · Design QA: <yes — visual | no — reason>\n- Class: <proposed>\n"
+        self.write("working/defect.md", template)
+        self.assertEqual(self.run_gate("gate3")[0], 0)   # placeholders require nothing
+        for text in ("- Route after Gate T: Builder · Design QA: **yes** — the card changes\n",
+                     "## DEF-4 — swipe reloads\n- Class: UX gap · Moved to: —\n"):
+            self.write("working/defect.md", text)
+            code, out = self.run_gate("gate3")
+            self.assertEqual(code, 2, text)
+            self.assertIn("design_review.md: not found", out)
+            self.write("working/design_review.md", "Verdict: PASS\n")
+            code, out = self.run_gate("gate3")
+            self.assertEqual(code, 0, text)
+            self.assertIn("requires test_report.md, audit.md, design_review.md", out)
+            self.remove("working/design_review.md")
+
     def test_gate3_route_mode_r_needs_the_release_report_and_the_audit(self):
         self.write("working/cycle.md", "Cycle: C010 | Mode: R | Status: IN-PROGRESS\n")
         self.remove("working/arch_review.md")
