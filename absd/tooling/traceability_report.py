@@ -7,6 +7,9 @@ Answers two questions after a test run:
      A test that links to an id the catalogue does not know is an error (typos must not count as proof).
   2. Plan conformance (ABSD playbook TRACE-*): does every test case planned in test_plan.md (TC-nnnn, flat ids with at
      least four digits) exist as a test, and did it pass? Tests carrying TC ids the plan does not list are unplanned.
+     The plan is read the way trace_check.py reads it: a TC is planned when it is the first token of a table row's
+     first cell or of a heading, outside code fences, and not marked removed/retired; test_plan.md also takes in the
+     parts in a directory test_plan/ next to it (a split plan). A plan that plans no TC is an input error.
 
 How tests link (use any; all are read):
   - JUnit properties on the testcase: <property name="requirement" value="ACC-1"/> (repeatable or comma-separated),
@@ -26,6 +29,8 @@ usage:
                          [--catalogue absd-project/catalogue.md]
                          [--plan absd-project/working/test_plan.md]
                          [--fail-on failing,unknown,missing] [--json trace.json] [--summary-md trace.md]
+Every --junit glob must match at least one file: a suite whose results are missing did not run (ABSD:GATE-1), and is
+an input error, not a smaller report.
 
 --fail-on categories: failing  (a requirement or planned test case failed)
                       unknown  (a test links to a requirement id not in the catalogue, or to a retired one)
@@ -44,6 +49,9 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import trace_check  # noqa: E402  (one Markdown reading of test_plan.md for both tools)
 
 REQ_ID = r"[A-Z][A-Z0-9]*-(?:NF-|BR-)?\d+"
 REQ_TOKEN = re.compile(r"\[(" + REQ_ID + r")\]")
@@ -88,7 +96,13 @@ def split_values(value: str) -> list[str]:
 
 
 def read_junit(patterns: list[str]) -> tuple[list[Case], list[str]]:
-    files = sorted({p for pattern in patterns for p in glob.glob(pattern, recursive=True) if os.path.isfile(p)})
+    files: set[str] = set()
+    for pattern in patterns:
+        matched = {p for p in glob.glob(pattern, recursive=True) if os.path.isfile(p)}
+        if not matched:
+            raise ValueError(f"No JUnit XML files found for: {pattern} (a suite whose results are missing did not run)")
+        files |= matched
+    files = sorted(files)
     cases: list[Case] = []
     for path in files:
         for element in ET.parse(path).getroot().iter("testcase"):
@@ -150,20 +164,14 @@ def read_catalogue(path: str) -> tuple[list[dict], set[str]]:
 
 
 def read_plan(path: str) -> list[str]:
-    """Planned test cases: the TC id in the first cell of a Markdown table row, or in a heading."""
-    planned: list[str] = []
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            stripped = line.strip()
-            candidate = ""
-            if stripped.startswith("|"):
-                cells = [c.strip() for c in stripped.strip("|").split("|")]
-                candidate = cells[0] if cells else ""
-            elif stripped.startswith("#"):
-                candidate = stripped.lstrip("#").strip()
-            match = TC_TOKEN.match(candidate.strip("*`[] "))
-            if match and match.group(0) not in planned:
-                planned.append(match.group(0))
+    """Planned test cases, in id order: TC ids test_plan.md (and its parts) defines and does not mark removed."""
+    try:
+        doc = trace_check.load([path], os.path.basename(path))
+    except trace_check.InputError as error:
+        raise ValueError(str(error)) from error
+    planned = sorted(doc.defined("tc"), key=trace_check.natural)
+    if not planned:
+        raise ValueError(f"{path} plans no test case (no TC-nnnn defined) — nothing to conform to")
     return planned
 
 
@@ -177,8 +185,10 @@ def verdict(statuses: list[str]) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--junit", action="append", required=True, help="glob of JUnit XML files (repeatable, ** allowed)")
-    parser.add_argument("--catalogue", help="product requirement catalogue (JSON with a 'requirements' list)")
-    parser.add_argument("--plan", help="test_plan.md whose TC-<LEVEL>-### ids must all exist and pass")
+    parser.add_argument("--catalogue", help="requirement catalogue: Markdown table (absd-project/catalogue.md) or JSON "
+                                            "with a 'requirements' list")
+    parser.add_argument("--plan", help="test_plan.md (plus its test_plan/ parts) whose planned TC-nnnn ids must all "
+                                       "exist as tests and pass")
     parser.add_argument("--fail-on", default="failing,unknown,missing", help=f"comma list of: {', '.join(CATEGORIES)}")
     parser.add_argument("--json", dest="json_out")
     parser.add_argument("--summary-md")
@@ -198,9 +208,6 @@ def main(argv: list[str] | None = None) -> int:
         planned = read_plan(args.plan) if args.plan else []
     except (OSError, ValueError, KeyError, ET.ParseError, json.JSONDecodeError) as error:
         print(f"::error::{error}")
-        return 2
-    if not files:
-        print("::error::No JUnit XML files found for: " + ", ".join(args.junit))
         return 2
 
     problems: dict[str, list[str]] = {c: [] for c in CATEGORIES}

@@ -96,6 +96,14 @@ class CoverageGateTests(unittest.TestCase):
         self.assertIn("::warning::", out)
         self.assertIn("Shop.Cart", out)
 
+    def test_stale_allowlist_entries_fail_with_fail_on_stale(self):
+        self.write("a/coverage.xml", cobertura([("Shop.Cart", "src/Cart.cs", [1] * 6)]))
+        allow = self.write("allow.txt", "Shop.Cart  # was untested\nShop.Gone  # deleted since\n")
+        code, out = self.run_gate("--min-total", "0", "--untested-allowlist", allow, "--fail-on-stale")
+        self.assertEqual(code, 1, out)
+        self.assertIn("::error::Now tested or gone — remove from", out)
+        self.assertIn("Shop.Cart, Shop.Gone", out)
+
     def test_units_below_min_lines_are_not_gated(self):
         self.write("a/coverage.xml", cobertura([("Shop.Constants", "src/Constants.cs", [0] * 4)]))
         allow = self.write("allow.txt", "")
@@ -103,17 +111,44 @@ class CoverageGateTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
 
     def test_compiler_generated_nested_types_fold_into_their_class(self):
-        # the async state machine ran, so the class is not "untested"
+        # the async state machine, the lambda display class and the anonymous class ran, so their classes are not untested
         self.write("a/coverage.xml", cobertura([
             ("Shop.Reader", "src/Reader.cs", [0, 0, 0]),
             ("Shop.Reader/<ReadAsync>d__2", "src/Reader.cs", [1, 0, 0]),
-            ("Shop.Job$Inner", "src/Job.java", [0] * 6),
+            ("Shop.Reader/<>c", "src/Reader.cs", [0, 0, 0]),
+            ("Shop.Job", "src/Job.java", [0] * 3),
+            ("Shop.Job$1", "src/Job.java", [1, 0, 0]),
+            ("Shop.Job$$Lambda$7", "src/Job.java", [0, 0, 0]),
         ]))
         allow = self.write("allow.txt", "")
         code, out = self.run_gate("--min-total", "0", "--untested-allowlist", allow, "--min-lines", "3")
+        self.assertEqual(code, 0, out)
+
+    def test_named_nested_types_are_units_of_their_own(self):
+        self.write("a/coverage.xml", cobertura([
+            ("Shop.Reader", "src/Reader.cs", [1, 1, 1]),
+            ("Shop.Reader/Parser", "src/Reader.cs", [0] * 6),
+            ("Shop.Job", "src/Job.java", [1, 1, 1]),
+            ("Shop.Job$Inner", "src/Job.java", [0] * 6),
+        ]))
+        allow = self.write("allow.txt", "")
+        code, out = self.run_gate("--min-total", "0", "--untested-allowlist", allow)
         self.assertEqual(code, 1)
-        self.assertIn("Shop.Job (6 lines)", out)
-        self.assertNotIn("Shop.Reader (", out)
+        self.assertIn("Shop.Reader/Parser (6 lines)", out)
+        self.assertIn("Shop.Job$Inner (6 lines)", out)
+
+    def test_classes_named_after_their_file_are_keyed_by_path(self):
+        # coverage.py and istanbul name each "class" after its file: two index.ts are two units
+        self.write("a/coverage.xml", cobertura([
+            ("index.ts", "src/cart/index.ts", [1] * 6),
+            ("index.ts", "src/billing/index.ts", [0] * 6),
+            ("cart.py", "shop/cart.py", [1] * 6),
+        ]))
+        allow = self.write("allow.txt", "")
+        code, out = self.run_gate("--min-total", "0", "--untested-allowlist", allow)
+        self.assertEqual(code, 1)
+        self.assertIn("src/billing/index.ts (6 lines)", out)
+        self.assertNotIn("src/cart/index.ts (", out)
 
     def test_generic_type_names_fold_into_their_class(self):
         self.write("a/coverage.xml", cobertura([
@@ -168,7 +203,22 @@ class CoverageGateTests(unittest.TestCase):
     def test_no_reports_is_an_input_error(self):
         code, out = self.run_gate("--min-total", "0")
         self.assertEqual(code, 2)
-        self.assertIn("No Cobertura", out)
+        self.assertIn("no coverage report found for", out)
+
+    def test_every_reports_glob_must_match(self):
+        self.write("unit/coverage.xml", cobertura([("Shop.Cart", "src/Cart.cs", [1] * 6)]))
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = coverage_gate.main(["--reports", os.path.join(self.root, "unit", "*.xml"),
+                                       "--reports", os.path.join(self.root, "web", "lcov.info"), "--min-total", "0"])
+        self.assertEqual(code, 2)   # the web suite left no report: it did not run
+        self.assertIn("no coverage report found for: " + os.path.join(self.root, "web", "lcov.info"), out.getvalue())
+
+    def test_reports_without_coverable_lines_are_an_input_error(self):
+        self.write("a/coverage.xml", cobertura([]))
+        code, out = self.run_gate("--min-total", "0")
+        self.assertEqual(code, 2)
+        self.assertIn("No coverable lines", out)
 
     def test_layers_and_json_output(self):
         self.write("a/coverage.xml", cobertura([

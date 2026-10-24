@@ -13,11 +13,13 @@ Ownership" table of absd-project/context.md; first match wins):
   - not an ABSD agent (a plain session, another agent type) → allowed: pipeline bypasses are caught in history by
     ownership_check.py, which reports unattributed commits;
   - a path outside the project directory (scratch files) → allowed;
-  - the vendored kit (`absd/`, `.claude/agents/`, `.github/agents/`) → refused for every agent: products never edit
-    the kit (upgrade it with absd_sync.py);
+  - the vendored kit (`absd/`, `.claude/agents/*.md`, `.github/agents/*.agent.md`) → refused for every agent:
+    products never edit the kit (upgrade it with absd_sync.py);
+  - the agent configuration (`.claude/`, every `CLAUDE.md`, `.github/copilot-instructions.md`,
+    `.github/instructions/`) → the Manager's: no worker switches off this hook or rewrites its own instructions;
   - a path owned by the agent, or "shared", or matched by no rule → allowed (unowned paths are reported by
     ownership_check.py);
-  - anything else → refused, with the owner and what to do instead.
+  - anything else → refused, with the owner and the route to take instead (by writer and owner).
 
 Bash commands can still write files; the history check (ownership_check.py) is the backstop for those.
 
@@ -33,11 +35,17 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ownership_check as oc  # noqa: E402
 
-KIT_GLOBS = ("absd/", ".claude/agents/", ".github/agents/")
 CONTEXT = os.path.join(oc.PROJECT_DIR, "context.md")
-INSTEAD = {
-    "builder": "a test change goes to the Tester as TC-CONFLICT-n in build_log.md",
-    "tester": "a production change goes to the Architect as TSEAM-n in test_plan.md",
+INSTEAD = {   # (writer, owner) first, then by owner
+    ("builder", "tester"): "a test change goes to the Tester as TC-CONFLICT-n in build_log.md",
+    ("tester", "builder"): "a production change goes to the Architect as TSEAM-n in test_plan.md",
+    "tester": "a test or gate change is the Tester's: name it in your hand-back (Auditor: a finding in audit.md)",
+    "builder": "a production change goes through architecture.md: name it in your hand-back as a finding or question",
+    "manager": "configuration, context and cycle files are the Manager's: name the change in your hand-back",
+    "analyst": "a requirement question goes to the Manager in your hand-back (open question)",
+    "designer": "a design question goes to the Manager in your hand-back (Gate UX delta)",
+    "architect": "an architecture gap goes to the Manager in your hand-back (clarification or architecture finding)",
+    "auditor": "audit reports are the Auditor's: record your evidence in your own artifact",
 }
 
 
@@ -71,8 +79,7 @@ def decide(event: dict, project: str) -> tuple[bool, str]:
     path = relative_to_project(target, project, str(event.get("cwd") or project))
     if path is None:
         return True, "outside the project"
-    kit = [oc.make_rule(glob, "kit", "kit") for glob in KIT_GLOBS]
-    if oc.owner_of(path, kit)[0] == "kit":
+    if oc.owner_of(path, oc.kit_rules())[0] == oc.KIT:
         return False, (f"ABSD ownership: {agent} may not write {path} — the kit is vendored and read-only in products; "
                        "propose a change through absd-project/lessons.md (enrichment), upgrade with absd_sync.py.")
     rules = oc.built_in_rules()
@@ -88,7 +95,7 @@ def decide(event: dict, project: str) -> tuple[bool, str]:
     if owner in (agent, oc.SHARED, oc.UNOWNED):
         return True, f"{path}: owner {owner}"
     where = "the ABSD artifact table" if rule is not None and rule.origin == oc.BUILT_IN else (rule.origin if rule else "?")
-    hint = INSTEAD.get(agent, "record the need in your own artifact; the Manager routes it to the owner")
+    hint = INSTEAD.get((agent, owner)) or INSTEAD.get(owner, "record the need in your own artifact; the Manager routes it")
     return False, (f"ABSD ownership: {agent} may not write {path} — it is owned by {owner} ({where}). "
                    f"Do not work around this; {hint}.")
 

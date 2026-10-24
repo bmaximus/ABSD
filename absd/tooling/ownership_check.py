@@ -8,21 +8,24 @@ the range this check proves that
      --allow-unattributed (its files are then not checked). A trailer naming an unknown agent, or several agents, is
      an error even with --allow-unattributed. A missing or malformed ABSD-Cycle trailer is a warning.
   2. every file it adds, changes or deletes is owned by its agent or is "shared". Owners come from, in this order:
-       - the built-in artifact table for absd-project/ (ABSD contract §5; the context table cannot override it):
-         per-cycle artifacts in working/ (also when split into working/<artifact>/ parts), working/evidence/<agent>/,
-         the living documents, and archive/ (manager);
+       - the built-in table (ABSD contract §5; the context table cannot override it): the kit paths (read-only);
+         the agent configuration .claude/, every CLAUDE.md, .github/copilot-instructions.md and
+         .github/instructions/ (manager); for absd-project/ the per-cycle artifacts in working/ (also when split
+         into working/<artifact>/ parts), working/evidence/<agent>/, the living documents, and archive/ (manager);
        - the table under the first context.md heading containing "Source Layout" (up to the next heading of the same
          or a higher level): its first table with a column named like "Path" or "Glob" (one or more globs per cell,
          separated by commas, spaces or <br>) and a column named "Owner" (an agent or "shared", any case).
      The FIRST matching row wins: list specific globs before general ones. Globs match the whole repo-relative path:
      `**` any number of directories (also none), `*` and `?` within one path segment, a trailing `/` the whole
      directory. A file that no row matches is "unowned": a warning, an error with --strict.
-  3. with --t-sha (the Tester's Plan & Bind commit, recorded at Gate T):
-       a. every builder commit has T-SHA as an ancestor; otherwise it is a "production change before Gate T";
+  3. with --t-sha (the Tester's Plan & Bind evidence commit, recorded at Gate T; repeat the option for each approved
+     Gate T amendment's T-SHA, oldest first — they must form a chain, each descending from the one before):
+       a. every builder commit has the first T-SHA as an ancestor; otherwise it is a "production change before
+          Gate T";
        b. every test file (tester-owned through the Source Layout table; the Tester's pipeline artifacts are not
-          test files) changed by a commit after T-SHA is listed with commit, agent and subject. This is the Auditor's
-          review list: each changed expected value or assertion must cite a Gate T amendment (ABSD playbook
-          ORACLE-*). Changes by other agents are already errors under check 2.
+          test files) changed by a commit after the first T-SHA that is not itself a T-SHA is listed with commit,
+          agent and subject. This is the Auditor's review list: each changed expected value or assertion must cite a
+          Gate T amendment (ABSD playbook ORACLE-2). Changes by other agents are already errors under check 2.
 
 Kit-sync commits carry the trailer `ABSD-Sync: <install|upgrade|migrate-v1> <version>` instead of ABSD-Agent (absd_sync.py
 prints the command): they may change the kit paths (absd/, .claude/agents/*.md, .github/agents/*.agent.md), ADD the
@@ -35,7 +38,7 @@ parent). Git reads trailers only from the LAST paragraph of the message, so writ
 
 usage:
   ownership_check.py [--repo .] [--context absd-project/context.md] [--range <rev-range> | --base main]
-                     [--t-sha <sha>] [--allow-unattributed] [--strict] [--include-merges]
+                     [--t-sha <sha> [--t-sha <amendment sha> ...]] [--allow-unattributed] [--strict] [--include-merges]
                      [--json ownership.json] [--summary-md ownership.md]
 
 --range defaults to <merge-base of HEAD and --base>..HEAD. A relative --context path is read from --repo.
@@ -62,6 +65,9 @@ BUILT_IN = "built-in"
 SYNC = "sync"                   # a kit install/upgrade/migrate-v1 commit: trailer "ABSD-Sync: <operation> <version>"
 KIT = "kit"                     # owner of the vendored kit paths: read-only for every agent
 KIT_GLOBS = ("absd/", ".claude/agents/*.md", ".github/agents/*.agent.md")
+# The product's agent configuration (settings, hooks, permissions, instructions): the Manager's, so no worker can
+# switch off the hook or rewrite its own instructions. absd_sync.py seeds them in kit-sync commits.
+CONFIG_GLOBS = (".claude/", "**/CLAUDE.md", ".github/copilot-instructions.md", ".github/instructions/")
 V1_PATHS = ("working/", ".claude/working/", "archive/", ".claude/archive/")
 PROJECT_DIR = "absd-project"
 
@@ -147,8 +153,9 @@ def kit_rules() -> list[Rule]:
 
 
 def built_in_rules() -> list[Rule]:
-    """The kit paths, then the contract's artifact ownership. A per-cycle artifact working/<name>.md may be split into
-    working/<name>/NN-<part>.md parts; each agent keeps its evidence in working/evidence/<agent>/."""
+    """The kit paths, the agent configuration (manager), then the contract's artifact ownership. A per-cycle artifact
+    working/<name>.md may be split into working/<name>/NN-<part>.md parts; each agent keeps its evidence in
+    working/evidence/<agent>/."""
     globs = []
     for owner, paths in ARTIFACTS.items():
         for path in paths:
@@ -156,7 +163,8 @@ def built_in_rules() -> list[Rule]:
             if path.startswith("working/") and path.endswith(".md"):
                 globs.append((path[:-len(".md")] + "/", owner))
     globs += [(f"working/evidence/{agent}/", agent) for agent in AGENTS]
-    return kit_rules() + [make_rule(f"{PROJECT_DIR}/{glob}", owner, BUILT_IN) for glob, owner in globs]
+    return (kit_rules() + [make_rule(glob, "manager", BUILT_IN) for glob in CONFIG_GLOBS]
+            + [make_rule(f"{PROJECT_DIR}/{glob}", owner, BUILT_IN) for glob, owner in globs])
 
 
 def owner_of(path: str, rules: list[Rule]) -> tuple[str, Rule | None]:
@@ -415,12 +423,19 @@ def check_ownership(commits: list[Commit], rules: list[Rule], strict: bool, find
         (findings.errors if strict else findings.warnings).append(("unowned", message))
 
 
-def check_gate_t(repo: str, commits: list[Commit], rules: list[Rule], t_sha: str, findings: Findings) -> None:
+def check_chain(repo: str, t_shas: list[str]) -> None:
+    for earlier, later in zip(t_shas, t_shas[1:]):
+        if earlier == later or not is_ancestor(repo, earlier, later):
+            raise InputError(f"--t-sha values must form a chain, oldest first: {later[:7]} does not descend from {earlier[:7]}")
+
+
+def check_gate_t(repo: str, commits: list[Commit], rules: list[Rule], t_shas: list[str], findings: Findings) -> None:
+    first = t_shas[0]
     for commit in commits:
-        descends = is_ancestor(repo, t_sha, commit.sha)
+        descends = is_ancestor(repo, first, commit.sha)
         if commit.agent == "builder" and not descends:
-            findings.errors.append(("Gate T order", f"production change before Gate T: {describe(commit)} does not descend from T-SHA {t_sha[:7]}"))
-        if not descends or commit.sha == t_sha:
+            findings.errors.append(("Gate T order", f"production change before Gate T: {describe(commit)} does not descend from T-SHA {first[:7]}"))
+        if not descends or commit.sha in t_shas:
             continue
         for path in commit.files:
             owner, rule = owner_of(path, rules)
@@ -443,19 +458,19 @@ def cell(text: str) -> str:
     return text.replace("|", "\\|")
 
 
-def markdown(rev_range: str, checked: list[Commit], merges: list[Commit], t_sha: str, findings: Findings) -> str:
+def markdown(rev_range: str, checked: list[Commit], merges: list[Commit], t_shas: list[str], findings: Findings) -> str:
     verdict = "FAILED" if findings.errors else "passed"
     facts = [f"range `{rev_range}`", f"{len(checked)} commits checked"]
     if merges:
         facts.append(f"{len(merges)} merge commits skipped")
-    if t_sha:
-        facts.append(f"T-SHA `{t_sha[:7]}`")
+    if t_shas:
+        facts.append("T-SHA " + " → ".join(f"`{sha[:7]}`" for sha in t_shas))
     lines = [f"### Ownership check — {verdict}", " · ".join(facts), "", "| Agent | Commits | Files |", "|---|---|---|"]
     lines += [f"| {agent} | {s['commits']} | {s['files']} |" for agent, s in agent_stats(checked).items()]
     for heading, items in (("Violations", findings.errors), ("Warnings", findings.warnings)):
         if items:
             lines += ["", f"**{heading} ({len(items)})**", *[f"- {message}" for _, message in items]]
-    if t_sha:
+    if t_shas:
         lines += ["", f"**Test files changed after Gate T ({len(findings.review)})** — each changed expected value or "
                       "assertion must cite a Gate T amendment"]
         if findings.review:
@@ -464,11 +479,12 @@ def markdown(rev_range: str, checked: list[Commit], merges: list[Commit], t_sha:
     return "\n".join(lines) + "\n"
 
 
-def json_report(rev_range: str, checked: list[Commit], merges: list[Commit], t_sha: str, rules: list[Rule],
+def json_report(rev_range: str, checked: list[Commit], merges: list[Commit], t_shas: list[str], rules: list[Rule],
                 findings: Findings) -> dict:
     return {
         "range": rev_range,
-        "tSha": t_sha or None,
+        "tSha": t_shas[0] if t_shas else None,
+        "tShas": t_shas,
         "passed": not findings.errors,
         "agents": agent_stats(checked),
         "commits": [{
@@ -488,7 +504,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--context", default=f"{PROJECT_DIR}/context.md", help="context.md with the Source Layout table (relative: inside --repo)")
     parser.add_argument("--range", help="git revision range to check (default: <merge-base of HEAD and --base>..HEAD)")
     parser.add_argument("--base", default="main", help="default branch for the default range (default: main)")
-    parser.add_argument("--t-sha", help="the Gate T commit: builder commits must descend from it; test changes after it are listed")
+    parser.add_argument("--t-sha", action="append", default=[],
+                        help="the Gate T commit: builder commits must descend from it; test changes after it are listed "
+                             "(repeat for each approved Gate T amendment's T-SHA, oldest first)")
     parser.add_argument("--allow-unattributed", action="store_true", help="commits without an ABSD-Agent trailer are warnings, not errors")
     parser.add_argument("--strict", action="store_true", help="files no Source Layout row matches are errors, not warnings")
     parser.add_argument("--include-merges", action="store_true", help="check merge commits too (default: skip them)")
@@ -496,7 +514,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--summary-md", help="write the Markdown summary to this file (also appended to $GITHUB_STEP_SUMMARY)")
     args = parser.parse_args(argv)
 
-    for option, value in (("--range", args.range), ("--base", args.base), ("--t-sha", args.t_sha)):
+    for option, value in (("--range", args.range), ("--base", args.base), *(("--t-sha", sha) for sha in args.t_sha)):
         if value is not None and (not value.strip() or value.startswith("-")):
             print(f"::error::{option} must be a git revision, got '{value}'")
             return 2
@@ -508,7 +526,8 @@ def main(argv: list[str] | None = None) -> int:
         commits = read_commits(args.repo, rev_range)
         if not commits:
             raise InputError(f"no commits in range {rev_range} — check --range or --base")
-        t_sha = resolve_commit(args.repo, args.t_sha) if args.t_sha else ""
+        t_shas = [resolve_commit(args.repo, sha) for sha in args.t_sha]
+        check_chain(args.repo, t_shas)
         skip_merges = not args.include_merges
         merges = [c for c in commits if skip_merges and c.is_merge]
         checked = [c for c in commits if not (skip_merges and c.is_merge)]
@@ -517,13 +536,13 @@ def main(argv: list[str] | None = None) -> int:
         findings = Findings()
         check_attribution(checked, args.allow_unattributed, findings)
         check_ownership(checked, rules, args.strict, findings)
-        if t_sha:
-            check_gate_t(args.repo, checked, rules, t_sha, findings)
+        if t_shas:
+            check_gate_t(args.repo, checked, rules, t_shas, findings)
     except (OSError, InputError, GitError) as error:
         print(f"::error::{error}")
         return 2
 
-    summary = markdown(rev_range, checked, merges, t_sha, findings)
+    summary = markdown(rev_range, checked, merges, t_shas, findings)
     print(summary)
     for title, message in findings.errors:
         print(f"::error title={title}::{message}")
@@ -537,7 +556,7 @@ def main(argv: list[str] | None = None) -> int:
             out.write(summary + "\n")
     if args.json_out:
         with open(args.json_out, "w", encoding="utf-8") as out:
-            json.dump(json_report(rev_range, checked, merges, t_sha, rules, findings), out, ensure_ascii=False, indent=2)
+            json.dump(json_report(rev_range, checked, merges, t_shas, rules, findings), out, ensure_ascii=False, indent=2)
     return 1 if findings.errors else 0
 
 

@@ -13,6 +13,12 @@
       "Bash(git commit:*)",
       "Bash(git switch:*)",
       "Bash(git restore:*)",
+      "Bash(git mv:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(git worktree:*)",
+      "Bash(python3 absd/tooling/absd_sync.py check:*)",
       "Bash(python3 absd/tooling/coverage_gate.py:*)",
       "Bash(python3 absd/tooling/traceability_report.py:*)",
       "Bash(python3 absd/tooling/trace_check.py:*)",
@@ -22,7 +28,9 @@
       "Bash(git push --force:*)",
       "Bash(git push -f:*)",
       "Bash(git reset --hard:*)",
-      "Bash(git clean -fdx:*)"
+      "Bash(git clean -fdx:*)",
+      "Bash(git commit --no-verify:*)",
+      "Bash(git commit -n:*)"
     ]
   },
   "hooks": {

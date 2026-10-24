@@ -356,6 +356,19 @@ class OwnershipCheckTests(unittest.TestCase):
         self.assertIn("changed absd/RULES.md, owned by kit", joined)
         self.assertIn("changed .claude/agents/tester.md, owned by kit", joined)
 
+    def test_agent_configuration_is_the_managers(self):
+        self.commit("absd(C001): allow more — manager", "manager", [".claude/settings.json", "CLAUDE.md"])
+        self.commit("absd(C001): drop the hook — builder", "builder", [".claude/settings.json"])
+        self.commit("absd(C001): module notes — builder", "builder", ["src/CLAUDE.md"])   # instructions in any folder
+        self.commit("absd(C001): own rules — tester", "tester", [".github/instructions/tests.instructions.md"])
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        joined = "\n".join(data["errors"])
+        self.assertIn("(builder) 'absd(C001): drop the hook — builder' changed .claude/settings.json, owned by manager", joined)
+        self.assertIn("changed .github/instructions/tests.instructions.md, owned by manager", joined)
+        self.assertIn("changed src/CLAUDE.md, owned by manager", joined)
+        self.assertNotIn("(manager)", joined)
+
     def test_sync_and_agent_trailers_together_are_invalid(self):
         self.commit("absd: install", "manager", ["absd/RULES.md"], trailers="ABSD-Agent: manager\nABSD-Sync: install 2.0.0")
         code, out, data = self.run_json("--allow-unattributed")
@@ -512,6 +525,22 @@ class OwnershipCheckTests(unittest.TestCase):
                                            "subject": "TC-0007 | amend expected total — tester"}])
         self.assertIn("**Test files changed after Gate T (1)**", out)
         self.assertIn(f"| tests/test_cart.py | {amend[:7]} | tester | TC-0007 \\| amend expected total — tester |", out)
+
+    def test_t_sha_chain_for_gate_t_amendments(self):
+        t_sha = self.commit("absd(C001): plan & bind — tester", "tester", ["tests/test_cart.py"])
+        self.commit("absd(C001): WP-01 — builder", "builder", ["src/cart.py"])
+        amendment = self.commit("absd(C001): Gate T amendment A-1 — tester", "tester", ["tests/test_cart.py"])
+        later = self.commit("absd(C001): verify — tester", "tester", ["tests/test_cart.py"])
+        code, out, data = self.run_json("--t-sha", t_sha, "--t-sha", amendment)
+        self.assertEqual(code, 0, out)
+        self.assertEqual(data["tShas"], [t_sha, amendment])
+        self.assertEqual([r["commit"] for r in data["review"]], [later])   # an approved T-SHA is not on the review list
+        self.assertIn(f"T-SHA `{t_sha[:7]}` → `{amendment[:7]}`", out)
+        code, out = self.run_check("--t-sha", amendment, "--t-sha", t_sha)
+        self.assertEqual(code, 2)
+        self.assertIn(f"--t-sha values must form a chain, oldest first: {t_sha[:7]} does not descend from {amendment[:7]}", out)
+        code, out = self.run_check("--t-sha", t_sha, "--t-sha", t_sha)
+        self.assertEqual(code, 2)
 
     def test_review_list_includes_test_changes_by_other_agents(self):
         t_sha = self.commit("absd(C001): plan & bind — tester", "tester", ["tests/test_cart.py"])

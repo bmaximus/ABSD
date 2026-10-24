@@ -173,6 +173,19 @@ class TraceabilityReportTests(unittest.TestCase):
     def test_plan_ids_are_read_from_table_first_cells_and_headings_only(self):
         self.assertEqual(traceability_report.read_plan(self.plan), ["TC-0001", "TC-0002", "TC-0003", "TC-0004"])
 
+    def test_split_plan_parts_fences_and_removed_cases(self):
+        self.write("test_plan/02-e2e.md", "| TC | Status |\n|---|---|\n| TC-0005 | planned |\n| TC-0006 | removed (D-3) |\n"
+                   "```\n| TC-0007 | an example inside a code fence |\n```\n")
+        self.assertEqual(traceability_report.read_plan(self.plan),
+                         ["TC-0001", "TC-0002", "TC-0003", "TC-0004", "TC-0005"])
+
+    def test_a_plan_without_test_cases_is_an_input_error(self):
+        empty = self.write("empty_plan.md", "# Test plan\nTC-0001 is only mentioned in prose.\n")
+        self.write("r/junit.xml", junit([("TC-0001", "passed", {})]))
+        code, out = self.run_report("--plan", empty)
+        self.assertEqual(code, 2)
+        self.assertIn("plans no test case", out)
+
     def test_missing_failed_and_unplanned_test_cases(self):
         self.write("r/junit.xml", junit([
             ("TC-0001 signs in", "passed", {}),
@@ -220,6 +233,15 @@ class TraceabilityReportTests(unittest.TestCase):
         code, out = self.run_report("--catalogue", self.catalogue)
         self.assertEqual(code, 2)
         self.assertIn("No JUnit XML", out)
+
+    def test_every_junit_glob_must_match(self):
+        self.write("unit/junit.xml", junit([("a [ACC-1]", "passed", {})]))
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = traceability_report.main(["--junit", os.path.join(self.root, "unit", "*.xml"),
+                                             "--junit", os.path.join(self.root, "e2e", "*.xml"), "--catalogue", self.catalogue])
+        self.assertEqual(code, 2)   # the e2e suite left no results: it did not run
+        self.assertIn("No JUnit XML files found for: " + os.path.join(self.root, "e2e", "*.xml"), out.getvalue())
 
     def test_unknown_fail_on_category_is_an_input_error(self):
         self.write("r/junit.xml", junit([("x", "passed", {})]))

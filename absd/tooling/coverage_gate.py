@@ -5,21 +5,30 @@ Fails the build when
   1. total line coverage (merged across every report: a line counts as covered if any test run hit it) is below
      --min-total, or
   2. a unit of code that NO test runs at all (not one of its lines) appears, unless it is listed in the allowlist
-     together with its reason (ABSD playbook GATE-02). Allowlist entries without a reason are themselves an error.
+     together with its reason (ABSD playbook GATE-2). Allowlist entries without a reason are themselves an error.
 
-Stale allowlist entries (units that are now tested) produce a warning so the list shrinks over time.
+Stale allowlist entries (units now tested or gone) are a warning, or an error with --fail-on-stale (the push lane, which
+reads every report: GATE-2 has them removed in the same change). Every --reports glob must match at least one file —
+a language or suite whose report is missing did not run (GATE-1), so it is an input error, not a smaller total.
+
+A unit is a class (--unit class, the default) or a file (--unit file). In class mode, compiler-generated types fold
+into their declaring type — C# async state machines, lambdas and display classes (`Outer/<Method>d__3`, `Outer/<>c`),
+JVM anonymous and synthetic classes (`Outer$1`, `Outer$$Lambda$7`), generic arity and arguments (`Outer`1`,
+`Outer<T>`) — while named nested types (`Outer/Inner`, `Outer$Inner`) stay units of their own. A "class" named after
+its file (coverage.py, istanbul/nyc/c8 and similar emit `cart.py` / `index.ts`) is keyed by its file path, so two
+`index.ts` in different folders are two units.
 
 Cobertura is written by coverlet (.NET), coverage.py (`coverage xml`), istanbul/nyc/c8/vitest/jest
 (`cobertura` reporter), gocover-cobertura (Go), cargo-llvm-cov / grcov (Rust), JaCoCo via converters (JVM).
 LCOV (`*.info` / `*.lcov`, or any file starting with `TN:`/`SF:`) is written by c8/istanbul, grcov, cargo-llvm-cov,
 genhtml-based tools and lcov itself; LCOV has no classes, so its units are files.
 
-The minimum is a ratchet (ABSD playbook GATE-*): when coverage is more than one point above it, the report says what
+The minimum is a ratchet (ABSD playbook GATE-3): when coverage is at least one point above it, the report says what
 to raise it to. Raising it is the Tester's change; lowering it needs the user's approval (a gate loosening).
 
 usage:
   coverage_gate.py --reports "**/coverage.cobertura.xml" [--reports "<glob>" ...] --min-total 80
-                   [--untested-allowlist tests/untested-allowlist.txt] [--unit class|file] [--min-lines 5]
+                   [--untested-allowlist tests/untested-allowlist.txt] [--fail-on-stale] [--unit class|file] [--min-lines 5]
                    [--exclude "/Migrations/" ...] [--layer Domain=/Domain/ ...]
                    [--json coverage.json] [--summary-md coverage.md]
 
@@ -40,21 +49,28 @@ from dataclasses import dataclass, field
 LineKey = tuple  # (filename, line number)
 
 
+class MissingReport(Exception):
+    """A --reports glob matched no file."""
+
+
 @dataclass
 class Coverage:
     lines: dict = field(default_factory=dict)                         # (file, line) -> covered?
     units: dict = field(default_factory=lambda: defaultdict(dict))    # unit -> {(file, line): covered?}
 
 
+GENERATED_NESTED = re.compile(r"/<|\$(?=\d|\$)")   # C# Outer/<M>d__3, Outer/<>c · JVM Outer$1, Outer$$Lambda$7
+GENERIC_ARITY = re.compile(r"`\d+")
+
+
 def normalise_unit(name: str, filename: str, mode: str) -> str:
-    """The unit a line belongs to. Nested and compiler-generated types (C# async state machines and lambdas
-    `Outer/<Method>d__3`, generics `Outer<T>` / `Outer`1`; JVM `Outer$Inner`) fold into their declaring type."""
-    if mode == "file":
-        return filename.replace("\\", "/")
-    unit = name.split("/")[0]
-    for marker in ("<", "`", "$"):
-        unit = unit.split(marker)[0]
-    return unit or filename.replace("\\", "/")
+    """The unit a line belongs to (see the module notes): only compiler-generated types fold into their declaring type."""
+    path = filename.replace("\\", "/")
+    if mode == "file" or not name or name == path or path.endswith("/" + name):
+        return path
+    match = GENERATED_NESTED.search(name)
+    unit = name[:match.start()] if match else name
+    return GENERIC_ARITY.sub("", unit).split("<")[0] or path   # Outer`1 → Outer · Outer<T> → Outer
 
 
 def is_lcov(path: str) -> bool:
@@ -84,7 +100,13 @@ def read_lcov(path: str, excludes: list[re.Pattern], cov: Coverage) -> None:
 
 
 def read_reports(patterns: list[str], excludes: list[re.Pattern], unit_mode: str) -> tuple[Coverage, list[str]]:
-    files = sorted({path for pattern in patterns for path in glob.glob(pattern, recursive=True) if os.path.isfile(path)})
+    found: set[str] = set()
+    for pattern in patterns:
+        matched = {path for path in glob.glob(pattern, recursive=True) if os.path.isfile(path)}
+        if not matched:
+            raise MissingReport(f"no coverage report found for: {pattern} (a suite whose report is missing did not run)")
+        found |= matched
+    files = sorted(found)
     cov = Coverage()
     for path in files:
         if is_lcov(path):
@@ -133,6 +155,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--reports", action="append", required=True, help="glob of Cobertura XML files (repeatable, ** allowed)")
     parser.add_argument("--min-total", type=float, required=True, help="minimum total line coverage, percent")
     parser.add_argument("--untested-allowlist", help="fail on units no test runs, except those listed with a reason")
+    parser.add_argument("--fail-on-stale", action="store_true",
+                        help="fail on allowlist entries whose unit is now tested or gone (use where every report is read)")
     parser.add_argument("--unit", choices=("class", "file"), default="class", help="what counts as a unit (default: class)")
     parser.add_argument("--min-lines", type=int, default=5, help="units with fewer coverable lines are not gated (default 5)")
     parser.add_argument("--exclude", action="append", default=[], help="regex on file path to leave out (generated code, migrations)")
@@ -155,11 +179,14 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         cov, files = read_reports(args.reports, excludes, args.unit)
+    except MissingReport as error:
+        print(f"::error::{error}")
+        return 2
     except (OSError, ET.ParseError, ValueError) as error:
         print(f"::error::cannot read coverage report: {error}")
         return 2
-    if not files or not cov.lines:
-        print("::error::No Cobertura coverage reports (or no coverable lines) found for: " + ", ".join(args.reports))
+    if not cov.lines:
+        print("::error::No coverable lines in the coverage reports for: " + ", ".join(args.reports))
         return 2
 
     per_layer: dict[str, list[int]] = defaultdict(lambda: [0, 0])
@@ -194,7 +221,9 @@ def main(argv: list[str] | None = None) -> int:
             listing = ", ".join(f"{name} ({n} lines)" for name, n in new)
             messages.append(f"::error title=Code no test runs::{listing} — add a test, or list it with its reason in {args.untested_allowlist}.")
         if stale:
-            messages.append(f"::warning::Now tested or gone — remove from {args.untested_allowlist}: {', '.join(stale)}")
+            level = "error" if args.fail_on_stale else "warning"
+            failed |= args.fail_on_stale
+            messages.append(f"::{level}::Now tested or gone — remove from {args.untested_allowlist}: {', '.join(stale)}")
 
     rows = ["| Layer | Line coverage |", "|---|---|"]
     rows += [f"| {name} | {100.0 * c / t:.1f}% ({c}/{t}) |" for name, (c, t) in sorted(per_layer.items())]

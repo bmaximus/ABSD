@@ -107,6 +107,24 @@ class OwnershipHookTests(unittest.TestCase):
         self.assertIn("read-only", err)
         self.assertEqual(self.call("designer", ".github/agents/Designer.agent.md")[0], 2)
 
+    def test_agent_configuration_is_the_managers(self):
+        for path in (".claude/settings.json", "CLAUDE.md", "src/CLAUDE.md", ".github/copilot-instructions.md",
+                     ".github/instructions/project.instructions.md"):
+            self.assertEqual(self.call("manager", path)[0], 0, path)
+            code, err = self.call("builder", path)   # the catch-all row would otherwise give these to the builder
+            self.assertEqual(code, 2, path)
+            self.assertIn("owned by manager (the ABSD artifact table)", err)
+            self.assertIn("name the change in your hand-back", err)
+        self.assertEqual(self.call("manager", ".claude/agents/manager.md")[0], 2)   # the kit stays read-only
+
+    def test_refusals_name_the_route_by_writer_and_owner(self):
+        self.assertIn("open question", self.call("builder", "absd-project/catalogue.md")[1])
+        self.assertIn("Gate UX delta", self.call("tester", "absd-project/design-system.md")[1])
+        self.assertIn("architecture finding", self.call("builder", "absd-project/working/architecture.md")[1])
+        self.assertIn("audit reports are the Auditor's", self.call("builder", "absd-project/working/audit.md")[1])
+        self.assertIn("goes through architecture.md", self.call("designer", "src/cart.py")[1])
+        self.assertIn("a test or gate change is the Tester's", self.call("auditor", "tests/test_cart.py")[1])
+
     def test_non_absd_sessions_and_paths_outside_the_project_are_allowed(self):
         self.assertEqual(self.call(None, "src/cart.py")[0], 0)
         self.assertEqual(self.call("general-purpose", "src/cart.py")[0], 0)
