@@ -43,7 +43,7 @@ Gates (artifacts read from --working):
            blocking spec defect is open (a row of a table with a "Blocking" column saying yes, whose Status does not
            start with answered, resolved, closed, withdrawn or fixed).
   gate3    the reports the cycle's route produces exist (read from the "Mode:" line of cycle.md: X → audit.md;
-           D → test_report.md, audit.md; any other mode, or no cycle.md → arch_review.md, test_report.md, audit.md;
+           D and R → test_report.md, audit.md; any other mode, or no cycle.md → arch_review.md, test_report.md, audit.md;
            design_review.md and an arch_review.md the route does not require are read when present); each carries
            its verdict on a line outside any table (audit.md "Overall: PASS"; arch_review.md and design_review.md
            "Verdict: PASS" or "Verdict: N/A") and holds no open blocking finding. A finding is a table row whose
@@ -118,7 +118,7 @@ VERDICT_OF = {"audit.md": ("Overall", ("PASS",)), "arch_review.md": ("Verdict", 
               "design_review.md": ("Verdict", ("PASS", "N/A"))}   # the verdict line gate3 requires per report
 BLOCKING = ("critical", "major")
 GATE3_REQUIRED = ("arch_review.md", "test_report.md", "audit.md")      # Mode F, S, B, C, R — and when unknown
-GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md")}
+GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md"), "R": ("test_report.md", "audit.md")}
 GATE3_OPTIONAL = ("arch_review.md", "test_report.md", "design_review.md")
 REQUIREMENT_SOURCES = ("analysis.md", "brd.md", "defect.md")
 MODE_LINE = re.compile(r"\bMode:\s*\**\s*([A-Z])\b")

@@ -576,6 +576,16 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(code, 1, out)
         self.assertIn("AR-9 (Major)", out)
 
+    def test_gate3_route_mode_r_needs_the_release_report_and_the_audit(self):
+        self.write("working/cycle.md", "Cycle: C010 | Mode: R | Status: IN-PROGRESS\n")
+        self.remove("working/arch_review.md")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 0, out)
+        self.assertIn("route Mode R: requires test_report.md, audit.md", out)
+        self.remove("working/test_report.md")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 2)
+
     def test_gate3_mode_f_cycle_needs_all_three_reports(self):
         self.write("working/cycle.md", "Cycle: C009 | Mode: F | Status: IN-PROGRESS\n")
         self.remove("working/arch_review.md")

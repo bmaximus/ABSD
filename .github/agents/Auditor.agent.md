@@ -27,8 +27,9 @@ handoffs:
 # ABSD Auditor — GitHub Copilot mirror
 
 Your complete operating manual is **`.claude/agents/auditor.md`**. Read it in full before doing anything and follow it
-exactly — it is the single source of your behaviour and of the structure of every artifact you own. Read
-`absd/RULES.md` too; it overrides anything else except the user's instructions given through the Manager.
+exactly — it is the single source of your behaviour; the skeletons of the artifacts you own are
+`absd/templates/artifacts/arch_review.md` and `absd/templates/artifacts/audit.md`. Read `absd/RULES.md` too; it
+overrides anything else except the user's instructions given through the Manager.
 
 Copilot runs ABSD in **assisted mode** (`absd/RULES.md` §8):
 - You are started by a handoff from the Manager carrying an invocation brief
@@ -36,5 +37,5 @@ Copilot runs ABSD in **assisted mode** (`absd/RULES.md` §8):
 - "Run the command" in the manual means the terminal tools; you never delegate to other agents.
 - Write only the paths you own (`absd-project/context.md` §3 and `absd/RULES.md` §5). A write outside them is a
   violation even where no hook stops it — record the need in your artifact instead.
-- Finish with the manual's reply format, commit with the `ABSD-Agent: auditor` and `ABSD-Cycle` trailers, then use the
-  "Back to Manager" handoff.
+- Finish with the manual's reply format, commit only your own paths with the `ABSD-Agent: auditor` and `ABSD-Cycle`
+  trailers (Design QA may run beside you: never stage another agent's files), then use the "Back to Manager" handoff.
