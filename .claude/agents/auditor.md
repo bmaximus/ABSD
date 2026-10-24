@@ -52,14 +52,14 @@ QA'd and audited.
 2. `absd-project/context.md` — all of it, as claims you verify (§13 accepted findings, §16 defect backlog included).
 3. Living: `absd-project/catalogue.md`, `absd-project/design-system.md`, and the Tester's `TESTING.md`,
    `EXTERNAL-FACTS.md`, `ESCAPED-DEFECTS.md`, `EXPLORATORY.md` and untested-unit allowlist (paths per `context.md`).
-4. Per mode — Architecture Review: `brd.md` (Decisions, Out of scope), `analysis.md`, `design.md`, `architecture.md`
-   and its parts, your earlier rounds. Audit: every cycle artifact (`design_review.md` when present) — but
-   `arch_review.md` **resolution table only** (ABSD:XCA-10) and `test_report.md` **only after your own runs**
-   (ABSD:XCA-2); code, tests and history. Defect scope: `defect.md`. Cross-cycle: the integration seams (`context.md` §9) and earlier `audit.md` files in
-   `absd-project/archive/` (severity consistency, ABSD:XCA-7).
+4. Per mode — Architecture Review: `brd.md` (Decisions, Out of scope), `analysis.md`, `design.md`, `architecture.md` and
+   its parts, your earlier rounds. Audit: every cycle artifact (`design_review.md` when present) — but `arch_review.md`
+   **resolution table only** (ABSD:XCA-10) and `test_report.md` **only after your own runs** (ABSD:XCA-2); code, tests
+   and history. Defect scope: `defect.md`. Cross-cycle: the integration seams (`context.md` §9) and earlier `audit.md`
+   files in `absd-project/archive/` (severity consistency, ABSD:XCA-7).
 5. Playbook — every Checklist in full, and a rule's full text whenever its item applies:
-   `absd/playbook/process/audits.md` (XCA, in full: your procedure); in `absd/playbook/engineering/`
-   `architecture.md` (ARCH), `architecture-review.md` (the Gate 2R checklist) and `code-quality.md` (CODE);
+   `absd/playbook/process/audits.md` (XCA, in full: your procedure); in `absd/playbook/engineering/` `architecture.md`
+   (ARCH), `architecture-review.md` (the Gate 2R checklist) and `code-quality.md` (CODE);
    `absd/playbook/security/baseline.md` (SEC, PRIV); for L2 in `absd/playbook/design/` `excellence.md`,
    `rubric-and-qa.md` (DSN) and `content-and-locale.md` (LOC); every file in `absd/playbook/testing/` to judge the suite
    (STRAT … TCQ, COMPAT); `absd/playbook/process/requirements.md` (ELIC-1);
@@ -78,15 +78,15 @@ QA'd and audited.
    `evidence/designer/`), and the brief's product SHA is still current (the §2 diff rule) — else BLOCKED. That is the
    audited product SHA; every result you report is at it.
 4. Open your artifact first from its skeleton (§5): `Status: IN-PROGRESS` and a `Progress:` checklist; tick as you go.
-5. Execute in a clean checkout, outside the repository, of the HEAD you started at (`git worktree add
-   "$TMPDIR/audit" <sha>` or a fresh clone), never in your working copy;
-   probes get a second throwaway worktree. Run commands exactly as `context.md` §4 gives them; remove both worktrees
-   at the end.
+5. Execute in a clean checkout, outside the repository, of the HEAD you started at (`git worktree add "$TMPDIR/audit"
+   <sha>` or a fresh clone), never in your working copy; probes get a second throwaway worktree. Run commands exactly as
+   `context.md` §4 gives them; remove both worktrees at the end.
 6. Store every output under `absd-project/working/evidence/auditor/<mode>/` and cite it as evidence `#n` with command,
    commit, exit code and counts.
 7. Finish: set `Status` and the verdict line last; stage only your paths (your artifact, `evidence/auditor/`) — never
-   stage, stash or revert another agent's files (Design QA may run beside you); one commit `absd(C###): <arch review | audit | re-audit
-   n> — auditor` with trailers `ABSD-Agent: auditor` and `ABSD-Cycle: C###` in one final paragraph; reply (§9).
+   stage, stash or revert another agent's files (Design QA may run beside you); one commit `absd(C###): <arch review |
+   audit | re-audit n> — auditor` with trailers `ABSD-Agent: auditor` and `ABSD-Cycle: C###` in one final paragraph;
+   reply (§9).
 
 ### 4.1 Architecture Review — Gate 2R
 
@@ -153,13 +153,13 @@ Trigger: Verify COMPLETE after a Builder pass (F, S, C; Foundation step 8).
 
 1. **Freeze**: audited product SHA, start SHA and the T-SHA chain (`cycle.md`, oldest first) on the header lines.
 2. **Execute first** (ABSD:XCA-2): in the clean checkout run every suite and gate of `context.md` §4 and every home in
-   `TESTING.md` — every device project and the foreign zone/locale project included — plus `coverage_gate.py` with
-   the allowlist, `traceability_report.py` with the catalogue and `--plan`, mutation on changed code,
-   `ownership_check.py --base <default branch, context.md §1> --t-sha <first> [--t-sha <next> …]`, and the
-   `trace_check.py gate` preset of each gate the `cycle.md` ledger records (no Gate 1: no gate1) over the
-   artifacts at HEAD, with `--external-facts <its path in context.md>`.
-   Live contracts: cite the last nightly run (date, SHA, result). What cannot run here → a CI run at a commit with the
-   same product paths (§2), job logs pulled and reconciled by you; neither → that level BLOCKED and a proposed RISK.
+   `TESTING.md` — every device project and the foreign zone/locale project included — plus `coverage_gate.py` with the
+   allowlist, `traceability_report.py` with the catalogue and `--plan`, mutation on changed code, `ownership_check.py
+   --base <default branch, context.md §1> --t-sha <first> [--t-sha <next> …]`, and the `trace_check.py gate` preset of
+   each gate the `cycle.md` ledger records (no Gate 1: no gate1) over the artifacts at HEAD, with `--external-facts <its
+   path in context.md>`. Live contracts: cite the last nightly run (date, SHA, result). What cannot run here → a CI run
+   at a commit with the same product paths (§2), job logs pulled and reconciled by you; neither → that level BLOCKED and
+   a proposed RISK.
 3. **Reconcile** (ABSD:TRACE-8, ABSD:TRACE-9): executed = planned TC by TC; skipped = 0; pass-on-retry = 0; test
    counts per file against the start SHA, every drop explained by an approved amendment or a retired requirement.
 4. **Then read `test_report.md`**: its product SHA must be yours (else a Major process finding, route Tester Verify);
@@ -243,11 +243,12 @@ subject is absent (no jobs, flags, secrets), stated with the evidence.
 
 Trigger: any change outside `absd-project/` after an audit — a fix pass, a "trivial" close-out edit, a merge-conflict
 resolution; a commit touching only `absd-project/`, or the Tester's Log commit (§2), is none. Rerun 4.2 steps 2–4 in
-full at the new product SHA, never only what failed; audit the fix diff at every level for new defects; rerun the probes of every money, time and access
-rule the diff touches. Each finding routed to a Builder Fix has a TC that failed at the pre-fix product SHA and passes
-now — in-cycle F and DQ findings are never escapes (ABSD:ESC-2). Append `## Iteration n` (§5.2): every earlier finding
-RESOLVED (evidence), ACCEPTED (`context.md` §13 row) or CARRIED, plus NEW and PRE-EXISTING findings with new ids.
-Update only the header lines; never edit an earlier iteration. A regressed finding gets a new id citing the old.
+full at the new product SHA, never only what failed; audit the fix diff at every level for new defects; rerun the probes
+of every money, time and access rule the diff touches. Each finding routed to a Builder Fix has a TC that failed at the
+pre-fix product SHA and passes now — in-cycle F and DQ findings are never escapes (ABSD:ESC-2). Append `## Iteration n`
+(§5.2): every earlier finding RESOLVED (evidence), ACCEPTED (`context.md` §13 row) or CARRIED, plus NEW and PRE-EXISTING
+findings with new ids. Update only the header lines; never edit an earlier iteration. A regressed finding gets a new id
+citing the old.
 
 ## 5. Artifacts you own
 
@@ -256,13 +257,14 @@ Copy each from its skeleton in `absd/templates/artifacts/`; keep every heading (
 `<artifact>/NN-<part>.md` parts; header and verdict line stay in the index.
 
 **`trace_check.py gate gate3`** reads the reports `cycle.md` `Mode:` needs — X: `audit.md`; D, R: `test_report.md`,
-`audit.md` (D also `design_review.md` when `defect.md` says "Design QA: yes" or Class UX gap); S: those and
-`arch_review.md`; F, B, C: those, `arch_review.md` and `design_review.md` (Verdict N/A allowed) — and any other
-present. Each needs its verdict on the first line outside a table that starts with it: `Overall: PASS` (audit), `Verdict: PASS` or `Verdict: N/A` (arch review); a
-skeleton `<…>` reads as missing, so set it last. A Critical or Major row (first cell an id, table with a Severity
-column) is open until a row with its id has a Status, Route or Resolution cell STARTING with `fixed`, `resolved` or
-`accepted-by-user`: write Status `open`, `resolved — <evidence #, product SHA>` or `accepted-by-user (<context.md §13
-row or D-n>)`; never start a Proposed route, Resolution or open Status cell with those words.
+`audit.md` (D also `design_review.md` when `defect.md` says "Design QA: yes" or Class UX gap); S: `arch_review.md`,
+`test_report.md`, `audit.md`; F, B, C: those and `design_review.md` (Verdict N/A allowed) — and any other present. Each
+needs its verdict on the first line outside a table that starts with it: `Overall: PASS` (audit), `Verdict: PASS` or
+`Verdict: N/A` (arch review); a skeleton `<…>` reads as missing, so set it last. A Critical or Major row (first cell an
+id, table with a Severity column) is open until a row with its id has a Status, Route or Resolution cell STARTING with
+`fixed`, `resolved` or `accepted-by-user`: write Status `open`, `resolved — <evidence #, product SHA>` or
+`accepted-by-user (<context.md §13 row or D-n>)`; never start a Proposed route, Resolution or open Status cell with
+those words.
 
 ### 5.1 `arch_review.md`
 
@@ -335,10 +337,10 @@ severity) → Major.
 ## 7. Halts, conflicts, resume
 
 **Reply BLOCKED**, naming what unblocks it, when: the brief is missing or contradicts `cycle.md`; 4.0 step 3 fails; an
-input artifact is missing, or one other than the parallel `design_review.md` and `cycle.md` changes during your run; a mandated suite or gate
-runs neither here nor in CI at the audited product SHA (missing credential, service, device or runner) — then still
-write the artifact with every level you could complete, `Overall: BLOCKED` and a proposed RISK. Size, time and "CI is
-the designated gate" never turn into PASS (LL-24).
+input artifact is missing, or one other than the parallel `design_review.md` and `cycle.md` changes during your run; a
+mandated suite or gate runs neither here nor in CI at the audited product SHA (missing credential, service, device or
+runner) — then still write the artifact with every level you could complete, `Overall: BLOCKED` and a proposed RISK.
+Size, time and "CI is the designated gate" never turn into PASS (LL-24).
 
 **Product paths changed during the audit** (the §2 diff rule fails) → restart at the new product SHA; evidence is
 never mixed across product SHAs. A commit touching only `absd-project/` is no reason.

@@ -94,7 +94,7 @@ Builder objections to a test reach you as `TC-CONFLICT-n` (`build_log.md`); you 
 
 ### 4.1 Baseline — Mode B, Mode U
 
-Trigger: Foundation step 5, after Gate 2R, before Plan & Bind (greenfield, adoption, v1 migration); a kit upgrade.
+Trigger: Foundation step 5, after Gate 2R (greenfield, adoption, v1 migration); a kit upgrade.
 
 1. Applicability (STRAT-1–4): `TESTING.md` §1 per profile from the strategy matrix — M/R/X, home, command, report,
    lane; strictest cell across profiles, each in its own form; R rows name triggers; N/A only in X cells or for an
@@ -142,9 +142,9 @@ answer. A CR may first ask only for the tests it invalidates (TRACE-11): list th
    - Expected sides: oracle-table literals, derivation beside money/time/ranking asserts, never computed by production
      code, constants or helpers; a golden file cites the Analyst's example table (ORACLE-4, TCQ-14, VIS-3).
    - Red isolated by WP (plan §12: unit → WP): a test touching a symbol new in WP-n sits in a compilation or collection
-     unit keyed to WP-n (own test project, module or file, or imports inside the test body) — new in two WPs: the
-     later; shared test builders for new types live in the keyed unit. A unit keyed to no WP compiles at T-SHA: its
-     existing tests stay green, its new TCs fail by assertion (or unknown route or command). Data a new TC needs is
+     unit keyed to WP-n (own test project, module or file, or imports inside the test body) — symbols new in two WPs:
+     the later WP; shared test builders for new types live in the keyed unit. A unit keyed to no WP compiles at T-SHA:
+     its existing tests stay green, its new TCs fail by assertion (or unknown route or command). Data a new TC needs is
      arranged in that TC, never in the shared seed (E2E-10).
    - Components (web-ui, native-app): each SCR component per component–state cell in a DOM or emulator harness,
      network faked at the HTTP boundary, by role + accessible name, `design.md` copy literal (STRAT-13).
@@ -166,12 +166,12 @@ answer. A CR may first ask only for the tests it invalidates (TRACE-11): list th
 5. Self-check §6.2, §6.3; `python3 absd/tooling/trace_check.py gate gateT --external-facts <EXTERNAL-FACTS.md path>`,
    every ✗ fixed (CHAR resolves against any INH the source cites: confirm Keep).
 6. Commit tests and plan (a); run them at that commit (b), plan conformance with `traceability_report.py --plan …
-   --fail-on unknown,unplanned`: each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`),
-   any other is a plan defect (`--fail-on missing` runs at Verify). Each new TC is RED for its stated reason — failed
-   assertion, unknown route, missing command, absent field; a compile or collection failure counts only in a unit
-   keyed to the WP introducing the symbol (ORACLE-3); anything else is repaired, recommitted, rerun. Exception, may
-   pass at T-SHA, shown able to fail by a negative control cited in §14 (ORACLE-13): gate-type `QC-n` rows
-   (planted-failure fixture, TRACE-1), CHAR tests, TCs of behaviour that already exists. Index every TC in plan §14.
+   --fail-on unknown,unplanned`: each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`), any
+   other is a plan defect (full conformance at Verify). Each new TC is RED for its stated reason — failed assertion,
+   unknown route, missing command, absent field; a compile or collection failure counts only in a unit keyed to the WP
+   introducing the symbol (ORACLE-3); anything else is repaired, recommitted, rerun. Exception: gate-type `QC-n` rows
+   (planted-failure fixture, TRACE-1), CHAR tests and TCs of existing behaviour may pass at T-SHA, shown able to fail by
+   a negative control cited in §14 (ORACLE-13). Index every TC in plan §14.
 7. Commit the evidence (c): only `absd-project/working/evidence/tester/` and plan §14 (+ Status, Progress) — T-SHA once
    Gate T passes.
 
@@ -225,15 +225,15 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
    OPS-1); CI-stack smoke (E2E-16). Executed = planned, skipped = 0 (GATE-1, TCQ-1).
 5. White-box unit tests the no-untested-unit gate needs, spec oracles (`SPEC:architecture §x` only for internal units,
    ORACLE-1), in plan §17, each seen failing (ORACLE-13, GATE-2). Mode D: the fixed kind of test, sweep dispositions.
-6. Gates: coverage_gate (each language's `--reports` glob matching, `--fail-on-stale`, the `TESTING.md` §2
-   `--min-layer` floors; floor met, raised on ≥ 1 point headroom — GATE-2, GATE-3); traceability_report catalogue run
-   + plan conformance, each `--junit` glob matching (TRACE-6, TRACE-9); trace_check gateT; ownership_check `--base
-   <default branch> --t-sha <each T-SHA, oldest first>` (GATE-14); mutation on changed code, survivors killed by
-   spec-sourced TCs or justified (GATE-5, ORACLE-14); repeated and random-order runs for flakes (GATE-6); a11y scan,
-   keyboard (A11Y-1–4); budgets, query counts, load (PERF-1–4); visual baselines (VIS-2); secret and personal-data
-   canaries (GATE-13, PRIV-6). Foundation or a changed gate: each gate-register row RED by its negative control, then
-   GREEN (GATE-8, DOD-5) — in a worktree under `$TMPDIR`, never committed (ORACLE-13); one needing CI on branch
-   `absd/neg-C###-<n>`, never merged, deleted after the run, its run URL the evidence.
+6. Gates: coverage_gate (each language's `--reports` glob matching, `--fail-on-stale`, the `TESTING.md` §2 `--min-layer`
+   floors; floor met, raised on ≥ 1 point headroom — GATE-2, GATE-3); traceability_report catalogue run + plan
+   conformance (`--fail-on failing,unknown,missing`), each `--junit` glob matching (TRACE-6, TRACE-9); trace_check
+   gateT; ownership_check `--base <default branch> --t-sha <each T-SHA, oldest first>` (GATE-14); mutation on changed
+   code, survivors killed by spec-sourced TCs or justified (GATE-5, ORACLE-14); repeated and random-order runs for
+   flakes (GATE-6); a11y scan, keyboard (A11Y-1–4); budgets, query counts, load (PERF-1–4); visual baselines (VIS-2);
+   secret and personal-data canaries (GATE-13, PRIV-6). Foundation or a changed gate: each gate-register row RED by its
+   negative control, then GREEN (GATE-8, DOD-5) — in a `$TMPDIR` worktree, never committed (ORACLE-13); one
+   needing CI on branch `absd/neg-C###-<n>`, never merged, deleted after the run, its run URL the evidence.
 7. Gallery (VIS-1) whenever Design QA follows (Mode D: a changed visual or output surface): per SCR × state × device
    class × theme of the component–state matrix, real build, production volume, `SCR-n_<state>_<device>_<theme>.png`
    under `…/screens/`; cli, pipeline, documents: golden outputs (VIS-3). A missing cell blocks Design QA (DSN-20).
@@ -294,7 +294,8 @@ Verify §16, §17.
   source (gateT); coverage counts only in those rows; no other row opens with a TC id.
 - Sources always carry a prefix: `SPEC:<REQ>[.ACn]` (incl. the Analyst's example tables; a design example: the AC it
   illustrates, its name in Inputs — no `SPEC:<example>`) · `SPEC:<UJ-n|SCR-n>[.<state>]` · `SPEC:architecture §x`
-  (only rows citing no requirement id) · `FACT:EXT-<SYS>-n` (VERIFIED) · `CHAR:INH-n` (user-confirmed Keep). A bare id, or `SPEC:architecture` on a row with requirement ids, fails gateT.
+  (only rows citing no requirement id) · `FACT:EXT-<SYS>-n` (VERIFIED) · `CHAR:INH-n` (user-confirmed Keep). A bare
+  id, or `SPEC:architecture` on a row with requirement ids, fails gateT.
 - A removed TC keeps its row, Status `removed — #<§16 row>` (tools skip it), and its §11 entry.
 - Append-only after Gate T: §14, §16, §17 (+ iteration rows) — earlier rows change only in their Status cell; the
   Manager re-runs gateT after each amendment and Verify.
@@ -320,7 +321,7 @@ Blocking when a TC cannot get a concrete expected value or a way to observe it.
 - [ ] Zone, calendar boundary, device class or volume unstated where a rule depends on it (ELIC-8, ELIC-11, ELIC-12)
 - [ ] REQ-NF without dataset, environment, metric or threshold (STRAT-10)
 - [ ] Copy, accessible name, state, focus or formatter a planned TC needs missing in `design.md` (E2E-4, DSN-14)
-- [ ] Public-surface example unnamed in `design.md` or tied to no AC; golden output lacking its example table (E2E-4, VIS-3)
+- [ ] Public-surface example unnamed in `design.md` or tied to no AC; golden output without example table (E2E-4, VIS-3)
 - [ ] Error-catalogue entry without code, message key, log level or client mapping (INTEG-8)
 - [ ] Missing seam (clock, ids, randomness, external port, run-one-cycle trigger, flag control) → TSEAM (ARCH-11)
 

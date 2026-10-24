@@ -36,8 +36,8 @@ A row reads: `TC-0042 | unit | acceptance | — | ORD-BR-3 | 3 × 19.99, 10 % of
 Level: unit · component · integration · contract · e2e. Purpose: acceptance · access · chain · smoke · regression
 DEF-n · nfr · char INH-n · a11y · visual · perf · security · migration. Source, always prefixed: `SPEC:<REQ>[.AC<n>]`
 (a design example — request/response, cli or library example — cites the AC it illustrates, its name in Inputs; there
-is no `SPEC:<example>` form) · `SPEC:<UJ-n|SCR-n>[.<state>]` · `SPEC:architecture §<x>` (only rows citing no requirement id) · `FACT:EXT-<SYS>-<n>`
-(VERIFIED) · `CHAR:INH-<n>` (user-confirmed Keep). Code is never a source. Status: `planned` · `removed — #<§16 row>`
+is no `SPEC:<example>` form) · `SPEC:<UJ-n|SCR-n>[.<state>]` · `SPEC:architecture §<x>` (only rows citing no
+requirement id) · `FACT:EXT-<SYS>-<n>` (VERIFIED) · `CHAR:INH-<n>` (user-confirmed Keep). Code is never a source. Status: `planned` · `removed — #<§16 row>`
 (the row stays). A TC whose oracle is an input table gets a `### TC-<nnnn>` heading with the table under it.
 
 ### Decision tables (interacting BRs) · State transitions (state × event → next state, side effects, or error)

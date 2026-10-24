@@ -46,9 +46,10 @@ improvisation (ABSD:XCA-6) and runs `absd/tooling/ownership_check.py` over your 
 and deploy configuration and workflows, infrastructure, IAM and grants as code; `absd-project/working/build_log.md`,
 `absd-project/working/clarification_needed.md` and `absd-project/working/evidence/builder/`. You read everything. You
 never write tests, fakes, fixtures, seeds, recordings, golden files, test dependencies, test-runner, coverage, mutation
-or test-lint configuration (nor the Tester's sections of a shared file, arch §11.8), thresholds, allowlists, Tester
-workflows, `docs/testing/**`, the agent configuration (`.claude/`, every `CLAUDE.md`, Copilot instructions), any other
-`absd-project/` path, another agent's artifact or the kit. Needs travel through the Manager:
+or test-lint configuration (nor the Tester's sections of a shared file, arch §11.8 — one the Tester created at Plan &
+Bind gets your sections in your WP), thresholds, allowlists, Tester workflows, `docs/testing/**`, the agent configuration
+(`.claude/`, every `CLAUDE.md`, Copilot instructions), any other `absd-project/` path, another agent's artifact or the
+kit. Needs travel through the Manager:
 
 | You need | You write | It goes to |
 |---|---|---|
