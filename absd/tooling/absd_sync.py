@@ -86,6 +86,7 @@ HEADER = "# ABSD "
 ENTRY = re.compile(r"^([0-9a-f]{64})  (\S.*)$")
 IN_PROGRESS = re.compile(r"\bstatus\b[\s*_`]*:[\s*_`]*in[-_ ]progress\b", re.IGNORECASE)
 CYCLE_DIR = re.compile(r"^(\d+)_")
+IN_FLIGHT_CYCLE = re.compile(r"\bCycle\b[\s:#*]*C?(\d{1,4})\b", re.IGNORECASE)   # "## Cycle: 005", "Cycle C005"
 
 
 class InputError(Exception):
@@ -354,14 +355,28 @@ def names_in(root: str, directory: str) -> list[str]:
     return sorted(os.listdir(full)) if os.path.isdir(full) else []
 
 
-def next_cycle(root: str) -> str:
-    """The cycle id after the highest archived NNN_ directory."""
-    numbers = [0]
+def next_cycle(root: str, in_flight: int = 0) -> str:
+    """The cycle id after the highest archived NNN_ directory and the in-flight v1 cycle (if any)."""
+    numbers = [0, in_flight]
     for name in names_in(root, f"{PROJECT_DIR}/archive"):
         match = CYCLE_DIR.match(name)
         if match:
             numbers.append(int(match.group(1)))
     return f"C{max(numbers) + 1:03d}"
+
+
+def in_flight_cycle(root: str, paths: list[str]) -> int:
+    """The highest cycle number the v1 working files left in place declare ("## Cycle: 005"), or 0."""
+    found = 0
+    for path in paths:
+        full = local(root, path)
+        files = [full] if os.path.isfile(full) else [os.path.join(d, n) for d, _, ns in os.walk(full) for n in ns]
+        for name in files:
+            if not name.endswith(".md"):
+                continue
+            with open(name, encoding="utf-8", errors="replace") as f:
+                found = max([found] + [int(n) for n in IN_FLIGHT_CYCLE.findall(f.read())])
+    return found
 
 
 # --- subcommands ----------------------------------------------------------------------------------------------------
@@ -530,6 +545,7 @@ def cmd_migrate(args: argparse.Namespace) -> int:
     remove_empty_dirs(root, working)
     left = [f"{working}/{name}" + ("/" if os.path.isdir(local(root, f"{working}/{name}")) else "")
             for name in names_in(root, working)]
+    in_flight = in_flight_cycle(root, left)
     if left:
         print("Left in place — v1 working files; the Foundation-delta cycle decides what becomes of them:")
         print_paths("left", left)
@@ -541,7 +557,10 @@ def cmd_migrate(args: argparse.Namespace) -> int:
         f"CLAUDE.md: keep the product text, replace the v1 pipeline rules with the imports from {TEMPLATES}/CLAUDE.md.",
         "Run the first v2 cycle as a Foundation-delta (Mode B); v1 production source moves to the Source Layout it "
         "declares.",
-        f"Continue cycle numbering at {next_cycle(root)} — archived cycles keep their numbers.",
+        *([f"The v1 working files describe an in-flight cycle C{in_flight:03d}: park it (Mode P — git mv them into "
+            f"{PROJECT_DIR}/archive/{in_flight:03d}_<date>_<slug>_parked/) and redo its intake as a new cycle after the "
+            "Foundation-delta."] if in_flight else []),
+        f"Continue cycle numbering at {next_cycle(root, in_flight)} — archived cycles keep their numbers.",
         'Commit the moves as a kit-sync commit (`git mv` ones are already staged): git add -A && git commit -m '
         '"absd: migrate v1 project" --trailer "ABSD-Sync: migrate-v1".',
     ])

@@ -588,6 +588,14 @@ class MigrateV1Tests(SyncTestCase):
         self.assertIn("Foundation-delta", out)
         self.assertIn("v2 sections", out)
 
+    def test_an_in_flight_v1_cycle_is_parked_and_numbering_continues_after_it(self):
+        product = self.tree("product", {**self.V1, "working/brd.md": "# BRD\n## Cycle: 005 — billing\n"})
+        code, out = self.run_sync("migrate-v1", "--root", product)
+        self.assertEqual(code, 0, out)
+        self.assertIn("in-flight cycle C005: park it", out)
+        self.assertIn("absd-project/archive/005_<date>_<slug>_parked/", out)
+        self.assertIn("Continue cycle numbering at C006", out)
+
     def test_working_directory_with_only_context_md_is_removed(self):
         product = self.tree("product", {**PRODUCT, "working/context.md": "# v1 context\n"})
         code, out = self.run_sync("migrate-v1", "--root", product)

@@ -14,6 +14,7 @@ better after every project: what slips past it becomes a rule, with provenance.
 flowchart LR
   U((You)) <--> M[Manager]
   M --> A[Analyst] --> G1{Gate 1}
+  G1 -.-> F[Tester: Facts<br/>new external systems] -.-> D
   G1 --> D[Designer] --> GUX{Gate UX}
   GUX --> AR[Architect] --> G2{Gate 2}
   G2 --> R[Auditor: architecture review] --> G2R{Gate 2R}
@@ -21,7 +22,7 @@ flowchart LR
   GT --> B[Builder: work packages] --> TV[Tester: Verify]
   TV --> DQ[Designer: Design QA] --> G3{Gate 3}
   TV --> AU[Auditor: audit] --> G3
-  G3 --> H[Harvest lessons → archive → merge]
+  G3 --> H[Harvest lessons → Tester: Log → archive → merge]
 ```
 
 | Agent | Owns | Does |
@@ -30,9 +31,9 @@ flowchart LR
 | **Analyst** | `analysis.md`, the requirement catalogue | Turns business language into permanent, testable requirements with concrete example values. |
 | **Designer** | `design.md`, the design system, Design QA | Designs every interface — screens, CLI grammar, API surface, data contracts — for beauty, clarity and accessibility, then reviews the built product's screenshots. |
 | **Architect** | `architecture.md` | An exhaustive blueprint: components, contracts, error catalogue, access matrix, seams, work packages. |
-| **Tester** | the test plan, every test and test asset | Derives expected values from the specification and commits failing tests **before any code exists**; verifies after the build. |
+| **Tester** | the test plan, every test and test asset | Verifies external facts before design; derives expected values from the specification and commits failing tests **before any code exists**; verifies after the build. |
 | **Builder** | production code | Implements the blueprint exactly, work package by work package. Never touches tests. |
-| **Auditor** | architecture review, audit | Independent verdicts. Runs everything itself at the exact commit; fixes nothing. |
+| **Auditor** | architecture review, audit | Independent verdicts. Runs everything itself at the product commit under review; fixes nothing. |
 
 ## Why it holds
 
@@ -73,8 +74,8 @@ playbook rules with ids (`ABSD:CODE-n`).
 absd/                      THE KIT — vendored into products, read-only there, replaced on upgrade
   RULES.md                 canonical rules (product CLAUDE.md imports it)
   playbook/                knowledge base: testing, design, engineering, security, process
-  templates/               seeds for product-owned files + the invocation brief
-  tooling/                 stack-neutral Python tools (stdlib only, each with tests)
+  templates/               seeds for product-owned files, artifact skeletons, the invocation brief
+  tooling/                 stack-neutral tools (standard library only, each with tests)
   lessons/LEDGER.md        where every rule comes from + the escape scoreboard
   VERSION  CHANGELOG.md  MANIFEST
 .claude/agents/            the seven agent manuals (Claude Code)
@@ -92,18 +93,23 @@ absd-project/              PRODUCT STATE — created in each product, never touc
 ## Start a new product
 
 ```bash
-git clone https://github.com/bmaximus/ABSD /path/to/ABSD          # the kit
+git clone https://github.com/bmaximus/ABSD /path/to/ABSD          # the kit (a release tag)
 cd /path/to/my-product && git init                                # the product
 python3 /path/to/ABSD/absd/tooling/absd_sync.py install --from /path/to/ABSD --to .
+git add -A && git commit -m "absd: install ABSD <version>" --trailer "ABSD-Sync: install <version>"   # on the default branch
 claude --agent manager                                           # the seeded .claude/settings.json does this by default
 ```
 
-Tell the Manager what you want to build. It runs the Foundation cycle first (stack, layout and ownership, design
-system, walking skeleton, every quality gate shown red once and then green), then feature cycles.
+You install and commit the kit yourself, on the default branch, before the Manager exists (the tool prints the exact
+commit command; the `ABSD-Sync` trailer is how the ownership check recognises a kit sync). Then tell the Manager what
+you want to build: it sees the unfilled project frame and runs the Foundation cycle first (stack, layout and
+ownership, design system, walking skeleton, every quality gate shown red once and then green), then feature cycles.
 
 **Existing codebase:** same install; the Foundation cycle adopts it (baseline of existing tests, characterization
 tests for behaviour users rely on, ratchets that only tighten). **A v1 ABSD project:**
-`python3 /path/to/ABSD/absd/tooling/absd_sync.py migrate-v1 --root .` first, then install.
+`python3 /path/to/ABSD/absd/tooling/absd_sync.py migrate-v1 --root .` first (it moves the context and archive and
+says how to park an in-flight v1 cycle), commit it as the tool prints, then install and commit; the Manager runs a
+Foundation-delta cycle.
 
 **Upgrade a product:** `python3 /path/to/ABSD/absd/tooling/absd_sync.py upgrade --from /path/to/ABSD --to .`
 (between cycles; local edits to kit files are refused and turned into enrichment proposals).
@@ -115,13 +121,13 @@ handoffs to workers are confirmed by you ("assisted mode").
 
 | Tool | Purpose |
 |---|---|
-| `absd/tooling/coverage_gate.py` | Cobertura/LCOV coverage floor (ratchet) + "no unit that no test runs" with a reasoned allowlist |
-| `absd/tooling/traceability_report.py` | JUnit XML → each catalogue requirement verified / failing / untested; every planned test case present and passing |
-| `absd/tooling/trace_check.py` | Mechanical coverage checks the Manager runs at every gate |
-| `absd/tooling/ownership_check.py` | Git history: who changed what, tests committed before code (T-SHA) |
-| `absd/tooling/ownership_hook.py` | Write-time hook: an agent cannot write paths it does not own |
+| `absd/tooling/coverage_gate.py` | Cobertura/LCOV coverage floor (ratchet) and per-layer floors + "no unit that no test runs" with a reasoned allowlist; a missing report is RED |
+| `absd/tooling/traceability_report.py` | JUnit XML → each catalogue requirement verified / failing / untested; every planned test case present and passing; a missing suite is RED |
+| `absd/tooling/trace_check.py` | Mechanical gate checks the Manager and CI run: ids covered downstream, oracle sources that resolve, open spec defects, report verdicts |
+| `absd/tooling/ownership_check.py` | Git history: who changed what, tests committed before code (the T-SHA chain), kit-sync commits |
+| `absd/tooling/ownership_hook.py` | Write-time hook: an agent cannot write paths it does not own, the kit, or the agent configuration |
 | `absd/tooling/absd_sync.py` | Install, verify, upgrade the kit; migrate v1 projects |
-| `absd/tooling/kit_lint.py` | The kit's own CI: rule ids, citations, provenance, paths, mirrors, budgets, stack neutrality |
+| `absd/tooling/kit_lint.py` | The kit's own CI: rule ids, citations, provenance, paths, mirrors, reserved codes, budgets, stack neutrality |
 
 ## Making ABSD better
 

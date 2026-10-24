@@ -9,10 +9,10 @@ for sessions working here. Do not act as the Manager here, and do not start cycl
 | Path | What it is |
 |---|---|
 | `absd/RULES.md` | Canonical pipeline rules (product repos import it from their `CLAUDE.md`) |
-| `.claude/agents/*.md` | The seven agent manuals (Claude Code) — the single source of each agent's behaviour and artifact structure |
+| `.claude/agents/*.md` | The seven agent manuals (Claude Code) — the single source of each agent's behaviour; the artifact skeletons they fill live in `absd/templates/artifacts/` |
 | `.github/agents/*.agent.md` | Thin GitHub Copilot mirrors that point to the manuals |
 | `absd/playbook/` | The knowledge base: rules with permanent IDs (`CODE-n`), rationale, checks, provenance |
-| `absd/templates/` | Seeds for product-owned files (Bootstrap) and the invocation brief |
+| `absd/templates/` | Seeds for product-owned files (`project/`, copied at install), artifact skeletons (`artifacts/`, read in place) and the invocation brief |
 | `absd/tooling/` | Stack-neutral tools with their own tests (standard-library scripts, no dependencies) |
 | `absd/lessons/LEDGER.md` | Provenance of every rule (LL ids) and the escape scoreboard |
 | `absd/lessons/inbox/` | Enrichment proposals arriving from products, verbatim |
