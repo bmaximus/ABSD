@@ -9,7 +9,7 @@ whole prompt. A worker that receives a request without a brief refuses and answe
 | Field | Value |
 |---|---|
 | Cycle | C### — <slug> (branch `absd/C###-<slug>`) |
-| Route | Mode F / S / D / B / C / X / R / U / H — step <n> of `absd-project/working/cycle.md` |
+| Route | Mode F / S / D / B / X / R (a change request keeps its cycle's letter, Mode C) — step <n> of `absd-project/working/cycle.md` |
 | Agent mode | one of — Analyst: Analyze · Delta · Catalogue apply · Designer: Design · Design System · Design QA · Architect: Architect · Delta · Foundation · Tester: Baseline · Facts · Plan & Bind · Reproduce · Verify · Log · Builder: Build · Fix · Auditor: Architecture Review · Audit (cycle, defect, Mode S, cross-cycle) · Re-audit |
 | Iteration | Builder pass <n>/3 · gate round <n>/3 · halts <n>/3 |
 | Revision | HEAD <sha> · product SHA <sha> (last commit outside `absd-project/`) · T-SHA chain <sha, …, oldest first, or "not yet"> |

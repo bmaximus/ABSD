@@ -520,6 +520,15 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
     return 0
 
 
+def kit_version() -> str:
+    """The version of the kit this script belongs to (absd/VERSION next to absd/tooling/), or "unknown"."""
+    kit = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    try:
+        return read_version(kit)
+    except (InputError, OSError):
+        return "unknown"
+
+
 def cmd_migrate(args: argparse.Namespace) -> int:
     root = args.root
     require_directory(root, "--root")
@@ -549,20 +558,21 @@ def cmd_migrate(args: argparse.Namespace) -> int:
     if left:
         print("Left in place — v1 working files; the Foundation-delta cycle decides what becomes of them:")
         print_paths("left", left)
-    print_steps("Follow-up for the Manager (ABSD contract Mode B, v1 migration recipe):", [
-        "Install the v2 kit if it is not installed: absd_sync.py install --from <kit> --to <this repo> "
-        "(keeps the migrated context.md).",
-        f"Restructure {PROJECT_DIR}/context.md into the v2 sections of {TEMPLATES}/context.md and record "
-        '"ABSD version".',
-        f"CLAUDE.md: keep the product text, replace the v1 pipeline rules with the imports from {TEMPLATES}/CLAUDE.md.",
-        "Run the first v2 cycle as a Foundation-delta (Mode B); v1 production source moves to the Source Layout it "
-        "declares.",
-        *([f"The v1 working files describe an in-flight cycle C{in_flight:03d}: park it (Mode P — git mv them into "
-            f"{PROJECT_DIR}/archive/{in_flight:03d}_<date>_<slug>_parked/) and redo its intake as a new cycle after the "
-            "Foundation-delta."] if in_flight else []),
-        f"Continue cycle numbering at {next_cycle(root, in_flight)} — archived cycles keep their numbers.",
+    print_steps("Next steps (you, then the Manager — ABSD Mode B, v1 migration recipe):", [
         'Commit the moves as a kit-sync commit (`git mv` ones are already staged): git add -A && git commit -m '
-        '"absd: migrate v1 project" --trailer "ABSD-Sync: migrate-v1".',
+        f'"absd: migrate v1 project" --trailer "ABSD-Sync: migrate-v1 {kit_version()}".',
+        "Install the v2 kit if it is not installed: absd_sync.py install --from <kit> --to <this repo> "
+        "(keeps the migrated context.md), and commit it as the install prints.",
+        f"Manager, first step of the Foundation-delta (Mode B), before any delegation or gate: restructure "
+        f"{PROJECT_DIR}/context.md into the v2 sections of {TEMPLATES}/context.md (the ownership hook and "
+        'ownership_check need its "Source Layout & Ownership" table) and record "ABSD version".',
+        f"CLAUDE.md: keep the product text, replace the v1 pipeline rules with the imports from {TEMPLATES}/CLAUDE.md "
+        "(`@absd/RULES.md`, `@absd-project/context.md`).",
+        "v1 production source moves to the Source Layout the Foundation-delta declares.",
+        *([f"The v1 working files describe an in-flight cycle C{in_flight:03d}: park them as a Foundation-delta step "
+            f"(git mv into {PROJECT_DIR}/archive/{in_flight:03d}_<date>_<slug>_parked/; not a Mode P cycle — it has no "
+            "cycle.md) and redo its intake as a new cycle after the Foundation-delta."] if in_flight else []),
+        f"Continue cycle numbering at {next_cycle(root, in_flight)} — archived cycles keep their numbers.",
     ])
     return 0
 

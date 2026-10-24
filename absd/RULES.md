@@ -94,7 +94,7 @@ count for the whole cycle.
 | Q8 | End-to-end tests fail on any unexpected error signal and drive the system the way its user does. | E2E-1, E2E-2 |
 | Q9 | Every operation × every principal (anonymous, other owner/tenant, expired, suspended, impersonated, service identity) is proven — status and visible data. | ACCESS-2, ACCESS-3 |
 | Q10 | Never skip, disable, weaken, quarantine or retry-to-green a test, and never loosen a gate, to get green. | TCQ-1, GATE-6 |
-| Q11 | A mandated check that did not run is RED; evidence is local output or CI at the exact commit. | GATE-1, XCA-2 |
+| Q11 | A mandated check that did not run is RED; evidence is local output or CI at the product SHA under review. | GATE-1, XCA-2 |
 | Q12 | Every lesson is harvested: project-specific into `context.md`, universal into an ABSD enrichment proposal with provenance. | ENR-1 |
 
 ## 5. Ownership and git
@@ -109,7 +109,7 @@ count for the whole cycle.
   `ABSD-Agent: <name>` and `ABSD-Cycle: C###`; the working tree is clean at every hand-off. The Builder commits once
   per work package. Plan & Bind commits the tests, runs them, then commits the red evidence (only `absd-project/`):
   that evidence commit is **T-SHA**, an ancestor of every production change of the cycle; each approved Gate T
-  amendment adds its own T-SHA to the chain in `cycle.md`.
+  amendment, Reproduce and re-bind adds its own evidence commit to the T-SHA chain in `cycle.md`.
 - Kit installs, upgrades and v1 migrations (`absd/tooling/absd_sync.py`) are committed on the default branch with the
   trailer `ABSD-Sync: <install|upgrade|migrate-v1> <version>` instead of `ABSD-Agent`; they may change only the kit,
   add the seeds and make the migration moves.
@@ -125,7 +125,7 @@ count for the whole cycle.
 - A test passes only with attached local output or a CI run at the exact **product SHA**: the last commit that
   changes a path outside `absd-project/`. Evidence taken at product SHA S stays valid while
   `git diff --quiet S HEAD -- . ':!absd-project'` holds — pipeline commits (artifacts, evidence, reports) never
-  invalidate it. The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
+  invalidate it, and neither does the Tester's Log commit (only the Lesson cells of `ESCAPED-DEFECTS.md`). The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
   if it cannot, the verdict is **BLOCKED**. An environment limitation is a RISK, never a design decision.
 - Findings everywhere use one row: `ID | Severity | Category | Rule cited | Evidence | Proposed route`.
   **Critical**: core function, security/privacy, data or money corruption. **Major**: wrong behaviour, missing

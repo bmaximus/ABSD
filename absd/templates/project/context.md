@@ -9,8 +9,10 @@
 - Product: <name — one-line purpose>
 - Repository: <owner/repo> · default branch: <main> · merge policy: <"ask the user at every Gate 3" | "standing authorization for …">
 - ABSD version: <x.y.z> (see `absd/VERSION`) · active cycle: <C### slug | none>
-- Kit sync: the user runs `absd_sync.py install | upgrade | migrate-v1` from a kit checkout and commits it on the default
-  branch with the trailer it prints (`ABSD-Sync: <operation> <version>`); the Manager only verifies (`absd_sync.py check`)
+- Kit sync: the user runs `absd_sync.py install` (after `migrate-v1` for a v1 project) from a kit checkout before the
+  Manager exists; upgrades run in Mode U (the Manager, between cycles, with the user's consent). Every kit sync is
+  committed on the default branch with the trailer the tool prints (`ABSD-Sync: <operation> <version>`); the Manager
+  verifies the kit with `absd_sync.py check` at every cycle start
 - Interface profiles: <web-ui | native-app | http-api | cli | library | data-pipeline — one or more>
 - Audiences and devices: <who uses it, on what: e.g. members on phones (portrait), admins on desktop> · phone tests waived (web-ui, native-app): <no | yes — user's decision, date | n/a>
 - Principals: <every role and identity: anonymous, each role, admin-as-member, service identities, jobs>
@@ -106,8 +108,8 @@ A suite that cannot run here is proven only by a CI run at the product SHA, the 
 - <naming, error model, API style, commit style, copy tone, UI language…>
 
 ## 15. Completed cycles (the first row is the Foundation, Mode B; the merge is recorded here)
-| Cycle | Date | Mode | Module | Gate 3 | Archive |
-|---|---|---|---|---|---|
+| Cycle | Date | Mode | Module | Gate 3 (product SHA) | Archive folder | Merge commit |
+|---|---|---|---|---|---|---|
 
 ## 16. Defect backlog (DEF ids reserved here: next = highest in repo and archive + 1; a Mode D cycle copies its rows into `defect.md`)
 | DEF | Title | Found by, date | Severity | Proposed class | Source (cycle/finding) | Status |

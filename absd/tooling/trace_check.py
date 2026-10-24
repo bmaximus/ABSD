@@ -31,11 +31,12 @@ Gates (artifacts read from --working):
   gate-ux  every UJ and SCR defined in design.md is referenced in its Traceability section (a heading containing
            "Traceability"); every requirement referenced in design.md is defined in the catalogue. Ids whose area code
            the catalogue never uses (UTC-5, SHA-256, ISO-8601) are listed in a notice instead.
-  gate2    every requirement in scope, every DEF defined in defect.md (Mode D), every UJ/SCR defined in design.md and
-           every EXT referenced in the requirement source is referenced in architecture.md; it defines at least one WP.
+  gate2    every requirement in scope, every DEF defined in defect.md (whenever it is in --working), every UJ/SCR
+           defined in design.md and every EXT referenced in the requirement source is referenced in architecture.md;
+           it defines at least one WP.
   gateT    test_plan.md defines at least one TC; every AC in scope, every NF and BR requirement in scope, every DEF
-           defined in defect.md (Mode D — or its "### DEF-n" Reproduce section says "binds at re-bind: <TCs>"), every
-           UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
+           defined in defect.md (whenever it is in --working — or its "### DEF-n" Reproduce section says
+           "binds at re-bind: <TCs>"), every UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
            or in its heading's section, and every source resolves (ABSD:ORACLE-1): SPEC:<AC|requirement> exists in
            the source or catalogue, SPEC:<UJ|SCR>[.state] exists in design.md, SPEC:architecture only on a TC that
            cites no requirement (ids whose area code no requirement uses, like UTC-5, do not count), FACT:<EXT> is
@@ -45,8 +46,11 @@ Gates (artifacts read from --working):
            start with answered, resolved, closed, withdrawn or fixed).
   gate3    the reports the cycle's route produces exist (read from the "Mode:" line of cycle.md: X → audit.md;
            D and R → test_report.md, audit.md, and in Mode D also design_review.md when defect.md says
-           "Design QA: yes" or a DEF's "- Class: UX gap"; any other mode, or no cycle.md → arch_review.md, test_report.md, audit.md;
-           design_review.md and an arch_review.md the route does not require are read when present); each carries
+           "Design QA: yes" or "- Class: UX gap"; S → arch_review.md, test_report.md, audit.md; any other mode, or no
+           cycle.md → arch_review.md, test_report.md, design_review.md (Verdict: N/A for a product without a visual or
+           human-facing output surface), audit.md;
+           design_review.md and an arch_review.md the route does not require are read when present); every TC a DEF
+           "binds at re-bind" in test_plan.md is planned by then (the clause names TC ids, each defined); each carries
            its verdict on a line outside any table (audit.md "Overall: PASS"; arch_review.md and design_review.md
            "Verdict: PASS" or "Verdict: N/A") and holds no open blocking finding. A finding is a table row whose
            first cell holds an id (F-3, AR-2, TF-12, DQ-1) in a table with a Severity column; it is open when its
@@ -119,8 +123,9 @@ SOURCE_REF = re.compile(r"\b(SPEC|FACT|CHAR):[ \t]*([^\s|,;]+)")
 VERDICT_OF = {"audit.md": ("Overall", ("PASS",)), "arch_review.md": ("Verdict", ("PASS", "N/A")),
               "design_review.md": ("Verdict", ("PASS", "N/A"))}   # the verdict line gate3 requires per report
 BLOCKING = ("critical", "major")
-GATE3_REQUIRED = ("arch_review.md", "test_report.md", "audit.md")      # Mode F, S, B, C, R — and when unknown
-GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md"), "R": ("test_report.md", "audit.md")}
+GATE3_REQUIRED = ("arch_review.md", "test_report.md", "design_review.md", "audit.md")   # Mode F, B, C — and when unknown
+GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md"), "R": ("test_report.md", "audit.md"),
+                 "S": ("arch_review.md", "test_report.md", "audit.md")}   # Mode S: design_review.md only when visible
 GATE3_OPTIONAL = ("arch_review.md", "test_report.md", "design_review.md")
 DESIGN_QA_YES = re.compile(r"\bDesign QA:\s*[*_`]*yes\b", re.IGNORECASE)                     # defect.md route line
 REBIND = re.compile(r"binds at re-bind:\s*[*_`]*(?!none\b|<)[^\s*_`]", re.IGNORECASE)   # plan §15, a DEF's section
@@ -455,10 +460,52 @@ def scope_of(source: Doc) -> tuple[set, set]:
         requirements = source.defined("requirement")
         acs = {ac for ac in source.referenced("ac") if requirement_of(ac) in requirements} - source.excluded("ac")
         return requirements, acs
+    text = cited_text(source)
     removed = source.excluded("requirement")
-    acs = {ac for ac in source.referenced("ac") - source.excluded("ac") if requirement_of(ac) not in removed}
-    cited = {r for r in source.referenced("requirement") if NON_FUNCTIONAL.search(r)}
+    acs = {ac for ac in referenced_in(text, "ac") - source.excluded("ac") if requirement_of(ac) not in removed}
+    cited = {r for r in referenced_in(text, "requirement") if NON_FUNCTIONAL.search(r)}
     return ({requirement_of(ac) for ac in acs} | cited) - removed, acs
+
+
+def brief_section(doc: Doc) -> str:
+    """The Mode S brief of brd.md (the section whose heading contains "Mode S brief"), or ""."""
+    return "\n".join(section for heading, section in doc.sections if "mode s brief" in heading.lower())
+
+
+def cited_text(source: Doc) -> str:
+    """Where a brief or defect list cites its scope: brd.md's Mode S brief section when it cites an AC or requirement,
+    else brd.md without its "Out of scope" section; defect.md without the rows and sections marked removed (a DEF
+    moved to another cycle takes its ids with it)."""
+    if source.label == "brd.md":
+        brief = brief_section(source)
+        if referenced_in(brief, "ac") or referenced_in(brief, "requirement"):
+            return brief
+        return remove_sections(source, "out of scope")
+    text = source.text
+    for d in source.definitions:
+        if d.excluded and d.context in text:
+            text = text.replace(d.context, "", 1)
+    return text
+
+
+def remove_sections(doc: Doc, word: str) -> str:
+    """The text minus every section whose heading contains word (any case; sub-headings go with it)."""
+    text = doc.text
+    for heading, section in doc.sections:
+        if word in heading.lower() and section in text:
+            text = text.replace(section, "", 1)
+    return text
+
+
+def with_brief(working: str, requirements: set, acs: set) -> tuple[set, set, list]:
+    """In Mode S with an Analyst delta, analysis.md is the source; the ACs the brief in brd.md cites stay in scope."""
+    brd = artifact(working, "brd.md", required=False)
+    if brd is None or not referenced_in(brief_section(brd), "ac"):
+        return requirements, acs, []
+    brief_requirements, brief_acs = scope_of(brd)
+    added = sorted((brief_acs - acs) | (brief_requirements - requirements), key=natural)
+    notes = [("notice", "brd.md Mode S brief adds to the scope — " + ", ".join(added))] if added else []
+    return requirements | brief_requirements, acs | brief_acs, notes
 
 
 def gate2(working: str, catalogue_path: str, facts_path: str = "") -> Result:
@@ -466,16 +513,24 @@ def gate2(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     architecture = artifact(working, "architecture.md")
     design = artifact(working, "design.md", required=False)
     result = Result("gate2", notes=notes + excluded_note(source, "requirement"))
-    requirements, _ = scope_of(source)
+    requirements, acs = scope_of(source)
+    if source.label == "analysis.md":
+        requirements, acs, brief_notes = with_brief(working, requirements, acs)
+        result.notes += brief_notes
+    designed = Doc(architecture.label, text=remove_sections(architecture, "upstream issues"))   # §0.2 is not design
     result.checks.append(coverage(f"every requirement in scope of {source.label} is referenced in architecture.md",
-                                  requirements, architecture.referenced("requirement")))
-    if source.label == "defect.md":
+                                  requirements, designed.referenced("requirement")))
+    defects = source if source.label == "defect.md" else artifact(working, "defect.md", required=False)
+    if defects is not None:   # also after a requirements or UX delta added analysis.md to a Mode D cycle
         result.checks.append(coverage("every DEF defined in defect.md is referenced in architecture.md",
-                                      source.defined("def"), architecture.referenced("def")))
-    design_checks(result, design, working, architecture)
+                                      defects.defined("def"), designed.referenced("def")))
+    design_checks(result, design, working, designed)
     result.checks.append(coverage(f"every EXT referenced in {source.label} is referenced in architecture.md",
-                                  source.referenced("ext"), architecture.referenced("ext")))
+                                  source.referenced("ext"), designed.referenced("ext")))
     result.checks.append(at_least_one("architecture.md defines at least one WP", architecture.defined("wp")))
+    issue_count, open_issues = blocking_spec_defects(architecture)
+    result.checks.append(Check("no blocking upstream issue in architecture.md is open", issue_count, open_issues,
+                               noun="open"))
     return result
 
 
@@ -568,6 +623,9 @@ def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     catalogue = load([catalogue_path], os.path.basename(catalogue_path), required=False)
     result = Result("gateT", notes=notes + excluded_note(source, "requirement"))
     requirements, acs = scope_of(source)
+    if source.label == "analysis.md":
+        requirements, acs, brief_notes = with_brief(working, requirements, acs)
+        result.notes += brief_notes
     tcs = plan.defined("tc")
     result.checks += [
         at_least_one("test_plan.md defines at least one TC", tcs),
@@ -578,10 +636,11 @@ def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
         coverage(f"every BR requirement in scope of {source.label} is referenced in a TC row of test_plan.md",
                  {r for r in requirements if "-BR-" in r}, plan.tc_referenced("requirement")),
     ]
-    if source.label == "defect.md":
+    defects = source if source.label == "defect.md" else artifact(working, "defect.md", required=False)
+    if defects is not None:   # also after a requirements or UX delta added analysis.md to a Mode D cycle
         rebind = {d.id for d in plan.definitions if in_family(d.id, "def") and REBIND.search(d.context)}
         result.checks.append(coverage("every DEF defined in defect.md is referenced in a TC row of test_plan.md or "
-                                      "binds at re-bind", source.defined("def"), plan.tc_referenced("def") | rebind))
+                                      "binds at re-bind", defects.defined("def"), plan.tc_referenced("def") | rebind))
     design_checks(result, design, working, plan, in_tc_rows=True)
     if architecture is None:
         result.notes.append(("notice", f"architecture.md not found in {working} — EXT check skipped (no architecture change on this route)"))
@@ -662,7 +721,29 @@ def gate3(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     for doc in docs:
         count, still_open = open_findings(doc)
         result.checks.append(Check(f"no open Critical/Major finding in {doc.label}", count, still_open, noun="open"))
+    plan = artifact(working, "test_plan.md", required=False)
+    if plan is not None and plan.defined("def"):   # a Mode D plan with "### DEF-n" Reproduce sections
+        result.checks.append(pending_rebinds(plan))
     return result
+
+
+def pending_rebinds(plan: Doc) -> Check:
+    """At Gate 3 every TC a DEF "binds at re-bind" is planned: the clause names TC ids and each is defined."""
+    clauses, unbound = 0, []
+    planned = plan.defined("tc")
+    for d in plan.definitions:
+        if not in_family(d.id, "def"):
+            continue
+        for line in d.context.splitlines():
+            match = REBIND.search(line)
+            if not match:
+                continue
+            clauses += 1
+            named = sorted(referenced_in(line[match.start():], "tc"), key=natural)
+            if not named:
+                unbound.append(f"{d.id} (names no TC)")
+            unbound += [f"{d.id} → {tc}" for tc in named if tc not in planned]
+    return Check("every TC a DEF binds at re-bind is planned in test_plan.md", clauses, unbound, noun="not planned")
 
 
 def generic_check(family: str, defined_in: list[str], referenced_in_paths: list[str]) -> Result:

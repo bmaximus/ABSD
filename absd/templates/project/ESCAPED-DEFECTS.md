@@ -22,7 +22,8 @@
 > **Columns:** Found by = user / live / exploratory / audit of a later cycle / nightly / CI on another change /
 > reasoning · Same weakness = the searches run and what they found ("none found: <patterns, scope>"), with the DEF ids
 > raised · Gate/rule = the gate or lane that should have caught it plus `ABSD:CODE-n` ("none — gap" opens a
-> proposal) · Lesson = `pending H`, then `<slug>-L<n>`, or "enforcement: <control, commit>" when the rule existed.
+> proposal) · Lesson = `pending H`, then the `<slug>-L<n>` id of its `lessons.md` row (that row says whether the rule
+> changes or, when it existed, which enforcement change closes it).
 
 | DEF | Date | What slipped | Found by | Why the tests missed it (taxonomy #: primary; secondary) | Root-cause class | How the tests improved (TC ids) | Same weakness looked for elsewhere | ABSD gate/rule that should have caught it | Lesson |
 |---|---|---|---|---|---|---|---|---|---|

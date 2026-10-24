@@ -169,7 +169,8 @@ class TraceCheckTests(unittest.TestCase):
         os.environ.pop("GITHUB_STEP_SUMMARY", None)
         for name, text in (("analysis.md", ANALYSIS), ("design.md", DESIGN), ("architecture.md", ARCHITECTURE),
                            ("architecture/01-core.md", ARCHITECTURE_PART), ("test_plan.md", TEST_PLAN),
-                           ("audit.md", AUDIT), ("test_report.md", TEST_REPORT), ("arch_review.md", ARCH_REVIEW)):
+                           ("audit.md", AUDIT), ("test_report.md", TEST_REPORT), ("arch_review.md", ARCH_REVIEW),
+                           ("design_review.md", "# Design review\nVerdict: PASS\n")):
             self.write(os.path.join("working", name), text)
 
     def tearDown(self):
@@ -385,7 +386,7 @@ class TraceCheckTests(unittest.TestCase):
     def test_gate2_reads_architecture_parts_next_to_the_index(self):
         code, out = self.run_gate("gate2")
         self.assertEqual(code, 0, out)
-        self.assertIn("gate2: PASS — 5 checks passed", out)
+        self.assertIn("gate2: PASS — 6 checks passed", out)
 
     def test_gate2_lists_every_uncovered_id(self):
         self.remove("working/architecture/01-core.md")
@@ -397,6 +398,48 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(checks["every SCR defined in design.md is referenced in architecture.md"]["missing"], ["SCR-1", "SCR-2"])
         self.assertEqual(checks["every EXT referenced in analysis.md is referenced in architecture.md"]["missing"], ["EXT-MAIL-1"])
         self.assertTrue(checks["architecture.md defines at least one WP"]["passed"])
+
+    def test_gate2_ignores_upstream_issues_and_fails_on_an_open_blocking_one(self):
+        self.edit("working/architecture/01-core.md", "ACC-2, ", "")
+        self.write("working/architecture/00-issues.md", "## 0. Gate decisions honoured\n### 0.2 Upstream issues\n"
+                   "| # | Kind | Source | Statement | Owner | Blocking? | Status |\n|---|---|---|---|---|---|---|\n"
+                   "| 1 | gap | ACC-2 | reset mail provider unknown | Analyst | yes | open |\n")
+        code, out, checks = self.gate_json("gate2")
+        self.assertEqual(code, 1)
+        self.assertEqual(checks["every requirement in scope of analysis.md is referenced in architecture.md"]["missing"],
+                         ["ACC-2"])   # a mention among the upstream issues is not design
+        self.assertEqual(len(checks["no blocking upstream issue in architecture.md is open"]["missing"]), 1)
+
+    def test_mode_s_brief_stays_in_scope_after_an_analyst_delta(self):
+        self.write("working/brd.md", "# BRD\n## 8. Out of scope\n- ACC-3.AC1 stays as it is\n"
+                   "## 11. Mode S brief (Mode S only)\n| AC | Given/When/Then | Catalogue id |\n|---|---|---|\n"
+                   "| ACC-2.AC3 | GIVEN … | ACC-2 |\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertIn("ACC-2.AC3", checks["every AC in scope of analysis.md is referenced in a TC row of test_plan.md"]["missing"])
+        self.assertIn("brd.md Mode S brief adds to the scope — ACC-2.AC3", out)
+
+    def test_brief_scope_skips_out_of_scope_and_moved_defects(self):
+        self.remove("working/analysis.md")
+        self.write("working/brd.md", "# BRD\n## 3. Change\n- ACC-1.AC1 copy\n## 8. Out of scope\n- ACC-3.AC1 untouched\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(checks["every AC in scope of brd.md is referenced in a TC row of test_plan.md"]["checked"], 1)
+        self.write("working/brd.md", "# BRD\n## 3. Change\n- ACC-1.AC2 is context\n## 11. Mode S brief\n"
+                   "| AC | GWT | Catalogue id |\n|---|---|---|\n| ACC-1.AC1 | GIVEN … | ACC-1 |\n")
+        code, out, checks = self.gate_json("gateT")   # with a brief, the brief alone is the scope
+        self.assertEqual(checks["every AC in scope of brd.md is referenced in a TC row of test_plan.md"]["checked"], 1)
+        self.remove("working/brd.md")
+        self.write("working/defect.md", "| DEF | Title | Ids | Status |\n|---|---|---|---|\n| DEF-7 | zone | ACC-1.AC1 | open |\n"
+                   "| DEF-8 | stale | ACC-3.AC1 | removed — moved to C012 |\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(checks["every AC in scope of defect.md is referenced in a TC row of test_plan.md"]["checked"], 1)
+
+    def test_def_checks_run_whenever_defect_md_exists(self):
+        self.write("working/defect.md", "| DEF | Title | Severity |\n|---|---|---|\n| DEF-9 | lost entry | Major |\n")
+        code, out, checks = self.gate_json("gateT")   # analysis.md is the source after a requirements-gap delta
+        name = "every DEF defined in defect.md is referenced in a TC row of test_plan.md or binds at re-bind"
+        self.assertEqual(checks[name]["missing"], ["DEF-9"])
+        code, out, checks = self.gate_json("gate2")
+        self.assertEqual(checks["every DEF defined in defect.md is referenced in architecture.md"]["missing"], ["DEF-9"])
 
     def test_gate2_architecture_without_work_packages_fails(self):
         self.edit("working/architecture.md", "| WP-1 | sign-in slice |", "| Slice 1 | WP-1 is planned |")
@@ -411,7 +454,7 @@ class TraceCheckTests(unittest.TestCase):
         code, out = self.run_gate("gate2")
         self.assertEqual(code, 0, out)
         self.assertIn("::notice::design.md not found in", out)
-        self.assertIn("gate2: PASS — 3 checks passed", out)
+        self.assertIn("gate2: PASS — 4 checks passed", out)
 
     def test_gate2_defect_mode_checks_every_def(self):
         self.remove("working/analysis.md")
@@ -521,7 +564,7 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("✓ no open Critical/Major finding in audit.md (2 checked)", out)
         self.assertIn("✓ no open Critical/Major finding in arch_review.md (1 checked)", out)
-        self.assertIn("gate3: PASS — 5 checks passed", out)
+        self.assertIn("gate3: PASS — 7 checks passed", out)
 
     def test_gate3_lists_open_critical_and_major_findings(self):
         self.edit("working/audit.md", "resolved — fixed in WP-1 @abc1234", "not yet resolved")   # must START with it
@@ -547,14 +590,37 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("in design_review.md: 1 open — DQ-1 (Major)", out)
 
-    def test_gate3_needs_all_three_reports(self):
-        for name in ("arch_review.md", "test_report.md", "audit.md"):
+    def test_gate3_needs_all_four_reports(self):
+        for name in ("arch_review.md", "test_report.md", "design_review.md", "audit.md"):
             self.write("working/" + name, "# ok\n")
             self.remove("working/" + name)
             code, out = self.run_gate("gate3")
             self.assertEqual(code, 2, name)
             self.assertIn(f"{name}: not found", out)
             self.write("working/" + name, "# ok\n")
+
+    def test_gate3_every_test_bound_at_re_bind_is_planned(self):
+        reproduce = "\n## 15. Reproduce\n### DEF-4 — swipe reloads\nwhy missed: #3 · binds at re-bind: {}\n"
+        name = "every TC a DEF binds at re-bind is planned in test_plan.md"
+        for clause, missing in (("TC-0950 after the Designer delta", ["DEF-4 → TC-0950"]),
+                                ("after the Designer delta", ["DEF-4 (names no TC)"]),
+                                ("TC-0001, TC-0002", [])):
+            self.write("working/test_plan.md", TEST_PLAN + reproduce.format(clause))
+            code, out, checks = self.gate_json("gate3")
+            self.assertEqual(checks[name]["missing"], missing, clause)
+        self.write("working/test_plan.md", TEST_PLAN)
+        self.assertNotIn(name, self.gate_json("gate3")[2])   # no DEF sections: not a Mode D plan
+
+    def test_gate3_mode_s_needs_no_design_review_but_mode_f_does(self):
+        self.remove("working/design_review.md")
+        self.write("working/cycle.md", "Cycle: C012 | Mode: S | Status: IN-PROGRESS\n")
+        self.assertEqual(self.run_gate("gate3")[0], 0)
+        self.write("working/cycle.md", "Cycle: C013 | Mode: F | Status: IN-PROGRESS\n")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 2)
+        self.assertIn("design_review.md: not found", out)
+        self.write("working/design_review.md", "Verdict: N/A — a library has no visual or human-facing output\n")
+        self.assertEqual(self.run_gate("gate3")[0], 0)
 
     def test_gate3_route_mode_x_needs_only_the_audit(self):
         self.write("working/cycle.md", "# Cycle C007\nCycle: C007 | Mode: X | Status: IN-PROGRESS\n")
@@ -582,6 +648,7 @@ class TraceCheckTests(unittest.TestCase):
     def test_gate3_mode_d_needs_design_qa_when_the_fix_is_visual_or_a_ux_gap(self):
         self.write("working/cycle.md", "Cycle: C011 | Mode: D | Status: IN-PROGRESS\n")
         self.remove("working/arch_review.md")
+        self.remove("working/design_review.md")
         template = "- Route after Gate T: x · Design QA: <yes — visual | no — reason>\n- Class: <proposed>\n"
         self.write("working/defect.md", template)
         self.assertEqual(self.run_gate("gate3")[0], 0)   # placeholders require nothing

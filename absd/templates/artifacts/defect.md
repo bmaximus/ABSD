@@ -2,9 +2,11 @@
      Owner: manager. -->
 # Defects — C### <slug>
 Cycle: C### | Mode: D | Status: IN-PROGRESS/COMPLETE | Date: YYYY-MM-DD
-- Class (one for the whole batch; proposed by the Tester at Reproduce, set at Gate T — ABSD:ESC-6, ABSD:ESC-12):
-  <implementation | architecture gap | external-fact gap | UX gap | requirements gap | test-only gap | not yet>
-- Route after Gate T: <manager.md 4.4 row for the class> · Design QA: <yes — visual or output surface changes / UX gap | no — reason>
+- Class: <implementation | architecture gap | external-fact gap | UX gap | requirements gap | test-only gap | not yet>
+  (one for the whole batch; proposed by the Tester at Reproduce, set at Gate T — ABSD:ESC-6, ABSD:ESC-12)
+- Route after Gate T: <manager.md 4.4 row for the class>
+- Design QA: <yes — the fix changes a visual or output surface (always for a UX gap) | no — reason>
+  (`trace_check.py gate gate3` requires `design_review.md` when this line says yes or the Class is UX gap)
 
 | DEF | Title | Found by (user / live / exploratory / audit / nightly / CI / sweep) | Found on (date, environment, product SHA) | Principal × device/runtime | Severity | Backlog row (context.md §16) / source (C###/F-n, sweep) | Ids (requirement / AC / SCR / EXT) | Status (open / fixed / removed — moved to C###) |
 |---|---|---|---|---|---|---|---|---|

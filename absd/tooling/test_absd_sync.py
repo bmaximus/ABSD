@@ -581,7 +581,7 @@ class MigrateV1Tests(SyncTestCase):
         self.assertEqual(files["working/src/app.py"], b"print('v1')\n")
         self.assertEqual(len(files), len(self.V1))
         self.assertIn("moved    working/context.md → absd-project/context.md", out)
-        self.assertNotIn("git mv", out.split("Follow-up")[0])
+        self.assertNotIn("git mv", out.split("Next steps")[0])
         self.assertIn("left     working/brd.md", out)
         self.assertIn("left     working/src/", out)
         self.assertIn("Continue cycle numbering at C004", out)
@@ -592,9 +592,13 @@ class MigrateV1Tests(SyncTestCase):
         product = self.tree("product", {**self.V1, "working/brd.md": "# BRD\n## Cycle: 005 — billing\n"})
         code, out = self.run_sync("migrate-v1", "--root", product)
         self.assertEqual(code, 0, out)
-        self.assertIn("in-flight cycle C005: park it", out)
-        self.assertIn("absd-project/archive/005_<date>_<slug>_parked/", out)
+        self.assertIn("in-flight cycle C005: park them as a Foundation-delta step", out)
+        self.assertIn("absd-project/archive/005_<date>_<slug>_parked/; not a Mode P cycle", out)
         self.assertIn("Continue cycle numbering at C006", out)
+        with open(os.path.join(os.path.dirname(os.path.abspath(absd_sync.__file__)), "..", "VERSION"), encoding="utf-8") as f:
+            self.assertIn(f'--trailer "ABSD-Sync: migrate-v1 {f.read().strip()}"', out)
+        self.assertLess(out.index("Commit the moves"), out.index("Install the v2 kit"))
+        self.assertLess(out.index("Install the v2 kit"), out.index("restructure absd-project/context.md"))
 
     def test_working_directory_with_only_context_md_is_removed(self):
         product = self.tree("product", {**PRODUCT, "working/context.md": "# v1 context\n"})
