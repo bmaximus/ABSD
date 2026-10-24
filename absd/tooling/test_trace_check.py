@@ -40,6 +40,11 @@ ACC-4.AC1 is gone with ACC-4.
 
 ## External facts referenced
 - EXT-MAIL-1 — the mail provider rejects messages over 10 MB.
+
+## Inherited behaviour inventory
+| # | Behaviour | Decision |
+|---|---|---|
+| 1 | INH-3 the legacy grid keeps one empty row | Keep (user, D-2) |
 """
 
 CATALOGUE = """# Requirement catalogue
@@ -121,11 +126,12 @@ SPEC:UJ-1 and SPEC:UJ-2 as written in design.md.
 """
 
 AUDIT = """# Audit
-| ID | Severity | Category | Rule cited | Evidence | Proposed route |
-|---|---|---|---|---|---|
-| F-1 | Major | Code | ABSD:CODE-3 | src/a.py:10 | Builder — fixed in WP-1 |
-| F-2 | Minor | Code | ABSD:CODE-4 | src/b.py:3 | Builder |
-| F-3 | **Critical** | Security | ABSD:SEC-1 | log | accepted-by-user (context.md, 2026-10-12) |
+Overall: PASS
+| ID | Severity | Category | Rule cited | Evidence | Proposed route | Status |
+|---|---|---|---|---|---|---|
+| F-1 | Major | Code | ABSD:CODE-3 | src/a.py:10 | Builder | resolved — fixed in WP-1 @abc1234 |
+| F-2 | Minor | Code | ABSD:CODE-4 | src/b.py:3 | Builder | open |
+| F-3 | **Critical** | Security | ABSD:SEC-1 | log | user | accepted-by-user (context.md, 2026-10-12) |
 
 ## Counts by severity
 | Severity | Count |
@@ -141,6 +147,7 @@ TEST_REPORT = """# Test report
 """
 
 ARCH_REVIEW = """# Architecture review
+Verdict: PASS
 | ID | Severity | Category | Rule cited | Evidence | Proposed route |
 |---|---|---|---|---|---|
 | AR-1 | Major | Seams | ABSD:ARCH-4 | §7 | Architect delta |
@@ -201,8 +208,8 @@ class TraceCheckTests(unittest.TestCase):
         with open(out_json, encoding="utf-8") as f:
             return code, out, json.load(f)
 
-    def gate_json(self, name):
-        code, out, data = self.run_json("gate", name, "--working", self.working, "--catalogue", self.catalogue)
+    def gate_json(self, name, *extra):
+        code, out, data = self.run_json("gate", name, "--working", self.working, "--catalogue", self.catalogue, *extra)
         return code, out, {check["name"]: check for check in data["checks"]}
 
     def parsed(self, text):
@@ -381,7 +388,7 @@ class TraceCheckTests(unittest.TestCase):
         self.remove("working/architecture/01-core.md")
         code, out, checks = self.gate_json("gate2")
         self.assertEqual(code, 1)
-        self.assertEqual(checks["every requirement defined in analysis.md is referenced in architecture.md"]["missing"],
+        self.assertEqual(checks["every requirement in scope of analysis.md is referenced in architecture.md"]["missing"],
                          ["ACC-2", "ACC-3", "ACC-BR-1", "ACC-NF-1"])
         self.assertEqual(checks["every UJ defined in design.md is referenced in architecture.md"]["missing"], ["UJ-1", "UJ-2"])
         self.assertEqual(checks["every SCR defined in design.md is referenced in architecture.md"]["missing"], ["SCR-1", "SCR-2"])
@@ -403,6 +410,15 @@ class TraceCheckTests(unittest.TestCase):
         self.assertIn("::notice::design.md not found in", out)
         self.assertIn("gate2: PASS — 3 checks passed", out)
 
+    def test_gate2_defect_mode_checks_every_def(self):
+        self.remove("working/analysis.md")
+        self.write("working/defect.md", "| DEF | Title | Severity |\n|---|---|---|\n| DEF-7 | wrong zone on ACC-1.AC1 | Critical |\n")
+        code, out, checks = self.gate_json("gate2")
+        self.assertEqual(checks["every DEF defined in defect.md is referenced in architecture.md"]["missing"], ["DEF-7"])
+        self.write("working/architecture/02-fix.md", "DEF-7 is fixed in WP-1.\n")
+        code, out, checks = self.gate_json("gate2")
+        self.assertEqual(checks["every DEF defined in defect.md is referenced in architecture.md"]["missing"], [])
+
     def test_gate2_removed_requirements_need_no_architecture(self):
         self.edit("working/architecture/01-core.md", "ACC-3 live", "live")
         code, out = self.run_gate("gate2")
@@ -418,18 +434,18 @@ class TraceCheckTests(unittest.TestCase):
     def test_gate_t_passes_on_a_complete_plan(self):
         code, out = self.run_gate("gateT")
         self.assertEqual(code, 0, out)
-        self.assertIn("✓ every AC of a requirement defined in analysis.md is referenced in test_plan.md (4 checked)", out)
-        self.assertIn("gateT: PASS — 9 checks passed", out)
+        self.assertIn("✓ every AC in scope of analysis.md is referenced in a TC row of test_plan.md (4 checked)", out)
+        self.assertIn("gateT: PASS — 11 checks passed", out)
 
     def test_gate_t_reports_each_uncovered_family(self):
         self.write("working/test_plan.md", "| TC | Source |\n|---|---|\n| TC-0001 | SPEC:ACC-1.AC1 |\n")
         code, out, checks = self.gate_json("gateT")
         self.assertEqual(code, 1)
-        name = "every {} is referenced in test_plan.md".format
-        self.assertEqual(checks[name("AC of a requirement defined in analysis.md")]["missing"],
+        name = "every {} is referenced in a TC row of test_plan.md".format
+        self.assertEqual(checks[name("AC in scope of analysis.md")]["missing"],
                          ["ACC-1.AC2", "ACC-2.AC1", "ACC-3.AC1"])
-        self.assertEqual(checks[name("NF requirement defined in analysis.md")]["missing"], ["ACC-NF-1"])
-        self.assertEqual(checks[name("BR requirement defined in analysis.md")]["missing"], ["ACC-BR-1"])
+        self.assertEqual(checks[name("NF requirement in scope of analysis.md")]["missing"], ["ACC-NF-1"])
+        self.assertEqual(checks[name("BR requirement in scope of analysis.md")]["missing"], ["ACC-BR-1"])
         self.assertEqual(checks[name("UJ defined in design.md")]["missing"], ["UJ-1", "UJ-2"])
         self.assertEqual(checks[name("SCR defined in design.md")]["missing"], ["SCR-1", "SCR-2"])
         self.assertEqual(checks[name("EXT referenced in architecture.md")]["missing"], ["EXT-MAIL-1"])
@@ -438,7 +454,7 @@ class TraceCheckTests(unittest.TestCase):
         self.edit("working/architecture/01-core.md", "(EXT-MAIL-1)", "(EXT-MAIL-1); deploys go to the platform (EXT-HOST-2)")
         code, out = self.run_gate("gateT")
         self.assertEqual(code, 1)
-        self.assertIn("✗ every EXT referenced in architecture.md is referenced in test_plan.md: 1 missing — EXT-HOST-2", out)
+        self.assertIn("✗ every EXT referenced in architecture.md is referenced in a TC row of test_plan.md: 1 missing — EXT-HOST-2", out)
 
     def test_gate_t_a_requirement_id_alone_does_not_cover_its_ac(self):
         self.edit("working/test_plan.md", "| TC-0002 | ACC-1.AC2 | \"Wrong password\" | SPEC:ACC-1.AC2 |",
@@ -502,11 +518,11 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("✓ no open Critical/Major finding in audit.md (2 checked)", out)
         self.assertIn("✓ no open Critical/Major finding in arch_review.md (1 checked)", out)
-        self.assertIn("gate3: PASS — 3 checks passed", out)
+        self.assertIn("gate3: PASS — 5 checks passed", out)
 
     def test_gate3_lists_open_critical_and_major_findings(self):
-        self.edit("working/audit.md", "Builder — fixed in WP-1", "Builder")
-        self.edit("working/audit.md", "accepted-by-user (context.md, 2026-10-12)", "Architect delta")
+        self.edit("working/audit.md", "resolved — fixed in WP-1 @abc1234", "not yet resolved")   # must START with it
+        self.edit("working/audit.md", "accepted-by-user (context.md, 2026-10-12)", "open")
         self.edit("working/test_report.md", "Resolved (C004 fix 1)", "unresolved")
         self.edit("working/arch_review.md", "| AR-1 | resolved by ADR-7 |", "| AR-2 | resolved by ADR-7 |")
         code, out = self.run_gate("gate3")
@@ -515,6 +531,12 @@ class TraceCheckTests(unittest.TestCase):
         self.assertIn("in test_report.md: 1 open — TF-1 (Major)", out)
         self.assertIn("in arch_review.md: 1 open — AR-1 (Major)", out)
         self.assertNotIn("F-2", out)
+
+    def test_gate3_verdict_word_belongs_to_the_report(self):
+        self.edit("working/audit.md", "Overall: PASS", "Verdict: PASS")   # the audit's verdict line is "Overall:"
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 1)
+        self.assertIn("audit.md verdict is PASS: 1 not passing — Overall: missing", out)
 
     def test_gate3_reads_design_review_when_present(self):
         self.write("working/design_review.md", "| ID | Severity | Status |\n|---|---|---|\n| DQ-1 | Major | open |\n")
@@ -589,6 +611,106 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("none of analysis.md, brd.md, defect.md", out)
 
+    def test_gate3_requires_passing_verdicts(self):
+        self.edit("working/audit.md", "Overall: PASS", "Overall: BLOCKED")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 1)
+        self.assertIn("audit.md verdict is PASS: 1 not passing — Overall: BLOCKED", out)
+        self.edit("working/audit.md", "Overall: BLOCKED", "Overall: PASS")
+        self.write("working/design_review.md", "# Design QA\n| Level | Verdict: PASS / FAIL |\n|---|---|\n")
+        code, out = self.run_gate("gate3")   # a "Verdict:" inside a table is not the verdict line
+        self.assertEqual(code, 1)
+        self.assertIn("design_review.md verdict is PASS or N/A: 1 not passing — Verdict: missing", out)
+        self.write("working/arch_review.md", "# Review\n**Verdict:** N/A — no architecture change on this route\n")
+        self.write("working/design_review.md", "Verdict: PASS\n")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 0, out)
+
+    def test_gate_t_ignores_mentions_outside_tc_rows(self):
+        self.write("working/test_plan.md", "Out of scope: ACC-1.AC2, ACC-NF-1, UJ-2\n\n"
+                   "| # | Blocking? | Source | Defect | Status |\n|---|---|---|---|---|\n"
+                   "| 1 | yes | ACC-BR-1 | no boundary given | open |\n\n"
+                   "| TC | Requirement ids | Source |\n|---|---|---|\n| TC-0001 | ACC-1 | SPEC:ACC-1.AC1 |\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(code, 1)
+        name = "every {} is referenced in a TC row of test_plan.md".format
+        self.assertIn("ACC-1.AC2", checks[name("AC in scope of analysis.md")]["missing"])
+        self.assertEqual(checks[name("NF requirement in scope of analysis.md")]["missing"], ["ACC-NF-1"])
+        self.assertIn("UJ-2", checks[name("UJ defined in design.md")]["missing"])
+        self.assertEqual(len(checks["no blocking spec defect in test_plan.md is open"]["missing"]), 1)
+
+    def test_gate_t_blocking_spec_defect_closes_when_answered(self):
+        self.edit("working/test_plan.md", "| TC |", "| # | Blocking? | Defect | Status |\n|---|---|---|---|\n"
+                  "| 1 | yes | boundary | answered — D-4 |\n| 2 | no | wording | open |\n\n| TC |")
+        code, out = self.run_gate("gateT")
+        self.assertIn("✓ no blocking spec defect in test_plan.md is open (1 checked)", out)
+
+    def test_gate_t_oracle_sources_must_resolve(self):
+        self.write("working/test_plan.md",
+                   "| TC | Requirement ids | Source |\n|---|---|---|\n"
+                   "| TC-0001 | ACC-1 | SPEC:ACC-1.AC9 |\n"
+                   "| TC-0002 | ACC-1 | SPEC:architecture §5 |\n"
+                   "| TC-0003 | — | SPEC:architecture §6 |\n"
+                   "| TC-0004 | — | FACT:EXT-MAIL-1 |\n"
+                   "| TC-0005 | — | CHAR:INH-9 |\n"
+                   "| TC-0006 | — | SPEC:SCR-7.empty |\n"
+                   "| TC-0007 | — | SPEC:the design |\n")
+        self.write("facts.md", "| EXT | Fact | Status |\n|---|---|---|\n| EXT-MAIL-1 | size limit | UNVERIFIED |\n")
+        code, out, checks = self.gate_json("gateT", "--external-facts", os.path.join(self.root, "facts.md"))
+        self.assertEqual(code, 1)
+        bad = "\n".join(checks["every oracle source resolves (ABSD:ORACLE-1)"]["missing"])
+        self.assertIn("TC-0001 → SPEC:ACC-1.AC9 (unknown AC)", bad)
+        self.assertIn("TC-0002 → SPEC:architecture", bad)
+        self.assertNotIn("TC-0003", bad)   # an internal unit may cite the architecture
+        self.assertIn("TC-0004 → FACT:EXT-MAIL-1 (not VERIFIED", bad)
+        self.assertIn("TC-0005 → CHAR:INH-9 (INH id not in analysis.md)", bad)
+        self.assertIn("TC-0006 → SPEC:SCR-7.empty (unknown UJ/SCR)", bad)
+        self.assertIn("TC-0007 → SPEC:the (not an id", bad)
+        self.write("facts.md", "| EXT | Fact | Status |\n|---|---|---|\n| EXT-MAIL-1 | size limit | VERIFIED 2026-10-12 |\n")
+        code, out, checks = self.gate_json("gateT", "--external-facts", os.path.join(self.root, "facts.md"))
+        self.assertNotIn("TC-0004", "\n".join(checks["every oracle source resolves (ABSD:ORACLE-1)"]["missing"]))
+
+    def test_gate_t_source_forms_and_the_catalogue(self):
+        self.remove("working/analysis.md")
+        self.write("working/brd.md", "# Brief\n- ACC-1.AC1 copy\n")
+        self.write("working/test_plan.md", "| TC | Covers | Source |\n|---|---|---|\n"
+                   "| TC-0001 | ACC-1.AC1 | SPEC:ACC-1.AC1. |\n"
+                   "| TC-0002 | ACC-3 | SPEC:ACC-3 |\n"        # a catalogue requirement the brief does not cite
+                   "| TC-0003 | ACC-1 | SPEC:ZZZ-9. |\n"
+                   "| TC-0004 | — | FACT:mail-limit |\n"
+                   "| TC-0005 | — | CHAR:legacy-grid |\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(checks["every oracle source resolves (ABSD:ORACLE-1)"]["missing"], [
+            "TC-0003 → SPEC:ZZZ-9 (unknown requirement)", "TC-0004 → FACT:mail-limit (not an EXT id)",
+            "TC-0005 → CHAR:legacy-grid (not an INH id)"])
+
+    def test_gate_t_brief_mode_checks_cited_nf_and_br_requirements(self):
+        self.remove("working/analysis.md")
+        self.write("working/brd.md", "# Brief\n- keep ACC-NF-1 and ACC-BR-1 as they are\n")
+        self.write("working/test_plan.md", "| TC | Covers | Source |\n|---|---|---|\n| TC-0001 | ACC-NF-1 | SPEC:ACC-NF-1 |\n")
+        code, out, checks = self.gate_json("gateT")
+        name = "every {} requirement in scope of brd.md is referenced in a TC row of test_plan.md".format
+        self.assertEqual(checks[name("NF")]["missing"], [])
+        self.assertEqual(checks[name("NF")]["checked"], 1)
+        self.assertEqual(checks[name("BR")]["missing"], ["ACC-BR-1"])
+
+    def test_gate_t_brief_mode_checks_the_cited_acs(self):
+        self.remove("working/analysis.md")
+        self.write("working/brd.md", "# Brief\n## 11. Acceptance\n- ACC-1.AC1 copy\n- ACC-2.AC3 new wording\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(code, 1)
+        self.assertEqual(checks["every AC in scope of brd.md is referenced in a TC row of test_plan.md"]["missing"],
+                         ["ACC-2.AC3"])
+
+    def test_gate_t_defect_mode_checks_every_def(self):
+        self.remove("working/analysis.md")
+        self.write("working/defect.md", "| DEF | Title | Severity |\n|---|---|---|\n| DEF-7 | wrong zone | Critical |\n"
+                   "| DEF-8 | stale card | Minor |\n")
+        self.edit("working/test_plan.md", "| TC |", "| TC-0901 | regression DEF-7 | SPEC:ACC-1.AC1 |\n| TC |")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(checks["every DEF defined in defect.md is referenced in a TC row of test_plan.md"]["missing"],
+                         ["DEF-8"])
+
     # --- generic check ----------------------------------------------------------------------------------------
 
     def test_check_with_comma_separated_files_and_directories(self):
@@ -649,7 +771,7 @@ class TraceCheckTests(unittest.TestCase):
                 text = f.read()
             self.assertIn("### trace_check gateT", text)
             self.assertIn("- ✗ no TSEAM defined in test_plan.md is open: 1 open — TSEAM-1", text)
-            self.assertIn("**gateT: FAIL — 1 of 9 checks failed**", text)
+            self.assertIn("**gateT: FAIL — 1 of 11 checks failed**", text)
 
     def test_json_lists_every_check_and_note(self):
         code, out, data = self.run_json("gate", "gate1", "--working", self.working, "--catalogue", self.catalogue)

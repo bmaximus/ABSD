@@ -438,7 +438,8 @@ def cmd_install(args: argparse.Namespace) -> int:
     for path in leftover:
         print(f"::warning title=Not in the kit manifest::{path} sits under a kit-owned path — move it out, or check fails")
     print_steps("Next steps:", [
-        "Commit the installed kit and the seeded files.",
+        f'Commit the installed kit and the seeded files as a kit-sync commit: git add -A && git commit -m "absd: install '
+        f'ABSD {manifest.version}" --trailer "ABSD-Sync: install {manifest.version}" (ownership_check accepts it).',
         "Start the Manager as the main thread: `claude --agent manager` (the seeded .claude/settings.json makes it "
         "the default agent).",
         "Ask it to run Bootstrap (Mode B: the Foundation cycle, or a Foundation-delta for a migrated v1 project); "
@@ -498,7 +499,8 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
     ]
     if edits:
         steps.append(f"Manager: turn {LOCAL_EDITS} into enrichment proposals (ABSD playbook ENR).")
-    steps.append("Commit the upgrade.")
+    steps.append(f'Commit the upgrade as a kit-sync commit: git add -A && git commit -m "absd: upgrade ABSD {new.version}" '
+                 f'--trailer "ABSD-Sync: upgrade {new.version}".')
     print_steps("Next steps:", steps)
     return 0
 
@@ -540,7 +542,8 @@ def cmd_migrate(args: argparse.Namespace) -> int:
         "Run the first v2 cycle as a Foundation-delta (Mode B); v1 production source moves to the Source Layout it "
         "declares.",
         f"Continue cycle numbering at {next_cycle(root)} — archived cycles keep their numbers.",
-        "Commit the moves (`git mv` ones are already staged).",
+        'Commit the moves as a kit-sync commit (`git mv` ones are already staged): git add -A && git commit -m '
+        '"absd: migrate v1 project" --trailer "ABSD-Sync: migrate-v1".',
     ])
     return 0
 

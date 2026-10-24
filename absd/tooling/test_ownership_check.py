@@ -316,6 +316,66 @@ class OwnershipCheckTests(unittest.TestCase):
             f"{self.git('rev-parse', '--short=7', 'HEAD')} (builder) 'absd(C001): fix report — builder' changed "
             "absd-project/working/test_report.md, owned by tester (built-in: absd-project/working/test_report.md)"])
 
+    def test_kit_sync_commit_installs_the_kit_and_seeds(self):
+        self.commit("absd: install ABSD 2.0.0", None, [
+            "absd/RULES.md", "absd/MANIFEST", ".claude/agents/tester.md", ".github/agents/Tester.agent.md",
+            "absd-project/catalogue.md", "absd-project/design-system.md", "docs/testing/TESTING.md",
+            "tests/untested-allowlist.txt", ".claude/settings.json"], trailers="ABSD-Sync: install 2.0.0")
+        code, out, data = self.run_json()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(data["errors"], [])
+
+    def test_kit_sync_commit_may_not_change_product_files(self):
+        self.commit("absd(C001): verify — tester", "tester", ["docs/testing/TESTING.md"])
+        self.commit("absd: upgrade ABSD 2.1.0", None, ["absd/RULES.md", "docs/testing/TESTING.md", "src/cart.py"],
+                    trailers="ABSD-Sync: upgrade 2.1.0")
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        joined = "\n".join(data["errors"])
+        self.assertIn("(kit sync) changed docs/testing/TESTING.md", joined)   # modifying a seed is not seeding it
+        self.assertIn("(kit sync) changed src/cart.py", joined)
+        self.assertNotIn("absd/RULES.md", joined)
+
+    def test_kit_sync_commit_may_not_edit_v1_files_or_product_memory_in_place(self):
+        self.commit("v1 state", None, [".claude/working/context.md", "absd-project/archive/001_x/audit.md"])
+        self.commit("absd: upgrade ABSD 2.1.0", None, [".claude/working/context.md", "absd-project/context.md",
+                                                       "absd-project/archive/001_x/audit.md"],
+                    trailers="ABSD-Sync: upgrade 2.1.0")
+        code, out, data = self.run_json("--allow-unattributed")
+        self.assertEqual(code, 1)
+        joined = "\n".join(data["errors"])
+        for path in (".claude/working/context.md", "absd-project/context.md", "absd-project/archive/001_x/audit.md"):
+            self.assertIn(f"(kit sync) changed {path}", joined)   # moves add or delete; editing is not a move
+
+    def test_agents_may_not_edit_the_kit(self):
+        self.commit("absd(C001): tweak rules — manager", "manager", ["absd/RULES.md"])
+        self.commit("absd(C001): tweak manual — tester", "tester", [".claude/agents/tester.md"])
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        joined = "\n".join(data["errors"])
+        self.assertIn("changed absd/RULES.md, owned by kit", joined)
+        self.assertIn("changed .claude/agents/tester.md, owned by kit", joined)
+
+    def test_sync_and_agent_trailers_together_are_invalid(self):
+        self.commit("absd: install", "manager", ["absd/RULES.md"], trailers="ABSD-Agent: manager\nABSD-Sync: install 2.0.0")
+        code, out, data = self.run_json("--allow-unattributed")
+        self.assertEqual(code, 1)
+        self.assertIn("both ABSD-Agent and ABSD-Sync trailers", "\n".join(data["errors"]))
+
+    def test_kit_sync_commit_makes_the_v1_migration_moves(self):
+        # the fixture keeps the ownership table in absd-project/context.md; a real v1 project has none yet
+        outside = write(os.path.join(self.root, "context.md"), CONTEXT)
+        self.git("rm", "-q", "--cached", "absd-project/context.md")
+        os.remove(self.context)
+        v1 = self.commit("v1 state", None, [".claude/working/context.md", ".claude/archive/001_x/audit.md"])
+        os.makedirs(os.path.join(self.repo, "absd-project", "archive"), exist_ok=True)
+        self.git("mv", ".claude/working/context.md", "absd-project/context.md")
+        self.git("mv", ".claude/archive/001_x", "absd-project/archive/001_x")
+        self.commit("absd: migrate v1 project", None, trailers="ABSD-Sync: migrate-v1")
+        code, out, data = self.run_json("--context", outside, "--range", f"{v1}..HEAD")
+        self.assertNotIn("cycle trailer", out)   # kit-sync commits belong to no cycle
+        self.assertEqual(code, 0, out)
+
     def test_manager_archive_moves_other_agents_artifacts_out_of_working(self):
         self.mode_f_history()
         archive = "absd-project/archive/001_2026-10-14_cart"
@@ -338,6 +398,12 @@ class OwnershipCheckTests(unittest.TestCase):
         code, out, data = self.run_json()
         self.assertEqual(code, 1)
         self.assertIn("(builder)", "\n".join(data["errors"]))
+        self.git("reset", "-q", "--hard", "HEAD~1")
+        self.git("rm", "-q", "absd-project/working/test_plan.md")
+        self.commit("absd(C001): drop plan — manager", "manager")   # deleting without archiving is not the move
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        self.assertIn("changed absd-project/working/test_plan.md, owned by tester", "\n".join(data["errors"]))
         self.git("reset", "-q", "--hard", "HEAD~1")
         self.git("rm", "-q", "tests/test_cart.py")
         self.commit("absd(C001): drop a test — manager", "manager")

@@ -14,35 +14,48 @@ when one exists (architecture.md + architecture/NN-*.md). Any artifact may be sp
 
 Id families: requirement ACC-1 / ACC-NF-1 / ACC-BR-1 (the area code must not be a reserved code — playbook codes and
 TC, DEF, CR, ADR, UJ, SCR, DEBT, RISK, EXT, LL, AR, TF, DQ, F, CLR, WP, INH, TSEAM, CHAR, C, A, OQ, D, UXQ, UXA;
-QC is the fixed area code of the Foundation quality capabilities) · ac ACC-1.AC1 ·
-uj UJ-1 · scr SCR-1 · ext EXT-PAY-1 · tc TC-0042 (at least four digits) · adr ADR-1 · tseam TSEAM-1 · wp WP-1.
+QC is the fixed area code of the Foundation quality capabilities) · ac ACC-1.AC1 · uj UJ-1 · scr SCR-1 ·
+ext EXT-PAY-1 · tc TC-0042 (at least four digits) · adr ADR-1 · tseam TSEAM-1 · wp WP-1 · def DEF-3 · inh INH-2.
 
-Gates (artifacts read from --working; design.md is optional for gate2 and gateT — its checks are then skipped with a
-notice). The requirement source is analysis.md; on routes without it (Mode S without the Analyst: the brief in brd.md;
-Mode D: defect.md) the first of brd.md, defect.md that exists is used, with a notice.
+Requirement source and scope. The requirement source is analysis.md; on routes without it (Mode S without the
+Analyst: the brief in brd.md; Mode D: defect.md) the first of brd.md, defect.md that exists is used, with a notice.
+analysis.md's scope is the requirements it defines and their ACs; a brief's or defect list's scope is the ACs it
+cites (and their requirements) plus the NF/BR requirements it cites — ids it marks removed/retired are left out.
+design.md is optional for gate2 and gateT (its checks are then skipped with a notice); architecture.md is optional
+for gateT (EXT check skipped). "In a TC row" means inside a table row or heading section that defines a planned TC —
+an "Out of scope" line or a spec-defect row mentioning an id is not coverage.
+
+Gates (artifacts read from --working):
   gate1    analysis.md defines at least one requirement; every functional requirement it defines has an AC id in it
            (NF/BR exempt); every requirement it defines is defined in the catalogue (retired rows do not count).
   gate-ux  every UJ and SCR defined in design.md is referenced in its Traceability section (a heading containing
            "Traceability"); every requirement referenced in design.md is defined in the catalogue. Ids whose area code
            the catalogue never uses (UTC-5, SHA-256, ISO-8601) are listed in a notice instead.
-  gate2    every requirement defined in analysis.md, every UJ/SCR defined in design.md and every EXT referenced in
-           analysis.md is referenced in architecture.md; architecture.md defines at least one WP.
-  gateT    test_plan.md defines at least one TC; every AC of a requirement defined in analysis.md (any occurrence of the
-           AC id counts, so ACs may sit in list items), every NF and BR requirement defined in analysis.md, every
-           UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in test_plan.md;
-           every TC defined in test_plan.md has an oracle source (SPEC:… FACT:… CHAR:…) on its row or in its heading's
-           section; no TSEAM defined in test_plan.md is open (the word "open" in its status).
+  gate2    every requirement in scope, every DEF defined in defect.md (Mode D), every UJ/SCR defined in design.md and
+           every EXT referenced in the requirement source is referenced in architecture.md; it defines at least one WP.
+  gateT    test_plan.md defines at least one TC; every AC in scope, every NF and BR requirement in scope, every DEF
+           defined in defect.md (Mode D), every UJ/SCR defined in design.md and every EXT referenced in
+           architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
+           or in its heading's section, and every source resolves (ABSD:ORACLE-1): SPEC:<AC|requirement> exists in
+           the source or catalogue, SPEC:<UJ|SCR>[.state] exists in design.md, SPEC:architecture only on a TC that
+           cites no requirement, FACT:<EXT> is VERIFIED in --external-facts (form only when the register is absent),
+           CHAR:<INH> is cited in the requirement source; no TSEAM is open (the word "open" in its status); no
+           blocking spec defect is open (a row of a table with a "Blocking" column saying yes, whose Status does not
+           start with answered, resolved, closed, withdrawn or fixed).
   gate3    the reports the cycle's route produces exist (read from the "Mode:" line of cycle.md: X → audit.md;
            D → test_report.md, audit.md; any other mode, or no cycle.md → arch_review.md, test_report.md, audit.md;
-           design_review.md and an arch_review.md the route does not require are read when present) and hold no open
-           blocking finding. A finding is a table row whose first cell holds an id (F-3, AR-2, TF-12, DQ-1) in a table
-           with a Severity column; it is open when its severity is Critical or Major and no row with the same id in
-           that file says fixed, resolved or accepted-by-user in a Status, Route or Resolution column.
+           design_review.md and an arch_review.md the route does not require are read when present); each carries
+           its verdict on a line outside any table (audit.md "Overall: PASS"; arch_review.md and design_review.md
+           "Verdict: PASS" or "Verdict: N/A") and holds no open blocking finding. A finding is a table row whose
+           first cell holds an id (F-3, AR-2, TF-12, DQ-1) in a table with a Severity column; it is open when its
+           severity is Critical or Major and no row with the same id in that file has a Status, Route or Resolution
+           cell that starts with fixed, resolved or accepted-by-user.
 
 usage:
   trace_check.py gate {gate1,gate-ux,gate2,gateT,gate3} [--working absd-project/working]
-                 [--catalogue absd-project/catalogue.md] [--json OUT] [--summary-md OUT]
-  trace_check.py check --ids {requirement,ac,uj,scr,ext,tc,adr,tseam,wp} --defined-in FILE[,FILE...]
+                 [--catalogue absd-project/catalogue.md] [--external-facts docs/testing/EXTERNAL-FACTS.md]
+                 [--json OUT] [--summary-md OUT]
+  trace_check.py check --ids {requirement,ac,uj,scr,ext,tc,adr,tseam,wp,def,inh} --defined-in FILE[,FILE...]
                  --referenced-in FILE[,FILE...] [--json OUT] [--summary-md OUT]
 
 Output: one line per check — "✓ <check> (<n> checked)" or "✗ <check>: <n> missing — ID1, ID2" — then GitHub
@@ -79,6 +92,8 @@ FAMILIES = {                      # family -> (display name, id pattern)
     "adr": ("ADR", r"ADR-\d+"),
     "tseam": ("TSEAM", r"TSEAM-\d+"),
     "wp": ("WP", r"WP-\d+"),
+    "def": ("DEF", r"DEF-\d+"),
+    "inh": ("INH", r"INH-\d+"),
 }
 EXACT = {family: re.compile(pattern) for family, (_, pattern) in FAMILIES.items()}
 WHOLE_TOKEN = {family: re.compile(r"(?<![A-Za-z0-9_-])" + pattern + r"(?![A-Za-z0-9_])")
@@ -94,7 +109,13 @@ EXCLUDED = re.compile(r"\b(?:removed|retired)\b", re.IGNORECASE)
 OPEN = re.compile(r"\bopen\b", re.IGNORECASE)
 ORACLE_SOURCE = re.compile(r"\b(?:SPEC|FACT|CHAR):[ \t]*[^\s|]")
 FINDING_ID = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+\b")
-CLOSED = re.compile(r"\b(?:fixed|resolved|accepted-by-user)\b", re.IGNORECASE)
+CLOSED = re.compile(r"^[\W_]*(?:fixed|resolved|accepted-by-user)\b", re.IGNORECASE)   # the cell must START with it
+DEFECT_CLOSED = re.compile(r"^[\W_]*(?:answered|resolved|closed|withdrawn|fixed)\b", re.IGNORECASE)
+YES = re.compile(r"^[\W_]*(?:yes|y|blocking|true)\b", re.IGNORECASE)
+VERDICT = re.compile(r"^[\s*_>#-]*(Overall|Verdict)\s*:[\s*_]*(PASS|FAIL|BLOCKED|N/A)\b", re.IGNORECASE)
+SOURCE_REF = re.compile(r"\b(SPEC|FACT|CHAR):[ \t]*([^\s|,;]+)")
+VERDICT_OF = {"audit.md": ("Overall", ("PASS",)), "arch_review.md": ("Verdict", ("PASS", "N/A")),
+              "design_review.md": ("Verdict", ("PASS", "N/A"))}   # the verdict line gate3 requires per report
 BLOCKING = ("critical", "major")
 GATE3_REQUIRED = ("arch_review.md", "test_report.md", "audit.md")      # Mode F, S, B, C, R — and when unknown
 GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md")}
@@ -167,6 +188,15 @@ class Doc:
 
     def referenced(self, family: str) -> set:
         return referenced_in(self.text, family)
+
+    def tc_referenced(self, family: str) -> set:
+        """Ids referenced inside the rows (or heading sections) that define a planned TC — mentions elsewhere, such as an
+        "Out of scope" line or a spec-defect row, are not coverage."""
+        found: set = set()
+        for d in self.definitions:
+            if in_family(d.id, "tc") and not d.excluded:
+                found |= referenced_in(d.context, family)
+        return found
 
 
 def referenced_in(text: str, family: str) -> set:
@@ -354,17 +384,20 @@ def excluded_note(doc: Doc, family: str) -> list[tuple[str, str]]:
     return [("notice", f"{doc.label}: not checked, marked removed/retired — {', '.join(excluded)}")]
 
 
-def design_checks(result: Result, design: Doc | None, working: str, target: Doc) -> None:
-    """Every UJ and SCR defined in design.md is referenced in target; skipped with a notice without design.md."""
+def design_checks(result: Result, design: Doc | None, working: str, target: Doc, in_tc_rows: bool = False) -> None:
+    """Every UJ and SCR defined in design.md is referenced in target (in its TC rows when in_tc_rows); skipped with a
+    notice without design.md."""
     if design is None:
         result.notes.append(("notice", f"design.md not found in {working} — UJ and SCR checks skipped"))
         return
+    where = f"a TC row of {target.label}" if in_tc_rows else target.label
     for family in ("uj", "scr"):
-        result.checks.append(coverage(f"every {FAMILIES[family][0]} defined in design.md is referenced in {target.label}",
-                                      design.defined(family), target.referenced(family)))
+        found = target.tc_referenced(family) if in_tc_rows else target.referenced(family)
+        result.checks.append(coverage(f"every {FAMILIES[family][0]} defined in design.md is referenced in {where}",
+                                      design.defined(family), found))
 
 
-def gate1(working: str, catalogue_path: str) -> Result:
+def gate1(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     analysis = artifact(working, "analysis.md")
     catalogue = load([catalogue_path], os.path.basename(catalogue_path))
     requirements = analysis.defined("requirement")
@@ -378,7 +411,7 @@ def gate1(working: str, catalogue_path: str) -> Result:
     ], excluded_note(analysis, "requirement"))
 
 
-def gate_ux(working: str, catalogue_path: str) -> Result:
+def gate_ux(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     design = artifact(working, "design.md")
     catalogue = load([catalogue_path], os.path.basename(catalogue_path))
     result = Result("gate-ux")
@@ -410,51 +443,157 @@ def requirement_source(working: str) -> tuple[Doc, list]:
     raise InputError(f"none of {', '.join(REQUIREMENT_SOURCES)} found in {working}")
 
 
-def gate2(working: str, catalogue_path: str) -> Result:
-    analysis, notes = requirement_source(working)
+def scope_of(source: Doc) -> tuple[set, set]:
+    """(requirements, ACs) a cycle must cover. analysis.md defines them; a brief (brd.md, Mode S) or a defect list
+    (defect.md, Mode D) cites existing catalogue ids, so its cited ACs — and their requirements — are the scope."""
+    if source.label == "analysis.md":
+        requirements = source.defined("requirement")
+        acs = {ac for ac in source.referenced("ac") if requirement_of(ac) in requirements} - source.excluded("ac")
+        return requirements, acs
+    removed = source.excluded("requirement")
+    acs = {ac for ac in source.referenced("ac") - source.excluded("ac") if requirement_of(ac) not in removed}
+    cited = {r for r in source.referenced("requirement") if NON_FUNCTIONAL.search(r)}
+    return ({requirement_of(ac) for ac in acs} | cited) - removed, acs
+
+
+def gate2(working: str, catalogue_path: str, facts_path: str = "") -> Result:
+    source, notes = requirement_source(working)
     architecture = artifact(working, "architecture.md")
     design = artifact(working, "design.md", required=False)
-    result = Result("gate2", notes=notes + excluded_note(analysis, "requirement"))
-    result.checks.append(coverage(f"every requirement defined in {analysis.label} is referenced in architecture.md",
-                                  analysis.defined("requirement"), architecture.referenced("requirement")))
+    result = Result("gate2", notes=notes + excluded_note(source, "requirement"))
+    requirements, _ = scope_of(source)
+    result.checks.append(coverage(f"every requirement in scope of {source.label} is referenced in architecture.md",
+                                  requirements, architecture.referenced("requirement")))
+    if source.label == "defect.md":
+        result.checks.append(coverage("every DEF defined in defect.md is referenced in architecture.md",
+                                      source.defined("def"), architecture.referenced("def")))
     design_checks(result, design, working, architecture)
-    result.checks.append(coverage(f"every EXT referenced in {analysis.label} is referenced in architecture.md",
-                                  analysis.referenced("ext"), architecture.referenced("ext")))
+    result.checks.append(coverage(f"every EXT referenced in {source.label} is referenced in architecture.md",
+                                  source.referenced("ext"), architecture.referenced("ext")))
     result.checks.append(at_least_one("architecture.md defines at least one WP", architecture.defined("wp")))
     return result
 
 
-def gate_t(working: str, catalogue_path: str) -> Result:
-    analysis, notes = requirement_source(working)
+def verified_facts(path: str) -> tuple[set, set] | None:
+    """(every EXT id in the external-facts register, the VERIFIED ones) — None when the register is absent."""
+    if not path or not os.path.exists(path):
+        return None
+    doc = load([path], os.path.basename(path))
+    known, verified = set(), set()
+    for table in doc.tables:
+        status = [i for i, name in enumerate(table.header) if "status" in name]
+        for cells in table.rows:
+            fact = first_token(cells[0]) if cells else ""
+            if not in_family(fact, "ext"):
+                continue
+            known.add(fact)
+            if any(re.match(r"^[\W_]*verified\b", cell_at(cells, i), re.IGNORECASE) for i in status):
+                verified.add(fact)
+    return known, verified
+
+
+def unresolved_sources(plan: Doc, tcs: set, source: Doc, catalogue: Doc | None, design: Doc | None,
+                       facts: tuple[set, set] | None) -> list[str]:
+    """Oracle sources that do not resolve (ABSD:ORACLE-1): SPEC ids must exist, FACT ids must be VERIFIED, CHAR must
+    cite an inherited-behaviour item, and SPEC:architecture is for internal units only (rows citing no requirement)."""
+    known_requirements = source.defined("requirement") | source.referenced("requirement")
+    if catalogue is not None:
+        known_requirements |= catalogue.defined("requirement")
+    known_acs = source.referenced("ac")
+    ui = (design.defined("uj") | design.defined("scr")) if design is not None else set()
+    problems = []
+    for d in plan.definitions:
+        if d.id not in tcs or d.excluded:
+            continue
+        for kind, target in SOURCE_REF.findall(d.context):
+            target = target.rstrip(".)")
+            token = first_token(target)
+            bad = ""
+            if kind == "SPEC" and target.lower().startswith("architecture"):
+                if referenced_in(d.context, "requirement") or referenced_in(d.context, "ac"):
+                    bad = "SPEC:architecture on a TC that cites requirements (business oracles cite analysis or design)"
+            elif kind == "SPEC":
+                if in_family(token, "ac"):
+                    bad = "" if token in known_acs else "unknown AC"
+                elif in_family(token, "requirement"):
+                    bad = "" if token in known_requirements else "unknown requirement"
+                elif in_family(token.split(".")[0], "uj") or in_family(token.split(".")[0], "scr"):
+                    if design is not None and token.split(".")[0] not in ui:
+                        bad = "unknown UJ/SCR"
+                else:
+                    bad = "not an id (SPEC:<REQ>[.ACn] · SPEC:<UJ-n|SCR-n>[.state] · SPEC:architecture §x)"
+            elif kind == "FACT":
+                if not in_family(token, "ext"):
+                    bad = "not an EXT id"
+                elif facts is not None and token not in facts[1]:
+                    bad = "not VERIFIED in the external-facts register" if token in facts[0] else "unknown EXT id"
+            elif kind == "CHAR":
+                if not in_family(token, "inh"):
+                    bad = "not an INH id"
+                elif token not in source.referenced("inh"):
+                    bad = f"INH id not in {source.label}"
+            if bad:
+                problems.append(f"{d.id} → {kind}:{target} ({bad})")
+    return sorted(set(problems), key=natural)
+
+
+def blocking_spec_defects(plan: Doc) -> tuple[int, list[str]]:
+    """(blocking rows, open blocking rows) of the spec-defect tables (a column named "Blocking"); a row is open while
+    its Status does not start with answered/resolved/closed/withdrawn/fixed."""
+    count, found = 0, []
+    for table in plan.tables:
+        blocking = [i for i, name in enumerate(table.header) if "blocking" in name]
+        status = [i for i, name in enumerate(table.header) if "status" in name]
+        for cells in table.rows:
+            if not any(YES.match(cell_at(cells, i)) for i in blocking):
+                continue
+            count += 1
+            if not any(DEFECT_CLOSED.match(cell_at(cells, i)) for i in status):
+                found.append(" ".join(cells[:3]).strip()[:80])
+    return count, found
+
+
+def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
+    source, notes = requirement_source(working)
     architecture = artifact(working, "architecture.md", required=False)
     plan = artifact(working, "test_plan.md")
     design = artifact(working, "design.md", required=False)
-    result = Result("gateT", notes=notes + excluded_note(analysis, "requirement"))
-    requirements = analysis.defined("requirement")
-    acs = {ac for ac in analysis.referenced("ac") if requirement_of(ac) in requirements} - analysis.excluded("ac")
+    catalogue = load([catalogue_path], os.path.basename(catalogue_path), required=False)
+    result = Result("gateT", notes=notes + excluded_note(source, "requirement"))
+    requirements, acs = scope_of(source)
     tcs = plan.defined("tc")
     result.checks += [
         at_least_one("test_plan.md defines at least one TC", tcs),
-        coverage(f"every AC of a requirement defined in {analysis.label} is referenced in test_plan.md", acs,
-                 plan.referenced("ac")),
-        coverage(f"every NF requirement defined in {analysis.label} is referenced in test_plan.md",
-                 {r for r in requirements if "-NF-" in r}, plan.referenced("requirement")),
-        coverage(f"every BR requirement defined in {analysis.label} is referenced in test_plan.md",
-                 {r for r in requirements if "-BR-" in r}, plan.referenced("requirement")),
+        coverage(f"every AC in scope of {source.label} is referenced in a TC row of test_plan.md", acs,
+                 plan.tc_referenced("ac")),
+        coverage(f"every NF requirement in scope of {source.label} is referenced in a TC row of test_plan.md",
+                 {r for r in requirements if "-NF-" in r}, plan.tc_referenced("requirement")),
+        coverage(f"every BR requirement in scope of {source.label} is referenced in a TC row of test_plan.md",
+                 {r for r in requirements if "-BR-" in r}, plan.tc_referenced("requirement")),
     ]
-    design_checks(result, design, working, plan)
+    if source.label == "defect.md":
+        result.checks.append(coverage("every DEF defined in defect.md is referenced in a TC row of test_plan.md",
+                                      source.defined("def"), plan.tc_referenced("def")))
+    design_checks(result, design, working, plan, in_tc_rows=True)
     if architecture is None:
         result.notes.append(("notice", f"architecture.md not found in {working} — EXT check skipped (no architecture change on this route)"))
     else:
-        result.checks.append(coverage("every EXT referenced in architecture.md is referenced in test_plan.md",
-                                      architecture.referenced("ext"), plan.referenced("ext")))
+        result.checks.append(coverage("every EXT referenced in architecture.md is referenced in a TC row of test_plan.md",
+                                      architecture.referenced("ext"), plan.tc_referenced("ext")))
     sourced = {d.id for d in plan.definitions if d.id in tcs and not d.excluded and ORACLE_SOURCE.search(d.context)}
     oracle = coverage("every TC defined in test_plan.md has an oracle source (SPEC:, FACT: or CHAR:)", tcs, sourced)
     oracle.noun = "without a source"
+    facts = verified_facts(facts_path)
+    if facts is None:
+        result.notes.append(("notice", f"external-facts register {facts_path or '(none)'} not found — FACT: sources checked for form only"))
+    bad_sources = unresolved_sources(plan, tcs, source, catalogue, design, facts)
+    resolved = Check("every oracle source resolves (ABSD:ORACLE-1)", len(tcs), bad_sources, noun="unresolved")
     seams = plan.defined("tseam")
     open_seams = {d.id for d in plan.definitions if d.id in seams and not d.excluded and OPEN.search(d.status)}
-    result.checks += [oracle, Check("no TSEAM defined in test_plan.md is open", len(seams),
-                                    sorted(open_seams, key=natural), noun="open")]
+    defect_count, defects = blocking_spec_defects(plan)
+    result.checks += [oracle, resolved,
+                      Check("no TSEAM defined in test_plan.md is open", len(seams), sorted(open_seams, key=natural), noun="open"),
+                      Check("no blocking spec defect in test_plan.md is open", defect_count, defects, noun="open")]
     return result
 
 
@@ -488,7 +627,7 @@ def route_mode(working: str) -> str:
     return match.group(1) if match else ""
 
 
-def gate3(working: str, catalogue_path: str) -> Result:
+def gate3(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     mode = route_mode(working)
     required = GATE3_BY_MODE.get(mode, GATE3_REQUIRED)
     docs = [artifact(working, name) for name in required]
@@ -496,6 +635,14 @@ def gate3(working: str, catalogue_path: str) -> Result:
              if doc]
     result = Result("gate3", notes=[("notice", f"route Mode {mode or '? (no cycle.md — strictest set)'}: requires "
                                                + ", ".join(required))])
+    for doc in docs:
+        if doc.label not in VERDICT_OF:
+            continue
+        word, wanted = VERDICT_OF[doc.label]
+        verdict = next((m.group(2).upper() for line in doc.text.splitlines()   # VERDICT never matches a table row
+                        if (m := VERDICT.match(line)) and m.group(1).lower() == word.lower()), "")
+        result.checks.append(Check(f"{doc.label} verdict is {' or '.join(wanted)}", 1,
+                                   [] if verdict in wanted else [f"{word}: {verdict or 'missing'}"], noun="not passing"))
     for doc in docs:
         count, still_open = open_findings(doc)
         result.checks.append(Check(f"no open Critical/Major finding in {doc.label}", count, still_open, noun="open"))
@@ -557,7 +704,9 @@ def main(argv: list[str] | None = None) -> int:
     gate = commands.add_parser("gate", parents=[common], help="run a gate's preset checks")
     gate.add_argument("name", choices=list(GATES))
     gate.add_argument("--working", default="absd-project/working", help="cycle artifacts (default absd-project/working)")
-    gate.add_argument("--catalogue", default="absd-project/catalogue.md", help="requirement catalogue (gate1, gate-ux)")
+    gate.add_argument("--catalogue", default="absd-project/catalogue.md", help="requirement catalogue (gate1, gate-ux, gateT)")
+    gate.add_argument("--external-facts", default="docs/testing/EXTERNAL-FACTS.md",
+                      help="external-facts register: FACT: sources must be VERIFIED there (gateT; skipped with a notice when absent)")
     check = commands.add_parser("check", parents=[common], help="every id of a family defined in A is referenced in B")
     check.add_argument("--ids", required=True, choices=list(FAMILIES))
     check.add_argument("--defined-in", required=True, help="comma-separated files or directories")
@@ -566,7 +715,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         if args.command == "gate":
-            result = GATES[args.name](args.working, args.catalogue)
+            result = GATES[args.name](args.working, args.catalogue, args.external_facts)
         else:
             result = generic_check(args.ids, split_paths(args.defined_in), split_paths(args.referenced_in))
     except InputError as error:

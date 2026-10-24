@@ -24,6 +24,10 @@ the range this check proves that
           review list: each changed expected value or assertion must cite a Gate T amendment (ABSD playbook
           ORACLE-*). Changes by other agents are already errors under check 2.
 
+Kit-sync commits carry the trailer `ABSD-Sync: <install|upgrade|migrate-v1> <version>` instead of ABSD-Agent (absd_sync.py
+prints the command): they may change the kit paths (absd/, .claude/agents/*.md, .github/agents/*.agent.md), ADD the
+product-owned seeds and make the v1 migration's moves — nothing else. The kit paths are read-only for every agent.
+
 Merge commits are skipped with a notice unless --include-merges (their files are then those that differ from any
 parent). Git reads trailers only from the LAST paragraph of the message, so write both in one paragraph:
   git commit -m "absd(C001): WP-01 — builder" -m $'ABSD-Agent: builder\\nABSD-Cycle: C001'
@@ -55,6 +59,10 @@ UNOWNED = "unowned"
 UNATTRIBUTED = "unattributed"   # no ABSD-Agent trailer
 INVALID = "invalid"             # an ABSD-Agent trailer that names no single known agent
 BUILT_IN = "built-in"
+SYNC = "sync"                   # a kit install/upgrade/migrate-v1 commit: trailer "ABSD-Sync: <operation> <version>"
+KIT = "kit"                     # owner of the vendored kit paths: read-only for every agent
+KIT_GLOBS = ("absd/", ".claude/agents/*.md", ".github/agents/*.agent.md")
+V1_PATHS = ("working/", ".claude/working/", "archive/", ".claude/archive/")
 PROJECT_DIR = "absd-project"
 
 # ABSD contract §5: pipeline artifacts and living documents under absd-project/, by owner.
@@ -68,13 +76,20 @@ ARTIFACTS = {
     "auditor": ("working/arch_review.md", "working/audit.md"),
 }
 
-LOG_FIELDS = ("%H", "%P", "%an", "%s", "%(trailers:key=ABSD-Agent,valueonly)", "%(trailers:key=ABSD-Cycle,valueonly)", "%b")
+LOG_FIELDS = ("%H", "%P", "%an", "%s", "%(trailers:key=ABSD-Agent,valueonly)", "%(trailers:key=ABSD-Cycle,valueonly)",
+              "%(trailers:key=ABSD-Sync,valueonly)", "%b")
 LOG_FORMAT = "%x1f".join(LOG_FIELDS) + "%x1e"
 AGENT_LINE = re.compile(r"^ABSD-Agent\s*:", re.IGNORECASE | re.MULTILINE)
 CYCLE_ID = re.compile(r"C\d{3,}")
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
 SEPARATOR_CELL = re.compile(r":?-{3,}:?")
 GLOB_SEPARATORS = re.compile(r"<br\s*/?>|[,\s]+")
+
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from absd_sync import SEEDS  # noqa: E402  (the product-owned seeds a kit-sync commit may add)
+
+SEED_PATHS = frozenset(destination for _, destination in SEEDS)
 
 
 class InputError(Exception):
@@ -126,8 +141,13 @@ def make_rule(glob: str, owner: str, origin: str) -> Rule:
     return Rule(glob=glob, owner=owner, origin=origin, regex=glob_regex(glob))
 
 
+def kit_rules() -> list[Rule]:
+    """The vendored kit: read-only for every agent; only kit-sync commits (ABSD-Sync trailer) change it."""
+    return [make_rule(glob, KIT, BUILT_IN) for glob in KIT_GLOBS]
+
+
 def built_in_rules() -> list[Rule]:
-    """The contract's artifact ownership. A per-cycle artifact working/<name>.md may be split into
+    """The kit paths, then the contract's artifact ownership. A per-cycle artifact working/<name>.md may be split into
     working/<name>/NN-<part>.md parts; each agent keeps its evidence in working/evidence/<agent>/."""
     globs = []
     for owner, paths in ARTIFACTS.items():
@@ -136,7 +156,7 @@ def built_in_rules() -> list[Rule]:
             if path.startswith("working/") and path.endswith(".md"):
                 globs.append((path[:-len(".md")] + "/", owner))
     globs += [(f"working/evidence/{agent}/", agent) for agent in AGENTS]
-    return [make_rule(f"{PROJECT_DIR}/{glob}", owner, BUILT_IN) for glob, owner in globs]
+    return kit_rules() + [make_rule(f"{PROJECT_DIR}/{glob}", owner, BUILT_IN) for glob, owner in globs]
 
 
 def owner_of(path: str, rules: list[Rule]) -> tuple[str, Rule | None]:
@@ -239,6 +259,7 @@ class Commit:
     cycles: list
     files: list = field(default_factory=list)
     deleted: set = field(default_factory=set)   # the subset of files the commit deletes
+    added: set = field(default_factory=set)     # the subset of files the commit adds
 
     @property
     def short(self) -> str:
@@ -292,32 +313,39 @@ def read_commits(repo: str, rev_range: str) -> list[Commit]:
         record = record.strip("\n")
         if not record:
             continue
-        sha, parents, author, subject, agents, cycles, body = record.split("\x1f", len(LOG_FIELDS) - 1)
+        sha, parents, author, subject, agents, cycles, sync, body = record.split("\x1f", len(LOG_FIELDS) - 1)
         agent, problem = attribute(agents, body)
+        if sync.strip():
+            agent, problem = (SYNC, "") if agent == UNATTRIBUTED else (INVALID, "both ABSD-Agent and ABSD-Sync trailers")
         commits.append(Commit(sha=sha, parents=parents.split(), author=author, subject=subject, agent=agent,
                               problem=problem, cycles=sorted({c.strip() for c in cycles.splitlines() if c.strip()})))
     return commits
 
 
-def changed_files(repo: str, sha: str) -> tuple[list[str], set[str]]:
-    """(every path the commit adds, changes or deletes, the deleted ones) — a rename is its old and its new path."""
+def changed_files(repo: str, sha: str) -> tuple[list[str], set[str], set[str]]:
+    """(every path the commit adds, changes or deletes; the deleted ones; the added ones) — a rename is its old and its
+    new path."""
     out = git(repo, "diff-tree", "--no-commit-id", "--name-status", "-r", "-m", "--root", "--no-renames", "-z", sha)
     fields = out.split("\0")
-    files, deleted = set(), set()
+    files, deleted, added = set(), set(), set()
     for status, path in zip(fields[0::2], fields[1::2]):
         if not status or not path:
             continue
         files.add(path)
         if status.startswith("D"):
             deleted.add(path)
-    return sorted(files), deleted
+        elif status.startswith("A"):
+            added.add(path)
+    return sorted(files), deleted, added
 
 
 def is_archive_move(commit: Commit, path: str) -> bool:
-    """The Manager archives a cycle by moving every per-cycle artifact out of working/ (RULES §1): deleting another
-    agent's file there is that move, not authorship. Writing or changing such a file is still a violation."""
+    """The Manager archives a cycle by moving every per-cycle artifact out of working/ into archive/ (RULES §1):
+    deleting another agent's file there in a commit that also adds archive files is that move, not authorship. Writing
+    or changing such a file, or deleting it without archiving, is still a violation."""
     return (commit.agent == "manager" and path in commit.deleted
-            and path.startswith(f"{PROJECT_DIR}/working/"))
+            and path.startswith(f"{PROJECT_DIR}/working/")
+            and any(added.startswith(f"{PROJECT_DIR}/archive/") for added in commit.added))
 
 
 def default_range(repo: str, base: str) -> str:
@@ -348,14 +376,32 @@ def check_attribution(commits: list[Commit], allow_unattributed: bool, findings:
             target.append(("unattributed", f"{describe(commit)}: {commit.problem}"))
         elif commit.agent == INVALID:
             findings.errors.append(("unattributed", f"{describe(commit)}: {commit.problem}"))
-        elif len(commit.cycles) != 1 or not CYCLE_ID.fullmatch(commit.cycles[0]):
+        elif commit.agent != SYNC and (len(commit.cycles) != 1 or not CYCLE_ID.fullmatch(commit.cycles[0])):
             found = ", ".join(commit.cycles) or "none"
             findings.warnings.append(("cycle trailer", f"{describe(commit)}: expected one `ABSD-Cycle: C###` trailer, found {found}"))
+
+
+def sync_allows(commit: Commit, path: str, rules: list[Rule]) -> bool:
+    """A kit-sync commit (absd_sync.py install / upgrade / migrate-v1) may change kit paths, ADD the product-owned
+    seeds, and make the v1 migration's moves (v1 working/archive paths out, absd-project/ context and archive in)."""
+    if owner_of(path, kit_rules())[0] == KIT:
+        return True
+    if path in commit.added and path in SEED_PATHS:
+        return True
+    if path in commit.deleted and path.startswith(V1_PATHS):
+        return True
+    return path in commit.added and (path == f"{PROJECT_DIR}/context.md" or path.startswith(f"{PROJECT_DIR}/archive/"))
 
 
 def check_ownership(commits: list[Commit], rules: list[Rule], strict: bool, findings: Findings) -> None:
     unowned: dict[str, list[Commit]] = defaultdict(list)
     for commit in commits:
+        if commit.agent == SYNC:
+            for path in commit.files:
+                if not sync_allows(commit, path, rules):
+                    findings.errors.append(("ownership", f"{describe(commit)} (kit sync) changed {path}: a kit-sync "
+                                            "commit may only change kit paths, add seeds and make v1 migration moves"))
+            continue
         if commit.agent not in AGENTS:
             continue
         for path in commit.files:
@@ -386,7 +432,7 @@ def check_gate_t(repo: str, commits: list[Commit], rules: list[Rule], t_sha: str
 
 def agent_stats(commits: list[Commit]) -> dict[str, dict]:
     stats: dict[str, dict] = {}
-    for label in AGENTS + (UNATTRIBUTED, INVALID):
+    for label in AGENTS + (SYNC, UNATTRIBUTED, INVALID):
         mine = [c for c in commits if c.agent == label]
         if mine:
             stats[label] = {"commits": len(mine), "files": len({path for c in mine for path in c.files})}
@@ -467,7 +513,7 @@ def main(argv: list[str] | None = None) -> int:
         merges = [c for c in commits if skip_merges and c.is_merge]
         checked = [c for c in commits if not (skip_merges and c.is_merge)]
         for commit in checked:
-            commit.files, commit.deleted = changed_files(args.repo, commit.sha)
+            commit.files, commit.deleted, commit.added = changed_files(args.repo, commit.sha)
         findings = Findings()
         check_attribution(checked, args.allow_unattributed, findings)
         check_ownership(checked, rules, args.strict, findings)
