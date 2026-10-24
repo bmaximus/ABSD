@@ -1,25 +1,21 @@
 # Oracles — where expected values come from
 
-Code **ORACLE**. The source, form and life of every expected value: allowed sources and their precedence, independent
-calculation, red before green, amendments and disputes, characterization of inherited behaviour, and mutation as
-proof that oracles can fail. Which cases to write: VAR (`absd/playbook/testing/test-design.md`); mutation
-thresholds and flake policy: GATE (`absd/playbook/testing/gates.md`); fakes: FAKE
-(`absd/playbook/testing/contracts-and-fakes.md`); external facts: EXT (`absd/playbook/testing/external-facts.md`).
+Code **ORACLE**. The source, form and life of every expected value: sources and precedence, independent calculation,
+red before green, amendments and disputes, characterization of inherited behaviour, mutation. Cases: VAR; mutation
+thresholds and flakes: GATE; fakes: FAKE; external facts: EXT.
 
 ## Checklist
 
-- [ ] Every TC row: concrete inputs → concrete expected values → a prefixed source that resolves (ORACLE-1)
-- [ ] No oracle comes from code, its output, a log or a person's word about an external system (ORACLE-1)
+- [ ] Every TC row: concrete inputs → expected values → a prefixed source that resolves; never code, output, logs or a person's word about an external system (ORACLE-1)
 - [ ] Every expected value changed since T-SHA cites an approved Gate T amendment (ORACLE-2)
-- [ ] Every new TC RED for its stated reason at the tests commit; the evidence commit is T-SHA (ORACLE-3)
-- [ ] Red isolated by WP: compile/collection red only in a unit keyed to the WP adding the symbol (ORACLE-3)
+- [ ] Every new TC RED for its stated reason at the tests commit (or a §14 negative control); evidence commit = T-SHA (ORACLE-3)
+- [ ] Red isolated by WP: compile/collection red only in a unit keyed to the (later) WP adding the symbol (ORACLE-3)
 - [ ] No expected value or arranged input comes from calling production code (ORACLE-4)
 - [ ] Golden files: Designer-approved (human-facing output) or citing an Analyst example table (ORACLE-4)
 - [ ] Money/time/ranking oracles show worked arithmetic or an outside reference (ORACLE-5)
 - [ ] Computational ACs carry worked numbers and inclusivity; gaps are blocking spec defects (ORACLE-6)
 - [ ] Business oracles cite analysis/design, never architecture; conflicts raised, not resolved (ORACLE-7)
-- [ ] Every failing TC and TC-CONFLICT has exactly one class and a route (ORACLE-8)
-- [ ] Mode D Gate T: one class per DEF; each TC red or `binds at re-bind` (ORACLE-8)
+- [ ] Every failing TC and TC-CONFLICT: one class, a route; Mode D Gate T: one class per DEF, each TC red or `binds at re-bind` (ORACLE-8)
 - [ ] Assertions are strong: whole record, exact money, which rule failed, forbidden data absent (ORACLE-9)
 - [ ] Relational oracles only in addition to literals on money/time/ranking/access paths (ORACLE-10)
 - [ ] FACT oracles only from VERIFIED facts; UNVERIFIED → fail-closed behaviour asserted (ORACLE-11)
@@ -36,14 +32,15 @@ source (`analysis.md`; Mode S/D: `brd.md`, `defect.md`) or the catalogue, incl. 
 output; `SPEC:<UJ-n|SCR-n>[.<state>]` — experience in `design.md`; `SPEC:architecture §x` — internal units only, on
 rows citing no requirement; `FACT:EXT-<SYS>-n` — VERIFIED external facts (ORACLE-11); `CHAR:INH-n` — inherited
 behaviour the user confirmed (ORACLE-12). Code, its output, logs, the Builder's explanation and a person's statement
-about an external system are never sources; money, time and ranking oracles show an independent calculation (ORACLE-5).
+about an external system are never sources.
 - *Why:* oracles written after and from the code made every cycle need a second build (LL-29); a field's meaning taken
   from a person's word shipped a dormant blocker (LL-2); measurable criteria passed audits by code reading (LL-45); a
   check of the prefix alone let invented ids and unverified facts pass as sources (LL-57).
 - *Check:* `trace_check gate gateT` resolves each source (SPEC in the requirement source, catalogue or `design.md`;
-  FACT VERIFIED in `--external-facts`, form only without a register; CHAR to an INH id of the requirement source) and
-  rejects `SPEC:architecture` on a row citing a requirement; the Auditor checks the cited text supports the value —
-  100% of money/time/access oracles, a sample of the rest (L6).
+  FACT VERIFIED in `--external-facts`, failing without it; CHAR to an INH id of the requirement source) and rejects
+  `SPEC:architecture` on a row citing a requirement and any `SPEC:<example>` — a design example is cited as the AC it
+  illustrates (`SPEC:<REQ>.ACn`, example named in Inputs; the Analyst gives each an AC); the Auditor checks the cited
+  text supports the value — 100% of money/time/access oracles, a sample of the rest (L6).
 - *Applies when:* always.
 - *Provenance:* LL-2, LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -54,8 +51,8 @@ to whoever finds the test inconvenient. The Builder never edits a test; the Test
 match the code without an amendment.
 - *Why:* a test asserted a rule contradicting an earlier one and an audit rationalized it (LL-48); oracles bent to the
   code cannot catch it (LL-29).
-- *Check:* the Auditor reviews every test change `ownership_check.py --t-sha <first> --t-sha <amendment> …` lists for
-  the `cycle.md` chain: each changed expected value or assertion maps to an approved amendment, else Major (Q1); no
+- *Check:* the Auditor reviews every test change `ownership_check.py --t-sha <first> --t-sha <next> …` lists for the
+  `cycle.md` chain: each changed expected value or assertion maps to an approved amendment, else Major (Q1); no
   Builder commit touches test paths.
 - *Applies when:* every TC after Gate T, in every mode.
 - *Provenance:* LL-29, LL-48 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
@@ -65,15 +62,18 @@ plan, run them at that commit, commit the output under `absd-project/working/evi
 evidence commit is T-SHA; each approved amendment or re-bind repeats this and appends its T-SHA to the `cycle.md` chain.
 Red means the asserted behaviour missing or wrong (assertion failure, unknown route, missing command, absent field).
 Isolate red by work package: tests touching a symbol new in WP-n sit in a compilation or collection unit keyed to WP-n
-(own test project, module or file, or imports inside the test body), mapped unit → WP in plan §12; a compile or
-collection failure is red evidence only there; every other unit compiles and stays green at T-SHA, and a new TC
-arranges its own data, never in the shared seed. A test that passes before the code exists, or fails for another
-reason, is repaired before Gate T. Mode D exception: `binds at re-bind` (ORACLE-8).
+(own test project, module or file, or imports inside the test body; new in two WPs → the later; shared builders for new
+types inside it), mapped in plan §12; only there is a compile or collection failure red evidence. Every other unit
+compiles at T-SHA: existing tests green, new TCs failing by assertion (or unknown route or command); a new TC arranges
+its own data, never in the shared seed. A test passing before the code exists, or failing for another reason, is
+repaired before Gate T — unless a negative control proves it can fail (a gate-type QC row, a CHAR test, a test of
+existing behaviour; ORACLE-13), recorded in §14 with its evidence. Mode D exception: `binds at re-bind` (ORACLE-8).
 - *Why:* tests written by the code's author after the code were never seen failing (LL-29); criteria nobody turned
   into failing tests passed as "satisfiable" (LL-45); evidence could not be "run at T-SHA" inside T-SHA itself (LL-55);
   one missing symbol broke a whole compiled test project (LL-57).
-- *Check:* Gate T: red evidence per new TC, its reason matching the TC; plan §12 maps units to WPs, all others green at
-  T-SHA; the Auditor confirms the first T-SHA is an ancestor of every production commit (`ownership_check.py --t-sha`).
+- *Check:* Gate T: red evidence per new TC, its reason matching the TC, or its §14 negative control; plan §12 maps
+  units to WPs, all others compile at T-SHA; the Auditor confirms the first T-SHA is an ancestor of every production
+  commit (`ownership_check.py --t-sha`).
 - *Applies when:* Plan & Bind (Modes F, S), Reproduce (Mode D), every approved amendment and re-bind.
 - *Provenance:* LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-55, LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -120,8 +120,7 @@ codes) and internal units. When sources disagree — architecture vs analysis, a
 design vs analysis — raise a spec defect to their owners; never build the oracle from the lower or the newer text alone.
 - *Why:* a Gate 1 decision was reversed by an architecture note and every gate passed (LL-44); a test encoded a rule
   contradicting an earlier one (LL-48).
-- *Check:* `trace_check gate gateT` rejects `SPEC:architecture` on a row citing a requirement id and fails on any open
-  blocking spec-defect row of `test_plan.md`.
+- *Check:* gateT rejects `SPEC:architecture` on a row citing a requirement id and fails on an open blocking spec defect.
 - *Applies when:* always.
 - *Provenance:* LL-44, LL-48 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -165,8 +164,8 @@ EXT-2). While a fact is UNVERIFIED, the test asserts the fail-closed behaviour �
 the designed message (EXT-1) — never the assumed value, and the fake never serves the assumption as truth (FAKE-1).
 - *Why:* fakes served the team's assumed zone and every test passed while deadlines were hours late (LL-1); "the owner
   confirmed" a field's meaning (LL-2); the provider's served days were never checked (LL-3).
-- *Check:* `trace_check gate gateT --external-facts` resolves every `FACT:` source to a row whose
-  Status starts with VERIFIED; each UNVERIFIED fact has a fail-closed TC.
+- *Check:* gateT resolves every `FACT:` source to a VERIFIED row of `--external-facts`; each UNVERIFIED fact has a
+  fail-closed TC.
 - *Applies when:* the product talks to any external system.
 - *Provenance:* LL-1, LL-2, LL-3 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 

@@ -1,7 +1,7 @@
 <!-- ABSD skeleton: copy to absd-project/working/arch_review.md; keep every heading (tools read them).
      Owner: auditor. -->
 # Architecture review — C### <slug>
-Cycle: C### | Mode: F | S | C | D | B | R | Status: IN-PROGRESS | COMPLETE | BLOCKED | Date: YYYY-MM-DD
+Cycle: C### | Mode: F | S | C | D | B | Status: IN-PROGRESS | COMPLETE | BLOCKED | Date: YYYY-MM-DD
 Reviewed: `architecture.md` at <sha> · round <n>/3 · scope: full | delta (§…) | Foundation ADRs | none (route without Gate 2R)
 Verdict: <PASS | FAIL | N/A — no architecture change on this route (<mode or class>)>
 Findings open: Critical <n> · Major <n> · Minor <n> (resolved <n>)

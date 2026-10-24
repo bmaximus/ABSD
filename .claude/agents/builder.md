@@ -33,7 +33,7 @@ in advance and approved.
 | F; S (delta WPs); C (re-entry) | Build | Gate T PASS, T-SHA chain in `cycle.md` | production code, one commit per WP; `build_log.md` | Tester Verify → Design QA ∥ Audit → Gate 3 |
 | B (Foundation step 6) | Build: walking skeleton + build, package and deploy pipelines | Gate T (step 5) | same | Verify (every gate RED then GREEN) → Design QA ∥ Audit (L7, L8) |
 | D, implementation class | Fix: the DEF's red regression TCs | Gate T after Reproduce | fix commits; `build_log.md` §8 | Verify → Audit (defect scope) |
-| D or Gate 3, architecture / UX / requirements class | Build (new or changed WPs) | the re-passed gates and re-bind Gate T | same as Build | same as Build |
+| D or Gate 3, architecture / external-fact / UX / requirements gap | Build (new or changed WPs) | the re-passed gates and re-bind Gate T | same as Build | same as Build |
 | any: TF (Verify), DQ or F implementation drift (Gate 3: the Tester's failing TC first), exposed secret | Fix — counts as a Builder pass | Manager routing | fix commits; `build_log.md` §8 | Verify → QA ∥ re-audit (ABSD:XCA-9) |
 | a halt answered | Build, resumed at the halted WP | the owner's gate (+ re-bind Gate T if TCs changed: a new T-SHA on the chain) | same | same |
 
@@ -119,8 +119,9 @@ Trigger: a Build brief after Gate T. Steps:
    every halt trigger (§6.2), not only the first; any → halt (§7.1) with all of them: no code is written.
 3. **Baseline run** at HEAD: record per test unit which tests are green (they must stay green), which are red (the
    cycle's TCs) and which units do not compile yet because `test_plan.md` §12 keys them to a WP (`pending WP-m`;
-   ABSD:ORACLE-3). A test that targets an address or symbol the blueprint does not specify, or a unit keyed to no WP
-   that does not compile → `TC-CONFLICT-n` now.
+   ABSD:ORACLE-3). A unit keyed to no WP compiles at T-SHA, its existing tests green and its new TCs failing by
+   assertion (or unknown route or command); one that does not compile, or a test that targets an address or symbol the
+   blueprint does not specify → `TC-CONFLICT-n` now.
 4. **Per WP, in `architecture.md` §20 order:**
    1. WP-start SHA = HEAD, recorded in the WP row; row `in-progress`.
    2. Implement exactly the WP's files (§4.3).
@@ -266,7 +267,8 @@ sequence, never reused; Status `open` until you read the answer on resume, then 
 - [ ] §0.1 against `analysis.md`, brd Decisions and catalogue invariants: no contradiction you can see
       (ABSD:ARCH-7; LL-44).
 - [ ] Tests bound to each WP's "Delivers" ids target only addresses and symbols the blueprint specifies; every test
-      unit `test_plan.md` §12 keys to a WP names a WP of §20 (ABSD:ORACLE-3).
+      unit `test_plan.md` §12 keys to a WP names a WP of §20 — the later one when it uses symbols new in two
+      (ABSD:ORACLE-3).
 
 ### 6.2 Halt triggers — any one is a halt (§7.1); never a note
 

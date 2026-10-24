@@ -10,24 +10,25 @@ tools: `absd/tooling/`. Thresholds and invocations are indexed in the Tester's `
 ## Checklist
 
 - [ ] Every mandated check missing, skipped, cancelled or without its credential is RED (GATE-1)
-- [ ] Every report glob matches a file; plan gates without an active cycle print a notice, never a skip (GATE-1)
+- [ ] Every report glob matches a non-empty report; plan gates without an active cycle print a notice, never a skip (GATE-1)
 - [ ] No unit that no test runs, except allowlist lines `<unit>  # <reason> · <owner> · <expires>` (GATE-2)
 - [ ] `--fail-on-stale` in the push lane; allowlist additions user-approved (GATE-2)
 - [ ] Merged coverage of every production language ≥ floor, one `--reports` glob per language (GATE-3)
 - [ ] `--min-layer` floors on the money, time and access layers; floors rise on headroom (GATE-3)
 - [ ] Strict compile/type check, warnings as errors, lint, format, workflow/script lint, layer test: 0 findings (GATE-4)
 - [ ] Mutation: changed code ≥ threshold; 100% of money/time/access rules killed or negative-controlled (GATE-5)
-- [ ] Retries 0 (unit, component, integration, contract, setup), ≤ 1 (e2e); each pass-on-retry is a Major TF (GATE-6)
+- [ ] Retries 0 (unit, component, integration, contract, setup), ≤ 1 (e2e); a pass-on-retry is a finding of the cycle owning the test (GATE-6, ESC-11)
 - [ ] No gate loosened without the user's approval recorded as a Gate T amendment (GATE-6)
 - [ ] Gate configuration lives in Tester-owned paths indexed in `TESTING.md` §2 (GATE-7)
 - [ ] Test tooling in a file the Tester does not own is a `TSEAM-n` of kind `tooling` (GATE-7)
 - [ ] Every gate shown RED once by its negative control, then GREEN; gate scripts have tests (GATE-8)
+- [ ] Negative controls: local in a worktree under `$TMPDIR`, never committed; CI ones on an unmerged `absd/neg-…` branch, deleted after (GATE-8)
 
 ## Rules
 
 **GATE-1** — Treat a mandated check that did not run as RED: a missing secret or credential, an unset environment
-variable, a skipped, cancelled or timed-out required job, a missing or empty report (a `--junit` or `--reports` glob
-that matches no file exits 2), zero tests collected, a focus marker or CI-only filter that drops tests, a test skipped
+variable, a skipped, cancelled or timed-out required job, a missing or empty report (a `--junit` glob matching no file
+with a test case, a `--reports` glob matching no report with a coverable line: exit 2), zero tests collected, a focus marker or CI-only filter that drops tests, a test skipped
 at run time, or a harness that reached no verdict fails the run with its reason — never exit 0 with a warning. Lanes
 select tests by declared category, never by skipping. A check outside its *Applies when* is not a skip: the plan gates
 need `absd-project/working/test_plan.md` and, with no active cycle, print the notice "no active cycle" (GATE-14);
@@ -69,7 +70,8 @@ cycle. Exclusions are reviewed path patterns for generated code only, listed in 
   mistyped glob silently left one language ungated, and a total floor lets a thin money layer hide behind well-covered
   plumbing (LL-57).
 - *Check:* `coverage_gate.py --reports <glob per language> --min-total <floor> --layer <name=regex> --min-layer
-  <name=pct>`, per-layer table in the run summary; a glob matching no file exits 2 and a layer matching nothing fails
+  <name=pct>`, per-layer table in the run summary; a glob matching no report with a coverable line exits 2 and a layer
+  matching nothing fails
   (RED, GATE-1); the Auditor maps every language in `context.md` Source Layout to a glob; the floor's history never
   decreases without an approved amendment.
 - *Applies when:* always; `--min-layer` wherever money, time or access rules exist.
@@ -100,17 +102,20 @@ fault, an explicit negative control per rule (ORACLE-13); equivalent mutants are
 - *Provenance:* industry baseline
 - Illustration: e.g. Stryker (C#, JavaScript), PIT (JVM), mutmut (Python), cargo-mutants (Rust).
 
-**GATE-6** — Set retries explicitly in every runner configuration: 0 for unit, component, integration and contract tests and for
-setup or seed steps, at most 1 for end-to-end. Report every pass-on-retry from the runner's retry-aware report as a
-Major TF until root-caused (ESC-11: a flake in a test added or changed this cycle is reproduced deterministically now —
-harness fix, or a TF when the product races; one in an older test is a DEF on the backlog); it never counts as verifying a requirement. Never loosen a gate —
-threshold down, retries up, exclusion or allowlist entry added, check moved to a slower lane (STRAT-9), baseline or
-golden file regenerated to pass, gate step removed — without the user's approval recorded as a Gate T amendment.
+**GATE-6** — Set retries explicitly in every runner configuration: 0 for unit, component, integration and contract tests
+and for setup or seed steps, at most 1 for end-to-end. Report every pass-on-retry from the runner's retry-aware report as
+a finding of the cycle that owns the test (ESC-11): in a test added or changed this cycle, a TF now — reproduced
+deterministically, then the harness fixed or, when the product races, a Builder Fix; in an older test, a DEF in the
+`context.md` §16 backlog, and a TF too only if it leaves an in-scope requirement unverified. An older flake that turns
+the acceptance job red (TRACE-8) blocks the merge until fixed through Mode D. A pass-on-retry never verifies a
+requirement. Never loosen a gate — threshold down, retries up, exclusion or allowlist entry added, check moved to a
+slower lane (STRAT-9), baseline or golden file regenerated to pass, gate step removed — without the user's approval
+recorded as a Gate T amendment.
 - *Why:* one silent retry turns a flaky proof green and the acceptance report counts it as verified; a gate relaxed to
   get green guards nothing.
-- *Check:* runner configs in Tester paths show the values; `test_report.md`'s flake report lists each retried test; the
-  Auditor diffs gate configuration since the cycle start against approved amendments — an unapproved loosening is
-  Critical.
+- *Check:* runner configs in Tester paths show the values; `test_report.md`'s flake report maps each retried test to
+  its TF or DEF; the Auditor diffs gate configuration since the cycle start against approved amendments — an
+  unapproved loosening is Critical.
 - *Applies when:* always.
 - *Provenance:* industry baseline; LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -133,13 +138,18 @@ of kind `tooling` (→ Architect delta), and ADR-002 then lists the shared file 
 **GATE-8** — Prove every gate can fail: the kit tools' own tests (`absd/tooling/test_*.py`) run in the push lane on the
 product's interpreter; every product-specific gate, report or release script has tests for pass, fail, boundary,
 malformed and missing input asserting exit code and message; in the Foundation cycle — and whenever a gate's invocation
-or configuration changes — the Tester shows each gate RED with its negative control (Gate register) on a throwaway
-branch, then GREEN, both runs linked in `test_report.md`.
+or configuration changes — the Tester shows each gate RED with its negative control (Gate register), then GREEN, both
+runs linked in `test_report.md`. A local control runs in a throwaway worktree outside the project (under `$TMPDIR`,
+ORACLE-13) and is never committed. A control that needs CI runs on a branch `absd/neg-C###-<n>` that is never merged
+and is deleted after the run; its run URL is the evidence, and it is never an ancestor of the cycle branch, so
+`ownership_check.py` never sees it.
 - *Why:* a buggy gate blocks good merges or lets everything through, silently; the live job that exited 0 without its
-  credential had never been seen failing (LL-25).
-- *Check:* one red and one green run per register row; each control follows ORACLE-13 (tree byte-identical afterwards).
+  credential had never been seen failing (LL-25); a control worktree inside the project tripped the write-time
+  ownership hook (LL-57).
+- *Check:* one red and one green run per register row; the project tree byte-identical after each local control
+  (ORACLE-13); no `absd/neg-…` branch merged, kept after its run or an ancestor of the cycle branch.
 - *Applies when:* always.
-- *Provenance:* LL-25 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-25 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 ## Gate register
 

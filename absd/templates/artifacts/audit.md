@@ -14,7 +14,7 @@ Progress: [ ] runs [ ] reconcile [ ] report [ ] L1–L8 [ ] test changes [ ] pro
      use reads "N/A — <mode>"; never delete a heading. -->
 
 ## 1. Scope and inputs
-Profiles · in-scope requirement ids · artifacts read (path @ sha) · whole-repository sweeps (always) · Mode S / D / X specifics
+Profiles · in-scope requirement ids · artifacts read (path @ sha) · trace_check presets run = the gates in the `cycle.md` ledger, with `--external-facts <path>` · whole-repository sweeps (always) · Mode S / D / X specifics
 
 ## 2. Execution evidence (run before reading `test_report.md`)
 | # | Suite / gate | Command (`context.md` §4) | Where: clean checkout / CI run URL | Commit (product paths = audited product SHA) | Exit | Executed | Passed | Failed | Skipped | Retried | Output |

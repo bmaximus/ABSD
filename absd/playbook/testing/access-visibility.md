@@ -39,7 +39,7 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 
 **ACCESS-2** — Build the principal dimension as role × entitlement state: anonymous; each role; an unknown role (a value the product does not define — from a stale token, an old directory entry or a hand-edited record — gets the least privilege, never a default role); each entitlement expired at the boundary instant (T−ε allowed, T as specified); suspended or deactivated while holding a valid token, session or key; impersonated; same-role other owner; other tenant; each service identity; an admin acting as an ordinary member. Where access is permission-based, each grant and deny override is a principal beside the role defaults, and a principal holding a grant and a deny for the same operation is tested with them applied in both orders (deny wins unless the spec says otherwise).
 - *Why:* role-only matrices pass when the leak sits in the entitlement state or the owner relation — free accounts received paid content (LL-10); admins could not take part as members because nobody listed that principal (LL-5); unknown roles and override order were mined as untested dimensions (LL-57).
-- *Check:* the matrix's principals equal `analysis.md`'s Actor × Capability principals × the entitlement states the product has (trace_check); each state is produced through real operations and the movable clock, never a forged token; absent states are N/A with a one-line reason; the unknown-role cell and both override orders have TCs. cli: principals are credential profiles (none, expired, read-only scope, full scope; flag vs env vs config file).
+- *Check:* the matrix's principals equal `analysis.md`'s Actor × Capability principals × the entitlement states the product has (checked by the Auditor and the ACCESS-1 completeness test, not trace_check); each state is produced through real operations and the movable clock, never a forged token; absent states are N/A with the evidence that they are absent (STRAT-4); the unknown-role cell and both override orders have TCs. cli: principals are credential profiles (none, expired, read-only scope, full scope; flag vs env vs config file).
 - *Applies when:* ACCESS applies; override order where access is permission-based.
 - *Provenance:* LL-10, LL-5 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -51,7 +51,7 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 
 **ACCESS-4** — Keep the matrix as data in exactly one place in the test tree, with columns operation · principal · owner relation · resource state · flag state · expected outcome · visible records · visible and forbidden fields · requirement id; tests, the completeness check and the readable report all read that one table.
 - *Why:* copies drift; a single reviewable table made the access policy auditable at a glance (LL-35).
-- *Check:* one definition (grep); operation keys agree with `architecture.md`'s matrix (trace_check); expected outcomes are literals from analysis/design (ORACLE-1), never read back from the production policy configuration.
+- *Check:* one definition (grep); operation keys agree with `architecture.md`'s matrix (the Auditor compares them); expected outcomes are literals from analysis/design (ORACLE-1), never read back from the production policy configuration.
 - *Applies when:* ACCESS applies.
 - *Provenance:* LL-35 (KatenatsioTipster, 2026-10)
 - Illustration: e.g. xUnit `[MemberData]` over a dictionary, pytest `parametrize` over a YAML file, Jest `test.each` over a JSON table.

@@ -1,8 +1,8 @@
 # Test strategy — types, applicability, suite shape
 
-Code **STRAT**. Which kinds of test a product runs for its interface profiles, what each answers, where and when it
-runs, how that is decided once in `TESTING.md`, how tests are identified, and component tests. Cases: VAR; expected
-values: ORACLE; thresholds and gate mechanics: GATE (`absd/playbook/testing/gates.md`).
+Code **STRAT**. Which test types a product runs per interface profile, what each answers, where and when it runs,
+how `TESTING.md` decides that once, test ids, component tests. Cases: VAR; expected
+values: ORACLE; thresholds and gate mechanics: GATE.
 
 ## Checklist
 
@@ -135,8 +135,8 @@ security · migration), profile, device/runtime class, lane and requirement ids 
 property (e.g. JUnit XML `<property>`, TRX trait) — never part of the id; a moved test keeps its id.
 - *Why:* a level in the id forces a rename when an escape moves the test (ESC-1); with parametrized tests nobody knew
   whether a TC meant a function or a row (LL-57).
-- *Check:* traceability_report lists planned TCs with no test and unplanned TC ids; each planned TC appears on ≥ 1
-  testcase of exactly one test function (TCQ-2).
+- *Check:* traceability_report lists planned TCs with no test and unplanned TC ids; the Auditor (L6) and, if the
+  stack has one, the test-tree lint check each planned TC is on ≥ 1 testcase of exactly one test function (TCQ-2).
 - *Applies when:* always.
 - *Provenance:* industry baseline; LL-57 (ABSD v2 kit review, 2026-10)
 

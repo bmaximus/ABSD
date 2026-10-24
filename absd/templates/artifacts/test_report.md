@@ -2,7 +2,7 @@
      Owner: tester. -->
 # Test report — C### <slug>
 Cycle: C### | Mode: … | Status: IN-PROGRESS | COMPLETE | BLOCKED | Date: YYYY-MM-DD
-Product SHA: <sha> — the last commit outside `absd-project/` this report verified; every result was taken there (valid while `git diff --quiet <sha> HEAD -- . ':!absd-project'`)
+Product SHA: <sha> — the last commit outside `absd-project/` this report verified; every Verify result was taken there (Facts: its own, earlier SHA; valid while `git diff --quiet <sha> HEAD -- . ':!absd-project'`)
 T-SHA chain: <sha, …> · Builder pass <n>/3 · Verify iteration <n>
 Findings: Critical <n> · Major <n> · Minor <n>
 Progress: [ ] conflicts [ ] suites [ ] additions [ ] gates [ ] gallery [ ] exploratory [ ] docs [ ] tests commit [ ] evidence run [ ] report commit
@@ -14,6 +14,9 @@ Append-only: §17 iteration rows.
 |---|---|---|---|---|
 
 ## 2. Results by suite and project
+One row per suite × project (each device class, the foreign zone/locale, each runtime): a requirement is verified only
+when it passes on every device class it runs on (TRACE-7).
+
 | Suite | Project (device / zone / runtime) | Planned | Executed | Passed | Failed | Skipped (0) | Passed on retry (0) | Evidence # |
 |---|---|---|---|---|---|---|---|---|
 
@@ -69,6 +72,8 @@ Status: open · fixed — verified at <product sha> by <TCs> · accepted-by-user
 |---|---|---|---|---|
 
 ## Facts (Facts mode)
+Taken at product SHA: <sha> (before the build: it precedes the header's Verify product SHA)
+
 | EXT (reserved id adopted) | System | Checklist row | Status: VERIFIED / UNVERIFIED / N/A — reason | Recording (scrubbed path) | Independent source | Proposed RISK `blocks: flag:<name>` |
 |---|---|---|---|---|---|---|
 
@@ -80,12 +85,12 @@ Status: open · fixed — verified at <product sha> by <TCs> · accepted-by-user
 |---|---|---|
 
 ## Negative controls (Foundation; whenever a gate changes)
-| Gate | Control | RED evidence | GREEN evidence |
-|---|---|---|---|
+| Gate | Control | Where: worktree under `$TMPDIR`, never committed / CI on branch `absd/neg-C###-<n>` (never merged, deleted) | RED evidence (output or run URL) | GREEN evidence |
+|---|---|---|---|---|
 
 ## Release (Mode R)
 Last nightly and live runs · restore drill · fresh clone · UNVERIFIED facts vs enabled flags · human sessions · checklist
 
 ## Traceability
-| Requirement / AC | TCs | Result at the product SHA | Evidence # |
+| Requirement / AC | TCs | Result per device project at the product SHA | Evidence # |
 |---|---|---|---|

@@ -1,9 +1,9 @@
 # Traceability — requirements to tests to results
 
-Code **TRACE**. How every requirement is tied to the tests that prove it and to their results: the catalogue, test
-links, load-time helpers, the verdict per requirement, clause coverage, plan conformance and the id-set checks behind
-every gate. Tools: `absd/tooling/traceability_report.py` (test results), `absd/tooling/trace_check.py` (artifacts).
-Test ids: STRAT-11; CI wiring: GATE-14 (`absd/playbook/testing/ci-and-release-gates.md`).
+Code **TRACE**. How each requirement is tied to its tests and their results: catalogue, links, load-time helpers,
+verdicts, clause coverage, plan conformance and the id checks behind every gate. Tools:
+`absd/tooling/traceability_report.py` (test results), `absd/tooling/trace_check.py` (artifacts). Test ids: STRAT-11;
+CI wiring: GATE-14 (`absd/playbook/testing/ci-and-release-gates.md`).
 
 ## Checklist
 
@@ -14,10 +14,10 @@ Test ids: STRAT-11; CI wiring: GATE-14 (`absd/playbook/testing/ci-and-release-ga
 - [ ] Every test carries its `TC-nnnn`, every proving test its `[AREA-n]`; links proven in each runner's XML (TRACE-3)
 - [ ] Reserved prefixes are references, never requirement links (TRACE-4)
 - [ ] One load-time helper per stack refuses unknown and retired ids before tests run (TRACE-5)
-- [ ] Both report runs on every push and at Verify; every `--junit` glob matches a file; summaries published (TRACE-6)
+- [ ] Both report runs on every push and at Verify; every `--junit` glob holds test cases; summaries published (TRACE-6)
 - [ ] Every AC, BR boundary and NF criterion maps to a TC; linked tests assert the clause they claim (TRACE-7)
 - [ ] Only first-attempt passes prove; a pass-on-retry or a skip proves nothing (TRACE-8)
-- [ ] Plan conformance over index + parts while a cycle is active: none missing or failing; unplanned reconciled (TRACE-9)
+- [ ] Plan conformance over index + parts in a cycle: none missing (red run: later-WP units, §14) or failing; unplanned reconciled (TRACE-9)
 - [ ] Artifacts end with a Traceability table; trace_check output recorded per gate in `cycle.md` (TRACE-10)
 - [ ] A changed or retired requirement has its tests relinked or removed in the same cycle (TRACE-11)
 - [ ] Gate 3: every in-scope requirement verified; untested exempt only on a shrinking brownfield DEBT list (TRACE-12)
@@ -53,7 +53,7 @@ keeps its row, Status `retired`, its successor named in Source.
 - *Provenance:* LL-36 (KatenatsioTipster, 2026-10)
 
 **TRACE-3** — Put every link where the tools read it — the run's report XML in the JUnit format (e.g. pytest
-`--junitxml`, Jest, Vitest or Playwright junit reporters, xUnit or NUnit junit loggers): the test's `TC-nnnn`
+`--junitxml`, Jest or Playwright junit reporters, xUnit junit loggers): the test's `TC-nnnn`
 (≥ 4 digits, STRAT-11) and, on each test that proves a requirement, its `[AREA-n]`, `[AREA-NF-n]` or `[AREA-BR-n]`
 tokens, in the display name or as `<property name="tc">` / `<property name="requirement">` (repeatable or
 comma-separated). Name the acceptance criterion asserted (`AREA-n.ACk`) in the title or an `ac` property. Write ids
@@ -92,8 +92,8 @@ an unknown id.
 `TESTING.md` marks acceptance-level (E2E forms, real-transport integration, REQ-NF measuring suites) with `--fail-on
 failing,unknown,untested`, proving TRACE-1; and over every suite with `--plan` while a cycle is active (TRACE-9) and
 `--fail-on failing,unknown,missing`, so a failing unit test also turns its requirement red. One `--junit` glob per
-suite: a glob matching no file is a suite that did not run — exit 2, RED (GATE-1). Publish both summaries on the run
-page (GATE-10) and in `test_report.md` with the run's commit SHA.
+suite: a glob matching no file with a test case is a suite that did not run — exit 2, RED (GATE-1). Publish both summaries on the run
+page (GATE-10) and in `test_report.md` with the run's SHA.
 - *Why:* a report that only warned on untested requirements let one lose its last test with CI green; a report the
   owner could read made proof visible without reading code (LL-36).
 - *Check:* both invocations sit in a Tester-owned workflow (GATE-14); the Auditor re-runs them at the product SHA.
@@ -115,22 +115,23 @@ with ≥ 2 ACs and one linked test is reviewed for unproven clauses.
 **TRACE-8** — Count only first-attempt passes as proof. The report XML records a pass-on-retry as a plain pass, so the
 job producing acceptance results fails on any pass-on-retry — the runner's option where it exists
 (e.g. Playwright `--fail-on-flaky-tests`; pytest without a rerun plugin; Jest without `retryTimes`) or a step reading
-the runner's retry-aware report — and `test_report.md` lists the requirement as failing with a Major TF until
-root-caused (GATE-6). A skip proves nothing: a requirement whose linked tests all skipped is untested, and the skip
-itself is RED (GATE-1).
+the runner's retry-aware report — and `test_report.md` lists the requirement as failing; the flake is routed per ESC-11
+(GATE-6), and an older test's flake turning this job red blocks the merge until Mode D fixes it. A skip proves
+nothing: a requirement whose linked tests all skipped is untested, and the skip itself is RED (GATE-1).
 - *Why:* an acceptance report counted a test that passed on retry as verified; a live check that could not run
   exited 0 (LL-25).
 - *Check:* runner flags of the acceptance job; Foundation negative control — a test failing only on its first attempt
   turns the job red (GATE-8).
 - *Applies when:* any runner with retries (GATE-6 allows ≤ 1 for e2e).
-- *Provenance:* LL-25 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-25 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **TRACE-9** — Check plan conformance with `--plan absd-project/working/test_plan.md` on every push of the cycle branch
 after Gate T and at Verify, once over the index and its `test_plan/` parts (a plan with no TC exits 2). Each planned TC
 exists as a test that ran and passed (`missing` = no test or only skipped ones; `failing`) — red by design until the
 work packages turn it green; each `unplanned` TC id is an earlier cycle's (archived plan) or a "Verify addition"
-appended to the plan with its source; any other is a finding. With no active cycle the step prints "no active cycle"
-(GATE-14).
+appended to the plan with its source; any other is a finding. The Plan & Bind red run uses
+`--fail-on unknown,unplanned`; each TC it reports missing belongs to a unit keyed to a later WP (plan §12) and is
+listed in §14 — else a plan defect. With no active cycle the step prints "no active cycle" (GATE-14).
 - *Why:* measurable criteria never became tests (LL-45); tests written after the code had no plan to conform to
   (LL-29); a split plan's index planned 0 TCs and passed, and plan gates re-run after the archive failed every push
   (LL-55, LL-57).
@@ -154,8 +155,7 @@ cycle is active (GATE-14).
 
 **TRACE-11** — When a requirement changes or retires, settle its tests in the same cycle: Plan & Bind lists every
 existing test whose oracle changes (ORACLE-2) and every test linking a retired id, and relinks each to the successor
-or removes it with the reason in `test_plan.md`. Links to retired ids fail the run, so nothing keeps proving
-superseded behaviour.
+or removes it with the reason in `test_plan.md`; links to retired ids fail the run (TRACE-1).
 - *Why:* a still-passing test of a replaced rule would report "verified" for behaviour that no longer exists.
 - *Check:* `unknown` = 0 in the report after retiring; amendments list the relinked tests.
 - *Applies when:* Modes F, S, C, D with catalogue changes.
@@ -174,21 +174,20 @@ burn-down (STRAT-12) and the untested count never rises; it joins `--fail-on` wh
 ## Tool reference
 
 ```bash
-# TRACE-6 run 1 — only the suites TESTING.md marks acceptance-level (proves TRACE-1); one glob per device project
+# TRACE-6 run 1 — acceptance-level suites only (TRACE-1); one glob per device project
 python3 absd/tooling/traceability_report.py --junit "e2e-results/desktop/*.xml" --junit "e2e-results/phone/*.xml" \
   --catalogue absd-project/catalogue.md --fail-on failing,unknown,untested --summary-md trace-acceptance.md
 # TRACE-6 run 2 — every suite + plan conformance (TRACE-9)
 python3 absd/tooling/traceability_report.py --junit "test-results/**/*.xml" --junit "e2e-results/**/*.xml" \
   --catalogue absd-project/catalogue.md --plan absd-project/working/test_plan.md \
   --fail-on failing,unknown,missing --json trace.json --summary-md trace.md
-# TRACE-10 — gate preset (Manager); sources resolve against the fact register
+# TRACE-10 — gate preset (Manager), FACT sources resolved against the register
 python3 absd/tooling/trace_check.py gate gateT --working absd-project/working --catalogue absd-project/catalogue.md \
   --external-facts docs/testing/EXTERNAL-FACTS.md
 ```
 
-Both tools exit 0 pass · 1 a check or `--fail-on` category failed · 2 usage or input error (a `--junit` glob matching no
-file, a duplicate catalogue id, a plan with no TC, a missing artifact); both print `::error` / `::warning` annotation
-lines and, with `--summary-md`, Markdown.
+Both tools exit 0 pass · 1 a check or `--fail-on` category failed · 2 usage or input error (a `--junit` glob without
+test cases, a duplicate catalogue id, a plan with no TC, a missing artifact).
 
 | Preset | Run at | Fails when |
 |---|---|---|
@@ -196,10 +195,10 @@ lines and, with `--summary-md`, Markdown.
 | `gate-ux` | Gate UX | a UJ or SCR is missing from `design.md`'s Traceability section; it cites a requirement the catalogue lacks |
 | `gate2` | Gate 2 | a requirement in scope, a `defect.md` DEF (Mode D), a UJ, SCR or source EXT is missing from `architecture.md`; no WP |
 | `gateT` | Gate T | no TC; an in-scope AC, NF, BR, DEF, UJ, SCR or architecture EXT is in no TC row; a TC source is missing or does not resolve (ORACLE-1); a TSEAM or a blocking spec defect is open |
-| `gate3` | Gate 3 | a report the route needs (`cycle.md` `Mode:`) is missing; a verdict line outside tables is not `Overall: PASS` (audit) or `Verdict: PASS`/`N/A`; a Critical or Major finding has no Status, Route or Resolution cell starting with fixed, resolved or accepted-by-user |
+| `gate3` | Gate 3 | a report the route needs (`cycle.md` `Mode:`) is missing; a verdict line outside tables is not `Overall: PASS` (audit) or `Verdict: PASS`/`N/A`; a Critical or Major finding is open (not fixed, resolved or accepted-by-user) |
 
-Requirement source: `analysis.md`; in Mode S without the Analyst `brd.md`, in Mode D `defect.md` — scope is then the
-ACs and NF/BR ids they cite. Mentions outside TC rows (an "Out of scope" line, a spec-defect row) are not coverage.
+Requirement source: `analysis.md`, else `brd.md` (Mode S without the Analyst) or `defect.md` (Mode D), scoped to the
+ACs and NF/BR ids they cite. Mentions outside TC rows (an "Out of scope" line) are not coverage.
 
 ## Linking helpers (TRACE-5), two stacks
 
