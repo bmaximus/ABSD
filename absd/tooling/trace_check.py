@@ -38,7 +38,8 @@ Gates (artifacts read from --working):
            UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
            or in its heading's section, and every source resolves (ABSD:ORACLE-1): SPEC:<AC|requirement> exists in
            the source or catalogue, SPEC:<UJ|SCR>[.state] exists in design.md, SPEC:architecture only on a TC that
-           cites no requirement, FACT:<EXT> is VERIFIED in --external-facts (form only when the register is absent),
+           cites no requirement (ids whose area code no requirement uses, like UTC-5, do not count), FACT:<EXT> is
+           VERIFIED in --external-facts (a FACT: source without the register fails the gate),
            CHAR:<INH> is cited in the requirement source; no TSEAM is open (the word "open" in its status); no
            blocking spec defect is open (a row of a table with a "Blocking" column saying yes, whose Status does not
            start with answered, resolved, closed, withdrawn or fixed).
@@ -503,6 +504,7 @@ def unresolved_sources(plan: Doc, tcs: set, source: Doc, catalogue: Doc | None, 
     known_requirements = source.defined("requirement") | source.referenced("requirement")
     if catalogue is not None:
         known_requirements |= catalogue.defined("requirement")
+    areas = {r.split("-")[0] for r in known_requirements}   # UTC-5 or SHA-256 in a row is not a requirement
     known_acs = source.referenced("ac")
     ui = (design.defined("uj") | design.defined("scr")) if design is not None else set()
     problems = []
@@ -514,7 +516,8 @@ def unresolved_sources(plan: Doc, tcs: set, source: Doc, catalogue: Doc | None, 
             token = first_token(target)
             bad = ""
             if kind == "SPEC" and target.lower().startswith("architecture"):
-                if referenced_in(d.context, "requirement") or referenced_in(d.context, "ac"):
+                cited = referenced_in(d.context, "requirement") | referenced_in(d.context, "ac")
+                if any(r.split("-")[0] in areas for r in cited):
                     bad = "SPEC:architecture on a TC that cites requirements (business oracles cite analysis or design)"
             elif kind == "SPEC":
                 if in_family(token, "ac"):
@@ -589,8 +592,13 @@ def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     oracle = coverage("every TC defined in test_plan.md has an oracle source (SPEC:, FACT: or CHAR:)", tcs, sourced)
     oracle.noun = "without a source"
     facts = verified_facts(facts_path)
-    if facts is None:
-        result.notes.append(("notice", f"external-facts register {facts_path or '(none)'} not found — FACT: sources checked for form only"))
+    fact_sources = any(kind == "FACT" for d in plan.definitions if d.id in tcs and not d.excluded
+                       for kind, _ in SOURCE_REF.findall(d.context))
+    if facts is None and fact_sources:
+        result.checks.append(Check("the external-facts register exists (FACT: sources resolve against it)", 1,
+                                   failure=f"{facts_path or '(none)'} not found — pass --external-facts <path>"))
+    elif facts is None:
+        result.notes.append(("notice", f"external-facts register {facts_path or '(none)'} not found — no FACT: source to check"))
     bad_sources = unresolved_sources(plan, tcs, source, catalogue, design, facts)
     resolved = Check("every oracle source resolves (ABSD:ORACLE-1)", len(tcs), bad_sources, noun="unresolved")
     seams = plan.defined("tseam")

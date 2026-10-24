@@ -218,7 +218,23 @@ class CoverageGateTests(unittest.TestCase):
         self.write("a/coverage.xml", cobertura([]))
         code, out = self.run_gate("--min-total", "0")
         self.assertEqual(code, 2)
-        self.assertIn("No coverable lines", out)
+        self.assertIn("no coverable lines in the coverage reports for", out)
+
+    def test_every_glob_must_contribute_coverable_lines(self):
+        self.write("unit/coverage.xml", cobertura([("Shop.Cart", "src/Cart.cs", [1] * 6)]))
+        self.write("web/lcov.info", "TN:\nend_of_record\n")   # the web suite ran no instrumented code
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = coverage_gate.main(["--reports", os.path.join(self.root, "unit", "*.xml"),
+                                       "--reports", os.path.join(self.root, "web", "lcov.info"), "--min-total", "0"])
+        self.assertEqual(code, 2)
+        self.assertIn("no coverable lines in the coverage reports for: " + os.path.join(self.root, "web", "lcov.info"),
+                      out.getvalue())
+        out = io.StringIO()
+        with redirect_stdout(out):   # two globs over the same file both count it
+            code = coverage_gate.main(["--reports", os.path.join(self.root, "unit", "*.xml"),
+                                       "--reports", os.path.join(self.root, "unit", "coverage.xml"), "--min-total", "0"])
+        self.assertEqual(code, 0, out.getvalue())
 
     def test_layers_and_json_output(self):
         self.write("a/coverage.xml", cobertura([

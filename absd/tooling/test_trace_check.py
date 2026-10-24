@@ -165,6 +165,7 @@ class TraceCheckTests(unittest.TestCase):
         self.root = self.dir.name
         self.working = os.path.join(self.root, "working")
         self.catalogue = self.write("catalogue.md", CATALOGUE)
+        self.facts = self.write("facts.md", "| EXT | Fact | Status |\n|---|---|---|\n| EXT-MAIL-1 | size limit | VERIFIED 2026-10-01 |\n")
         os.environ.pop("GITHUB_STEP_SUMMARY", None)
         for name, text in (("analysis.md", ANALYSIS), ("design.md", DESIGN), ("architecture.md", ARCHITECTURE),
                            ("architecture/01-core.md", ARCHITECTURE_PART), ("test_plan.md", TEST_PLAN),
@@ -200,7 +201,8 @@ class TraceCheckTests(unittest.TestCase):
         return code, out.getvalue()
 
     def run_gate(self, name, *args):
-        return self.run_main("gate", name, "--working", self.working, "--catalogue", self.catalogue, *args)
+        return self.run_main("gate", name, "--working", self.working, "--catalogue", self.catalogue,
+                             "--external-facts", self.facts, *args)
 
     def run_json(self, *args):
         out_json = os.path.join(self.root, "out.json")
@@ -209,7 +211,8 @@ class TraceCheckTests(unittest.TestCase):
             return code, out, json.load(f)
 
     def gate_json(self, name, *extra):
-        code, out, data = self.run_json("gate", name, "--working", self.working, "--catalogue", self.catalogue, *extra)
+        code, out, data = self.run_json("gate", name, "--working", self.working, "--catalogue", self.catalogue,
+                                        "--external-facts", self.facts, *extra)
         return code, out, {check["name"]: check for check in data["checks"]}
 
     def parsed(self, text):
@@ -721,6 +724,25 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(checks[name("NF")]["missing"], [])
         self.assertEqual(checks[name("NF")]["checked"], 1)
         self.assertEqual(checks[name("BR")]["missing"], ["ACC-BR-1"])
+
+    def test_gate_t_fact_sources_need_the_register(self):
+        code, out = self.run_gate("gateT", "--external-facts", os.path.join(self.root, "missing.md"))
+        self.assertEqual(code, 1)
+        self.assertIn("✗ the external-facts register exists (FACT: sources resolve against it): "
+                      + os.path.join(self.root, "missing.md") + " not found", out)
+        self.edit("working/test_plan.md", "| FACT:EXT-MAIL-1 |", "| SPEC:ACC-1.AC1 |")
+        code, out = self.run_gate("gateT", "--external-facts", os.path.join(self.root, "missing.md"))
+        self.assertNotIn("register exists", out.split("::")[0])
+        self.assertIn("no FACT: source to check", out)
+
+    def test_gate_t_architecture_source_ignores_ids_of_unknown_areas(self):
+        self.edit("working/test_plan.md", "| TC-0007 | EXT-MAIL-1 | 413 from the fake | FACT:EXT-MAIL-1 |",
+                  "| TC-0007 | EXT-MAIL-1 | 413 from the fake | FACT:EXT-MAIL-1 |\n"
+                  "| TC-0010 | clock at UTC-5, digest SHA-256 | internal | SPEC:architecture §6 |\n"
+                  "| TC-0011 | ACC-2 | internal | SPEC:architecture §6 |")
+        code, out, checks = self.gate_json("gateT")
+        bad = checks["every oracle source resolves (ABSD:ORACLE-1)"]["missing"]
+        self.assertEqual([b.split(" ")[0] for b in bad], ["TC-0011"])
 
     def test_gate_t_brief_mode_checks_the_cited_acs(self):
         self.remove("working/analysis.md")

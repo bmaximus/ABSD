@@ -29,8 +29,8 @@ usage:
                          [--catalogue absd-project/catalogue.md]
                          [--plan absd-project/working/test_plan.md]
                          [--fail-on failing,unknown,missing] [--json trace.json] [--summary-md trace.md]
-Every --junit glob must match at least one file: a suite whose results are missing did not run (ABSD:GATE-1), and is
-an input error, not a smaller report.
+Every --junit glob must match at least one file holding at least one test case: a suite whose results are missing or
+empty did not run (ABSD:GATE-1), and is an input error, not a smaller report.
 
 --fail-on categories: failing  (a requirement or planned test case failed)
                       unknown  (a test links to a requirement id not in the catalogue, or to a retired one)
@@ -101,6 +101,8 @@ def read_junit(patterns: list[str]) -> tuple[list[Case], list[str]]:
         matched = {p for p in glob.glob(pattern, recursive=True) if os.path.isfile(p)}
         if not matched:
             raise ValueError(f"No JUnit XML files found for: {pattern} (a suite whose results are missing did not run)")
+        if not any(next(ET.parse(p).getroot().iter("testcase"), None) is not None for p in matched):
+            raise ValueError(f"No test cases in the JUnit XML files for: {pattern} (a suite that ran no test did not run)")
         files |= matched
     files = sorted(files)
     cases: list[Case] = []

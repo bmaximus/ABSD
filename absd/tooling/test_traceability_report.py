@@ -243,6 +243,16 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertEqual(code, 2)   # the e2e suite left no results: it did not run
         self.assertIn("No JUnit XML files found for: " + os.path.join(self.root, "e2e", "*.xml"), out.getvalue())
 
+    def test_a_glob_whose_files_hold_no_test_case_is_an_input_error(self):
+        self.write("unit/junit.xml", junit([("a [ACC-1]", "passed", {})]))
+        self.write("phone/junit.xml", '<?xml version="1.0"?><testsuites><testsuite name="phone"/></testsuites>')
+        out = io.StringIO()
+        with redirect_stdout(out):
+            code = traceability_report.main(["--junit", os.path.join(self.root, "unit", "*.xml"),
+                                             "--junit", os.path.join(self.root, "phone", "*.xml"), "--catalogue", self.catalogue])
+        self.assertEqual(code, 2)   # the phone project ran no test
+        self.assertIn("No test cases in the JUnit XML files for: " + os.path.join(self.root, "phone", "*.xml"), out.getvalue())
+
     def test_unknown_fail_on_category_is_an_input_error(self):
         self.write("r/junit.xml", junit([("x", "passed", {})]))
         code, out = self.run_report("--catalogue", self.catalogue, "--fail-on", "nonsense")

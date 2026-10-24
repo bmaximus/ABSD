@@ -8,8 +8,9 @@ Fails the build when
      together with its reason (ABSD playbook GATE-2). Allowlist entries without a reason are themselves an error.
 
 Stale allowlist entries (units now tested or gone) are a warning, or an error with --fail-on-stale (the push lane, which
-reads every report: GATE-2 has them removed in the same change). Every --reports glob must match at least one file —
-a language or suite whose report is missing did not run (GATE-1), so it is an input error, not a smaller total.
+reads every report: GATE-2 has them removed in the same change). Every --reports glob must match at least one file
+holding at least one coverable line — a language or suite whose report is missing or empty did not run (GATE-1), so it
+is an input error, not a smaller total.
 
 A unit is a class (--unit class, the default) or a file (--unit file). In class mode, compiler-generated types fold
 into their declaring type — C# async state machines, lambdas and display classes (`Outer/<Method>d__3`, `Outer/<>c`),
@@ -81,8 +82,8 @@ def is_lcov(path: str) -> bool:
     return head.startswith(("TN:", "SF:"))
 
 
-def read_lcov(path: str, excludes: list[re.Pattern], cov: Coverage) -> None:
-    filename = ""
+def read_lcov(path: str, excludes: list[re.Pattern], cov: Coverage) -> int:
+    filename, count = "", 0
     with open(path, encoding="utf-8", errors="replace") as f:
         for raw in f:
             line = raw.strip()
@@ -97,33 +98,44 @@ def read_lcov(path: str, excludes: list[re.Pattern], cov: Coverage) -> None:
                 hit = int(hits or 0) > 0
                 cov.lines[key] = cov.lines.get(key, False) or hit
                 cov.units[filename][key] = cov.units[filename].get(key, False) or hit
+                count += 1
+    return count
 
 
 def read_reports(patterns: list[str], excludes: list[re.Pattern], unit_mode: str) -> tuple[Coverage, list[str]]:
-    found: set[str] = set()
+    """Merge every report; each glob must match a file and its files must hold a coverable line, else it did not run."""
+    matched_by: dict[str, set] = {}
     for pattern in patterns:
-        matched = {path for path in glob.glob(pattern, recursive=True) if os.path.isfile(path)}
-        if not matched:
+        matched_by[pattern] = {path for path in glob.glob(pattern, recursive=True) if os.path.isfile(path)}
+        if not matched_by[pattern]:
             raise MissingReport(f"no coverage report found for: {pattern} (a suite whose report is missing did not run)")
-        found |= matched
-    files = sorted(found)
+    files = sorted(set().union(*matched_by.values()))
     cov = Coverage()
-    for path in files:
-        if is_lcov(path):
-            read_lcov(path, excludes, cov)
-            continue
-        root = ET.parse(path).getroot()
-        for cls in root.iter("class"):
-            filename = (cls.get("filename") or "").replace("\\", "/")
-            if any(rx.search(filename) for rx in excludes):
-                continue
-            unit = normalise_unit(cls.get("name") or "", filename, unit_mode)
-            for line in cls.iter("line"):
-                key = (filename, line.get("number", ""))
-                hit = int(line.get("hits", "0") or 0) > 0
-                cov.lines[key] = cov.lines.get(key, False) or hit
-                cov.units[unit][key] = cov.units[unit].get(key, False) or hit
+    lines_in = {path: read_report(path, excludes, unit_mode, cov) for path in files}
+    for pattern in patterns:
+        if not any(lines_in[path] for path in matched_by[pattern]):
+            raise MissingReport(f"no coverable lines in the coverage reports for: {pattern} (a suite whose report is "
+                                "empty did not run)")
     return cov, files
+
+
+def read_report(path: str, excludes: list[re.Pattern], unit_mode: str, cov: Coverage) -> int:
+    """Add one Cobertura or LCOV report to cov; returns the number of coverable lines it holds (after --exclude)."""
+    if is_lcov(path):
+        return read_lcov(path, excludes, cov)
+    count = 0
+    for cls in ET.parse(path).getroot().iter("class"):
+        filename = (cls.get("filename") or "").replace("\\", "/")
+        if any(rx.search(filename) for rx in excludes):
+            continue
+        unit = normalise_unit(cls.get("name") or "", filename, unit_mode)
+        for line in cls.iter("line"):
+            key = (filename, line.get("number", ""))
+            hit = int(line.get("hits", "0") or 0) > 0
+            cov.lines[key] = cov.lines.get(key, False) or hit
+            cov.units[unit][key] = cov.units[unit].get(key, False) or hit
+            count += 1
+    return count
 
 
 def untested_units(cov: Coverage, min_lines: int) -> list[tuple[str, int]]:
