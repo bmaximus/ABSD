@@ -1,8 +1,8 @@
 # Test strategy — types, applicability, suite shape
 
 Code **STRAT**. Which test types a product runs per interface profile, what each answers, where and when it runs,
-how `TESTING.md` decides that once, test ids, component tests. Cases: VAR; expected
-values: ORACLE; thresholds and gate mechanics: GATE.
+how `TESTING.md` decides that once, test ids, component tests. Cases: VAR; expected values: ORACLE; thresholds and
+gate mechanics: GATE.
 
 ## Checklist
 

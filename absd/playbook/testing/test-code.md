@@ -1,9 +1,9 @@
 # Test code — tests that prove what they claim
 
-Code **TCQ**. The quality of the test code itself, at every level and in every profile: integrity, naming with ids,
-shape, builders, unique data, determinism, waiting, isolation, fixtures, diagnostics, outcome assertions, tested
-helpers, independence from production code, test-only seams and the review checklist. Cases: VAR; expected values:
-ORACLE; harness: INTEG, E2E; retries and static checks: GATE; flakes as defects: ESC.
+Code **TCQ**. The quality of test code at every level and profile: integrity, names with ids, shape, builders, unique
+data, determinism, waiting, isolation, fixtures, diagnostics, outcome assertions, tested helpers, independence from
+production code, test-only seams, review checklist. Cases: VAR; expected values: ORACLE; harness: INTEG, E2E; retries
+and static checks: GATE; flakes as defects: ESC.
 
 ## Checklist
 
@@ -52,8 +52,8 @@ regression test adds `(DEF-n, date: what broke)` (ESC-3). Each test file opens w
 and how.
 - *Why:* a red name must tell the next agent which rule broke without opening the code; a lost id leaves a
   requirement looking untested (LL-36); "every TC exactly once" contradicted parametrized tests (LL-57).
-- *Check:* each planned TC appears on ≥ 1 testcase of exactly one test function; lint rejects names without a TC token
-  or matching the generic-name list.
+- *Check:* the Auditor (L6) and, if the stack has one, the test-tree lint check each planned TC is on ≥ 1 testcase of
+  exactly one test function; lint rejects names without a TC token or matching the generic-name list.
 - *Applies when:* always.
 - *Provenance:* LL-36 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -247,7 +247,7 @@ public void Exactly_at_the_deadline_the_booking_is_locked()
 ```
 
 ```python
-proves = pytest.mark.proves                                          # the TRACE-5 linking helper; one TC per data row
+proves = pytest.mark.proves  # the TRACE-5 linking helper; one TC per data row
 @pytest.mark.parametrize("qty,price,expected", [
     pytest.param(3, "19.99", "59.97", id="3 x 19.99", marks=proves("TC-0043", "ORD-BR-1")),
     pytest.param(7, "0.15", "1.05", id="7 x 0.15", marks=proves("TC-0044", "ORD-BR-1"))])

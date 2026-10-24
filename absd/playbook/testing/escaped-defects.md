@@ -1,9 +1,9 @@
 # Escaped defects — every slip improves the tests
 
 Code **ESC**. What happens when a defect gets past the check that should have caught it: the main rule, what counts as
-an escape, the regression test, the why-missed taxonomy, root-cause routing, the sweep, the log, closing the loop into
-the kit, recurrence, flakes and batching. Route: Mode D (`absd/RULES.md` §2). Log: `ESCAPED-DEFECTS.md` (Tester;
-template `absd/templates/project/ESCAPED-DEFECTS.md`).
+an escape, regression tests, why-missed taxonomy, root-cause routing, sweep, log, kit loop, recurrence, flakes,
+batching. Route: Mode D (`absd/RULES.md` §2). Log: `ESCAPED-DEFECTS.md` (Tester; template
+`absd/templates/project/ESCAPED-DEFECTS.md`).
 
 ## Checklist
 
@@ -17,9 +17,9 @@ template `absd/templates/project/ESCAPED-DEFECTS.md`).
 - [ ] Root-cause class with citations (external-fact gap: EXT-4 at Reproduce); the missing gate named (ESC-6)
 - [ ] Whole-repository sweep: searches, hits, dispositions; new DEFs to the backlog; Auditor reruns (ESC-7)
 - [ ] Log row at Verify, every column filled, Lesson `pending H` (ESC-8)
-- [ ] Each row closed in `lessons.md`; the Log step fills Lesson before the archive (ESC-9)
+- [ ] Each row closed in `lessons.md`; the Log step sets Lesson to that row's `<slug>-L<n>` before the archive (ESC-9)
 - [ ] A class seen before gets a mechanical control, not one more case (ESC-10)
-- [ ] Flake in this cycle's tests: reproduced deterministically, fixed now; older test → backlog DEF (ESC-11)
+- [ ] Flake in this cycle's tests: a TF, reproduced deterministically, fixed now; older test → backlog DEF (ESC-11)
 - [ ] A batch: one root-cause class and route; each DEF keeps its own records (ESC-12)
 
 ## Rules
@@ -39,10 +39,10 @@ archive is refused until step 4's row exists with its Lesson filled (ESC-9).
 **ESC-2** — Treat as an escape every defect found after its change passed its own push lane (by a user, the live
 system, out-of-scope exploration, the nightly or live lane, CI on a later change, a later audit or Mode X, reasoning).
 The Manager reserves `DEF-n` in the `context.md` §16 defect backlog (found by, evidence, severity); Mode D copies it
-into `defect.md`, however small (a live Critical is first contained by the user's rollback or flag-off: a decision +
-RISK); nothing is fixed outside a mode. The cycle's own findings are no escapes: push-lane and Verify failures are
-TFs; an in-cycle audit (`F-n`) or Design QA (`DQ-n`) finding is routed at Gate 3 — the Tester adds a failing TC (Verify
-sub-step; an amendment if an oracle changes) → Builder Fix → Verify → re-audit or re-QA.
+into `defect.md`, however small (a live Critical is contained first, DOD-4 row 6); nothing is fixed outside a mode.
+The cycle's own findings are no escapes: push-lane and Verify failures are TFs; an in-cycle audit (`F-n`) or Design QA
+(`DQ-n`) finding is routed at Gate 3 — the Tester adds a failing TC (Verify sub-step; an amendment if an oracle
+changes) → Builder Fix → Verify → re-audit or re-QA.
 - *Why:* a whole suite and a dozen fixes were made outside the pipeline, with no route, audit or record (LL-27); the
   one slip CI caught shows the target: the suite finds it, not people (LL-20); an audit finding fixed as an escape had
   no failing test first (LL-55).
@@ -129,9 +129,9 @@ only in the Log step (ESC-9).
 closes it with exactly one of: a playbook change proposed to ABSD through enrichment (a rule, taxonomy class or
 checklist item; ENR-1), or "rule existed, not followed → enforcement change" — the gate, lint, hook, fixture or template
 that makes the rule mechanical, with its commit. Then the Tester's Log step (before Archive; documentation only, no
-re-audit, one commit changing only Lesson cells) fills each Lesson cell with the `<slug>-L<n>` the Manager's brief
-passes. LL ids, once the kit accepts a proposal, go into `lessons.md`, never the log (the LEDGER counts the escape under
-its gate, ENR-9).
+re-audit, one commit changing only Lesson cells) fills each Lesson cell with the `<slug>-L<n>` id of that `lessons.md`
+row, from the Manager's brief — never free text or an `enforcement:` form. LL ids go into `lessons.md`, never the log
+(the LEDGER counts the escape under its gate, ENR-9).
 - *Why:* a log naming only the product's own fix leaves the kit unchanged; a rule relying on discipline fails again.
 - *Check:* the archive is refused while a row of the cycle reads `pending H`; each Lesson id resolves in `lessons.md`,
   whose status is proposed, sent or accepted, or names the enforcement commit.
@@ -140,7 +140,7 @@ its gate, ENR-9).
 
 **ESC-10** — Escalate recurrence: when a row's primary class already appears in an earlier row of this log or on the
 LEDGER, the fix must be mechanical — a gate, lint, generator, shared fixture, fake-parity test or plan-template item
-that fails on the whole class — and the row reports "rule existed, not followed" against that rule.
+that fails on the whole class — and its `lessons.md` row reports "rule existed, not followed" against that rule.
 - *Why:* assumption-fed fakes escaped three times: a time zone, a calendar, a deploy platform faked as synchronous
   (LL-1, LL-3, LL-7).
 - *Check:* the Auditor groups log rows by class; a repeated class without a mechanical control in the same DEF is
@@ -149,16 +149,16 @@ that fails on the whole class — and the row reports "rule existed, not followe
 - *Provenance:* LL-1, LL-3, LL-7 (KatenatsioTipster, 2026-10)
 
 **ESC-11** — Treat a flaky test as a defect: a pass-on-retry (GATE-6), a failure only in the random-order, repeated or
-parallel nightly run, or only on one host. In a test added or changed this cycle, reproduce it deterministically now —
-replay the order seed, repeat, parallelize, hold the response, pin the clock — and fix the cause: test at fault → the
-harness (isolation, waits, injected time, unique data; TCQ), evidence the seeded reproduction red, then green; product
-race → a TF for Builder Fix with a VAR-12 test. A flake in an older test is a backlog DEF, and a TF of this cycle only
-if it leaves an in-scope requirement unverified. Never retry, quarantine, skip or lengthen a timeout to get green
-(TCQ-1).
+parallel nightly run, or only on one host. In a test added or changed this cycle it is a TF now: reproduce it
+deterministically — replay the order seed, repeat, parallelize, hold the response, pin the clock — and fix the cause:
+test at fault → the harness (isolation, waits, injected time, unique data; TCQ), the seeded reproduction red, then
+green; product race → Builder Fix with a VAR-12 test. A flake in an older test is a backlog DEF (`context.md` §16),
+and a TF of this cycle only if it leaves an in-scope requirement unverified; one that turns the acceptance job red
+blocks the merge until fixed through Mode D. Never retry, quarantine, skip or lengthen a timeout to get green (TCQ-1).
 - *Why:* a silent retry turns a flaky proof green and verified; a this-cycle flake routed to a later Mode D left Gate 3
   blocked (LL-57).
-- *Check:* the flake report in `test_report.md` maps each retried test to its harness fix (seeded red, then green), TF
-  or DEF.
+- *Check:* the flake report in `test_report.md` maps each retried test to its TF (harness fix: seeded red, then green;
+  or Builder Fix) or DEF.
 - *Applies when:* any pass-on-retry, order-only, parallel-only or host-only failure.
 - *Provenance:* industry baseline; LL-57 (ABSD v2 kit review, 2026-10)
 
@@ -198,7 +198,3 @@ scope growth; a batch whose items turn out to need different routes is split at 
 | 22 | Specified step untested | One step of a flow half-done while the flow passes (LL-51) | Test per step on the persisted end state · every numbered flow step | INTEG-11 |
 
 A defect fitting no class gets "new class" plus a proposed row; ESC-9 sends it to the kit.
-
-## Log format
-
-Columns and what to write in each: `absd/templates/project/ESCAPED-DEFECTS.md` (ESC-8, ESC-9).
