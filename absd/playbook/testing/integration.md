@@ -61,7 +61,7 @@ migration gates (from empty, previous-release upgrade, drift) are GATE-12 in
 
 **INTEG-4** — Declare the isolation strategy in `TESTING.md` and enforce it: one shared host per run with unique data per test, or per-test isolation (transaction rollback, schema or store per test) where cheap; tests assert only on data they created; global aggregates run in their own tenant or store, or assert relative to a snapshot taken during arrange; clock, fakes and environment reset automatically after every test.
 - *Why:* a top-N visibility test passed only because the runner happened to order it before a test that created a larger value; manual resets in `finally` blocks leak the day one is forgotten.
-- *Check:* the nightly run in randomized order with parallel workers passes (GATE rules in `absd/playbook/testing/gates.md`); the Auditor rejects global-count assertions in a shared store, fixed ports (ephemeral only) and unbounded waits; serial groups exist only for documented process-global state.
+- *Check:* the nightly run in randomized order with parallel workers passes (GATE-6, GATE-9 in `absd/playbook/testing/gates.md` and `absd/playbook/testing/ci-and-release-gates.md`); the Auditor rejects global-count assertions in a shared store, fixed ports (ephemeral only) and unbounded waits; serial groups exist only for documented process-global state.
 - *Applies when:* always.
 - *Provenance:* industry baseline
 

@@ -6,7 +6,7 @@ included; its facts — evidence, status, fail-closed, the fact checklist — ar
 `absd/playbook/testing/external-facts.md`, and plans cite them as `FACT:EXT-<SYS>-n` (ORACLE-1). Contract tests are
 **M** in every profile once any external system exists (data-pipeline: every source and sink;
 `absd/playbook/testing/strategy.md`). Harness: INTEG rules in `absd/playbook/testing/integration.md`; nightly and live
-jobs: GATE rules in `absd/playbook/testing/gates.md`; secret canaries: SEC rules in `absd/playbook/security/baseline.md`.
+jobs: GATE-9 in `absd/playbook/testing/ci-and-release-gates.md`; secret canaries: SEC rules in `absd/playbook/security/baseline.md`.
 
 ## Checklist
 
