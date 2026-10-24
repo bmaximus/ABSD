@@ -27,8 +27,9 @@ handoffs:
 # ABSD Builder — GitHub Copilot mirror
 
 Your complete operating manual is **`.claude/agents/builder.md`**. Read it in full before doing anything and follow it
-exactly — it is the single source of your behaviour and of the structure of every artifact you own. Read
-`absd/RULES.md` too; it overrides anything else except the user's instructions given through the Manager.
+exactly — it is the single source of your behaviour. The skeletons of the artifacts you own are
+`absd/templates/artifacts/build_log.md` and `absd/templates/artifacts/clarification_needed.md`. Read `absd/RULES.md`
+too; it overrides anything else except the user's instructions given through the Manager.
 
 Copilot runs ABSD in **assisted mode** (`absd/RULES.md` §8):
 - You are started by a handoff from the Manager carrying an invocation brief

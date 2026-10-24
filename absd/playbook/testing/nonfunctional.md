@@ -1,9 +1,10 @@
-# Non-functional testing — accessibility, performance, resilience, visual, operability
+# Non-functional testing — accessibility, resilience, visual, operability
 
-Codes **A11Y** (accessibility), **PERF** (performance budgets), **RESIL** (behaviour when dependencies fail), **VIS**
-(gallery, visual regression, golden output), **OPS** (first start, deploy, rollback, backup, docs, logs, alerts). Each
-turns a REQ-NF — RULES rule 8's operability defaults included — into a measurable TC (STRAT-10). Related: DSN, LOC,
-VAR-14 (fault injection), FAKE-7 (failure classes), GATE (`absd/playbook/testing/gates.md`).
+Codes **A11Y** (accessibility), **RESIL** (behaviour when external or owned dependencies fail), **VIS** (gallery,
+visual regression, golden output), **OPS** (first start, deploy, rollback, backup, docs, logs, alerts). Each turns a
+REQ-NF — RULES rule 8's operability defaults included — into a measurable TC (STRAT-10). Performance budgets, load and
+interface compatibility (PERF, COMPAT): `absd/playbook/testing/load-and-compatibility.md`. Related: DSN, LOC, VAR-14
+(fault injection), FAKE-7 (failure classes), GATE (`absd/playbook/testing/gates.md`).
 
 ## Checklist
 
@@ -11,15 +12,13 @@ VAR-14 (fault injection), FAKE-7 (failure classes), GATE (`absd/playbook/testing
 - [ ] Every journey keyboard-only, with designed focus and linked labels (A11Y-2)
 - [ ] Rendered contrast per state and theme; zoom, reflow and reduced-motion runs (A11Y-3)
 - [ ] CLI: no escape codes under `NO_COLOR` or a pipe; no colour-only meaning (A11Y-4)
-- [ ] Budgets: metric, percentile, volume-max data, environment, threshold; breach = RED (PERF-1)
-- [ ] Round trips constant from 1 item to volume max (no N+1); indexes used (PERF-2)
-- [ ] Payload and bundle sizes budgeted; idle traffic = specified polling only (PERF-3)
 - [ ] Timeouts on every outbound call; safe retries only, backoff with jitter (RESIL-1)
 - [ ] Partial failure specified per batch and step; reruns complete without duplicates (RESIL-2)
 - [ ] Dependency down: the rest works, dependents degrade, unsure decisions refuse (RESIL-3)
+- [ ] Owned store/broker restart mid-request, pool exhausted, disk full: specified outcome, recovery (RESIL-4)
 - [ ] Gallery of every SCR × state × device class × theme for Design QA (VIS-1)
-- [ ] Protected screens match approved baselines; none regenerated to pass (VIS-2)
-- [ ] CLI and data golden outputs compared exactly after declared normalisations (VIS-3)
+- [ ] Protected screens match approved baselines; changed only by a Designer row or a user-approved amendment (VIS-2)
+- [ ] CLI and data golden outputs cite their approved source; compared exactly after declared normalisations (VIS-3)
 - [ ] Shipped artifact boots on empty infrastructure with production configuration (OPS-1)
 - [ ] Deployed digest = tested digest; runtime facts checked in it (OPS-2)
 - [ ] Deploys verified (settled, version, smoke, journey, error rate); failure → safe rollback + DEF (OPS-3)
@@ -68,37 +67,6 @@ progress on stderr; prompts only on a TTY (DSN-17).
 - *Applies when:* cli with human-facing output.
 - *Provenance:* industry baseline
 
-### Performance (PERF)
-
-**PERF-1** — Turn every performance REQ-NF and every list, search, report or batch operation into a budget TC — metric,
-percentile, dataset (Data Volume Profile max, adversarial order, VAR-7), environment, threshold from `analysis.md`
-(none = a spec defect at Plan & Bind) — measured where the user waits (http-api p95 per operation; web-ui and
-native-app time to usable content and input response on the throttled phone project; cli wall time; library time per
-call; data-pipeline throughput and lag) after warm-up over a stated sample: per push a smoke of deterministic proxies
-and a generous ceiling, nightly the full sample on a fixed environment; a breach is RED, never re-run to pass (GATE-6).
-- *Why:* performance-at-volume criteria passed audits by code reading (LL-45); three-item fixtures hid what volume broke
-  (LL-4).
-- *Check:* budget rows in `test_plan.md` carry all five fields; reports show sample, percentile, environment and trend.
-- *Applies when:* a triggered Performance row; always for lists, search, reports and batches.
-- *Provenance:* LL-4, LL-45 (KatenatsioTipster, 2026-10)
-
-**PERF-2** — Count round trips to stores and owned services per list, search, report and batch operation at 1 item and
-at the Data Volume Profile max, and assert the specified constant at both sizes (no N+1); at max volume, assert each
-budgeted query uses the index `architecture.md` names (ARCH-15) on the production engine.
-- *Why:* per-row queries and missing indexes stay invisible at fixture size.
-- *Check:* a count assertion per operation via a statement interceptor or log; a query-plan check nightly.
-- *Applies when:* the product owns a store or calls owned services per item.
-- *Provenance:* industry baseline
-
-
-**PERF-3** — Budget what crosses the wire: response bytes at max volume with the maximum page size enforced, initial and
-per-route bundle size (web-ui), package size (library); and idle traffic from the network log (VAR-17): no request on a
-settled screen except specified polling, counted exactly per interval (DSN-12).
-- *Why:* consoles re-fetched every second while idle and wiped a dialog being typed in (LL-12).
-- *Check:* size assertions per operation and build; an idle TC per screen with timers, window > its longest timer.
-- *Applies when:* http-api, web-ui, native-app, library; the idle part wherever timers or polling exist.
-- *Provenance:* LL-12 (KatenatsioTipster, 2026-10)
-
 ### Resilience (RESIL)
 
 **RESIL-1** — Give every outbound call — external system, owned service, store — connect and total timeouts inside its
@@ -133,6 +101,19 @@ decisions lacking verified data refuse or stay pending (EXT-1), never act on a d
 - *Applies when:* any dependency that can be unavailable.
 - *Provenance:* LL-1, LL-11, LL-44 (KatenatsioTipster, 2026-10)
 
+**RESIL-4** — Fail what the product owns, not only external systems: restart the store and the broker mid-request and
+mid-job, exhaust the connection pool (work beyond its size; a leaked connection), fill the product's own disk or volume
+(logs, uploads, temporary files, local queue). Assert the behaviour `architecture.md` specifies for each: requests time
+out or refuse with their designed outcome (RESIL-1, RESIL-3), nothing is half-written (RESIL-2), health reports
+degraded, and the product recovers by itself once the resource returns — no restart, no duplicate effect.
+- *Why:* only external systems were failed in tests; a store restart, an exhausted pool or a full disk are routine
+  production events no fake of an external system exercises (LL-57).
+- *Check:* a TC per owned dependency × {restart mid-request, exhaustion} and a disk-full TC per written path, run
+  nightly on the real-boundary harness (INTEG-1); recovery time reported.
+- *Applies when:* the product owns a store, broker, cache, pool or writable volume; cli and library: the disk-full case
+  for the files they write.
+- *Provenance:* LL-57 (ABSD v2 kit review, 2026-10)
+
 ### Visual and golden output (VIS)
 
 **VIS-1** — Capture the Design QA gallery at every Verify: one screenshot per SCR × state × device class × theme of
@@ -147,22 +128,26 @@ in `test_report.md`.
 **VIS-2** — Compare every protected screen (DSN-21) on every push with its Designer-approved baseline per device class,
 theme and engine, rendered deterministically (bundled fonts, settled motion, pinned data and displayed time, masks only
 where `design.md` marks content dynamic) within the pixel tolerance in `TESTING.md`; a difference fails with baseline,
-actual and diff images; a baseline changes only with a Designer approval row, never regenerated to pass (GATE-6).
-- *Why:* "no visual regression" was required every cycle and never automated (LL-53).
-- *Check:* baseline hashes equal the approved rows in `design_review.md`; the Auditor diffs baseline changes since
-  T-SHA.
+actual and diff images. A baseline changes only with a Designer approval row for a design change; regenerating one
+without such a row is a Gate T amendment the user approves (ORACLE-2); never regenerated to pass (GATE-6).
+- *Why:* "no visual regression" was required every cycle and never automated (LL-53); two manuals named different
+  approvers (LL-57).
+- *Check:* baseline hashes equal the approved rows in `design_review.md` or a user-approved amendment in
+  `test_plan.md`; the Auditor diffs baseline changes since the first T-SHA.
 - *Applies when:* web-ui, native-app.
-- *Provenance:* LL-53 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-53 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
-**VIS-3** — Pin cli and data outputs with owner-approved golden files (ORACLE-4): cli stdout, stderr and exit code per
-command × {TTY, pipe, `NO_COLOR`, narrow, `--json`}; data-pipeline the output of a recorded input dataset (rows, keys,
-types, units, zones, specified order); compare exactly after normalising only the volatile fields `TESTING.md` lists;
-never regenerate to pass (GATE-6).
-- *Why:* unreviewed snapshots copy whatever the code printed into the oracle.
-- *Check:* an approval row per golden file (Designer for human output, Tester citing the spec otherwise); failing runs
-  show the diff.
+**VIS-3** — Pin cli and data outputs with golden files that cite their approved source (ORACLE-4): cli stdout, stderr
+and exit code per command × {TTY, pipe, `NO_COLOR`, narrow, `--json`}; data-pipeline the output of a recorded input
+dataset (rows, keys, types, units, zones, specified order), whose expected rows are the Analyst's example table for
+that input in `analysis.md` (a `SPEC:` source); compare exactly after normalising only the volatile fields `TESTING.md`
+lists; never regenerate to pass (GATE-6).
+- *Why:* unreviewed snapshots copy whatever the code printed into the oracle; three approvers were named for one
+  pipeline golden dataset (LL-56).
+- *Check:* each golden file cites its `SPEC:` source; human-facing output (cli output, reports, rendered documents) also
+  has a Designer approval row in `design_review.md`; failing runs show the diff.
 - *Applies when:* cli, data-pipeline (golden row triggered); library example output.
-- *Provenance:* industry baseline
+- *Provenance:* industry baseline; LL-56 (ABSD v2 kit review, 2026-10)
 
 ### Operability (OPS)
 

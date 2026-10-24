@@ -1,26 +1,28 @@
-# Test design — variation catalogue and techniques
+# Test design — techniques
 
 Code **VAR**. How the Tester turns requirements, rules, state machines, data flows and risks into test cases before
-code exists — the HOW behind every Gate T obligation. Expected values: ORACLE (`absd/playbook/testing/oracles.md`);
-harness: INTEG (`absd/playbook/testing/integration.md`).
+code exists — the HOW behind every Gate T obligation (VAR-1 to VAR-20). The variation catalogue and the dimension rules
+VAR-21 to VAR-25: `absd/playbook/testing/variation-catalogue.md`. Expected values: ORACLE
+(`absd/playbook/testing/oracles.md`); harness: INTEG (`absd/playbook/testing/integration.md`).
 
 ## Checklist
 
 - [ ] Each catalogue dimension per plan item: TC ids or N/A with reason (VAR-1)
+- [ ] Caches, intervals, partial updates, overrides, sources and channels walked (VAR-21–VAR-25)
 - [ ] One parameterised row per equivalence class and variant (VAR-2)
 - [ ] Every limit: below/at/above, inclusivity named, other representation (VAR-3)
-- [ ] Interacting rules → decision table; one tie per tie-break level (VAR-4)
+- [ ] Interacting rules → decision table; one tie per tie-break level; equal-by-maths values tie (VAR-4)
 - [ ] Every valid transition with side effects; every invalid one rejected (VAR-5)
-- [ ] Every device/runtime class is its own target (VAR-6)
+- [ ] Every device/runtime class and audience rendering engine is its own target (VAR-6)
 - [ ] Data at Data Volume Profile max; the special item never first (VAR-7)
 - [ ] Zone midnights, DST, period ends; one foreign zone/locale run (VAR-8)
 - [ ] ≥ 3 parameters → all pairs; full product on money/time/access (VAR-9)
 - [ ] Principal grid; every hat; entitlement changes seen live (VAR-10)
 - [ ] Absent, malformed, hostile, forged values: tested meaning (VAR-11)
-- [ ] Races forced deterministically; late responses ignored (VAR-12)
+- [ ] Races forced deterministically; late responses ignored; race detector nightly (VAR-12)
 - [ ] Re-runnable operations run twice; no duplicate side effects (VAR-13)
 - [ ] Every failure mode and error-catalogue entry injected (VAR-14)
-- [ ] Property-based tests on invariants; seed printed, failures kept (VAR-15)
+- [ ] Property-based tests on invariants; schema fuzz of public operations, never a 5xx (VAR-15)
 - [ ] Metamorphic tests on every unordered or partitioned source (VAR-16)
 - [ ] Idle budget; edits outlive the longest timer (VAR-17)
 - [ ] Every data flow has a chain TC from a recorded payload (VAR-18)
@@ -29,8 +31,8 @@ harness: INTEG (`absd/playbook/testing/integration.md`).
 
 ## Rules
 
-**VAR-1** — Apply the variation catalogue (below) to every in-scope requirement, rule, state machine, data flow and
-risk: `test_plan.md` marks each relevant dimension "covered → TC ids" or "N/A — reason" and names the technique used.
+**VAR-1** — Apply the variation catalogue (`absd/playbook/testing/variation-catalogue.md`) to every in-scope
+requirement, rule, state machine, data flow and risk: `test_plan.md` marks each relevant dimension "covered → TC ids" or "N/A — reason" and names the technique used.
 - *Why:* interacting rules, midnights, re-runs and volume each slipped because nobody walked a list (LL-9, LL-45).
 - *Check:* Gate T: no blank cell in the plan's dimension table; the Auditor samples N/A reasons.
 - *Applies when:* every test plan.
@@ -58,11 +60,15 @@ valid, first overflow. Assert the spec's value, never the code's constant.
 **VAR-4** — When conditions or rules interact (precedence, override, dominance, eligibility + ordering, roll-up of
 child states), write a decision table in `test_plan.md` — every combination, or collapsed rows with the reason — and
 test each row. Roll-ups: each state alone, each adjacent dominance pair, all-weakest, empty. Orderings: one constructed
-tie per tie-break level (assert the tie, then the order) down to a unique key; eligibility tested apart from order.
-- *Why:* ranking, disqualification and prize split, each tested alone, together gave wrong prize positions (LL-9).
-- *Check:* a table per BR citing another BR; rows map to TCs; reorder mutants killed.
+tie per tie-break level (assert the tie, then the order) down to a unique key; values equal by maths (equal ratios from
+different operands, a sum taken in another order) must tie — compared at the specified precision, never as raw floats;
+eligibility tested apart from order.
+- *Why:* ranking, disqualification and prize split, each tested alone, together gave wrong prize positions (LL-9);
+  floating-point ties were mined as untested (LL-57).
+- *Check:* a table per BR citing another BR; rows map to TCs; reorder mutants killed; a tie row built from different
+  operands per ranking.
 - *Applies when:* interacting BRs, derived statuses, rankings, permission overrides.
-- *Provenance:* LL-9 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-9 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **VAR-5** — For every state machine test every state × event: each valid transition (new state and side effects —
 audit row, notification, renumbering of an ordered set), each invalid one rejected with the specified error and the
@@ -74,15 +80,17 @@ once end to end through every role that touches it.
 - *Provenance:* LL-9, LL-51 (KatenatsioTipster, 2026-10)
 
 **VAR-6** — Treat every supported device or runtime class as a separate target with its own project and result:
-web-ui phone (touch, small viewport; ON unless waived in `context.md`) ≠ desktop, tablet or landscape when declared;
-native-app each platform and device class; cli each OS, shell, terminal width, TTY vs pipe; library each supported
-runtime or language version; http-api and data-pipeline each declared deployment runtime. Per input mode test what
-only it breaks: hover-only affordances, touch targets, overscroll in scroll containers, on-screen keyboard, keyboard-only.
-- *Why:* on a phone a swipe reloaded the app and lost input, and a hover-only control was unreachable (LL-4, LL-16).
-- *Check:* each class in `context.md` has a project running every journey; gestures emulation misses are on the
-  Mode R real-device list.
+web-ui phone (touch, small viewport; ON unless waived in `context.md`) ≠ desktop, tablet or landscape when declared,
+and one project per rendering engine the `context.md` audiences use (e.g. Chromium, Gecko, WebKit), the phones'
+engine in the push lane; native-app each platform and device class; cli each OS, shell, terminal width, TTY vs pipe;
+library each supported runtime or language version; http-api and data-pipeline each declared deployment runtime. Per
+input mode test what only it breaks: hover-only affordances, touch targets, overscroll in scroll containers, on-screen keyboard, keyboard-only.
+- *Why:* on a phone a swipe reloaded the app and lost input, and a hover-only control was unreachable (LL-4, LL-16);
+  one browser engine stood in for every phone until release (LL-57).
+- *Check:* each class and engine in `context.md` has a project running every journey; gestures emulation misses are on
+  the Mode R real-device list.
 - *Applies when:* the device/runtime row is M or triggered R.
-- *Provenance:* LL-4, LL-16 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-4, LL-16 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **VAR-7** — Build test data, fakes and seeds at production volume — at least the Data Volume Profile max per collection,
 always more than one page — ordered adversarially: the special item (default, earliest, highest, the one under test)
@@ -91,7 +99,7 @@ Assert the full order, not only the first element.
 - *Why:* a three-group fake (real: hundreds) always put the special item first, hiding a wrong default and a
   phone-only failure (LL-4).
 - *Check:* fake/seed counts match the plan, special item not first; max-volume list TCs also assert latency and
-  query count (PERF in `absd/playbook/testing/nonfunctional.md`).
+  query count (PERF in `absd/playbook/testing/load-and-compatibility.md`).
 - *Applies when:* lists, search, grouping, pagination, ranking, defaults, batches.
 - *Provenance:* LL-4 (KatenatsioTipster, 2026-10)
 
@@ -141,11 +149,14 @@ success, never a silent default.
 **VAR-12** — Force every race deterministically (barriers, controllable fakes, held responses — never sleeps):
 concurrent writers of one record (one wins, the other gets the specified conflict, no corruption), double submit (one
 effect), overlapping job runs (prevented or safe), conflicting actions inside a debounce or latency window (last intent
-wins; late responses ignored), concurrent first cache access, cancellation.
-- *Why:* a filter clicked right after typing was overwritten by the delayed search reload (LL-20).
-- *Check:* each shared record, job and async input has a race TC; nightly repeat runs stay green.
+wins; late responses ignored), concurrent first cache access, cancellation. Where the runtime has a race detector or
+thread sanitizer (e.g. a race-enabled build, ThreadSanitizer), the nightly runs the concurrency suites under it.
+- *Why:* a filter clicked right after typing was overwritten by the delayed search reload (LL-20); runtime race
+  detectors were never run (LL-57).
+- *Check:* each shared record, job and async input has a race TC; nightly repeat runs stay green; the detector run
+  reports zero races.
 - *Applies when:* shared records, jobs, async UI, caches, multiple instances, consumers.
-- *Provenance:* LL-20 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-20 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **VAR-13** — Run every operation specified as re-runnable (retry, job, recompute, import, migration, backfill, handler,
 replayed batch, PUT-style update) twice: snapshot the full state, rerun, assert identical state, zero changes
@@ -170,11 +181,15 @@ Invalid input makes zero external calls; jobs crash and retry from every step.
 **VAR-15** — Back example tests with property-based tests wherever a rule has an invariant: parsers and normalisers
 (idempotent, round trip), money (conservation, rounding once), rankings (ranks permute 1..n), period generators (no gap
 or overlap). Generators include the VAR-2, VAR-3 and VAR-11 classes; the seed is fixed and printed; each shrunk failure
-becomes a literal example row (e.g. FsCheck, Hypothesis, fast-check).
-- *Why:* examples miss inputs nobody imagined; one invariant checks thousands.
-- *Check:* CI output shows each seed; kept failing seeds exist as example rows.
-- *Applies when:* parsers, normalisers, money, ranking, date generation, serialisation.
-- *Provenance:* industry baseline
+becomes a literal example row (e.g. FsCheck, Hypothesis, fast-check). Fuzz every public operation (route, command,
+public symbol, message handler) from its published schema nightly (e.g. Schemathesis, RESTler): any 5xx, crash,
+unhandled exception or response off the contract fails.
+- *Why:* examples miss inputs nobody imagined; one invariant checks thousands; the product's own operations were never
+  fuzzed from their schema (LL-57).
+- *Check:* CI output shows each seed; kept failing seeds exist as example rows; the fuzz job prints its seed.
+- *Applies when:* parsers, normalisers, money, ranking, date generation, serialisation; schema fuzz: every published
+  operation schema.
+- *Provenance:* industry baseline; LL-57 (ABSD v2 kit review, 2026-10)
 
 **VAR-16** — Test every computation over an unordered or partitioned source with metamorphic relations as well as
 literals: permuted input → identical output (all permutations for n ≤ 4, seeded shuffles above), duplicated input,
@@ -217,31 +232,3 @@ retry (harness: INTEG rules).
 - *Check:* mutating TCs re-read; audit and notification TCs assert actor, target and count.
 - *Applies when:* mutations, admin actions, notifications.
 - *Provenance:* LL-42 (KatenatsioTipster, 2026-10)
-
-## Variation catalogue
-
-| Dimension | Values | Technique | Mandatory when (Gate T) |
-|---|---|---|---|
-| Input classes | valid/invalid classes, enum members, variants | EP (VAR-2) | every AC, BR |
-| Limits | below/at/above, min−1…max+1, validity dates, representation | BVA (VAR-3) | every BR with a limit |
-| Numbers, money | rounding midpoint, 0, negative, overflow, zero divisor | VAR-3, VAR-11 | every calculation |
-| Interacting rules | combinations, dominance pairs, ties per level | decision table (VAR-4) | interacting BRs |
-| Lifecycle | state × event, valid + invalid, terminal, guards | state transitions (VAR-5) | every state machine |
-| Device, runtime | phone, desktop; OS, shell, width, TTY; runtimes | projects (VAR-6) | every UJ, desktop + phone |
-| Volume, order | 0, 1, page, profile max; special item not first | VAR-7 | lists, queries |
-| Time | zone midnights, DST, period ends, leap day, foreign zone | VAR-8 | every date/time rule |
-| Parameter mix | all pairs; full product on money/time/access | pairwise (VAR-9) | ≥ 3 parameters |
-| Principal | role × entitlement × owner × state; hats | VAR-10, ACCESS | every operation |
-| Absent, hostile, forged | null, garbage, Unicode, sink payloads, forged field | VAR-11 | inputs, derived fields |
-| Concurrency | writers, double submit, late response, job overlap | VAR-12 | shared records, jobs |
-| Repetition | run twice, replay, duplicate delivery | VAR-13 | jobs, retries, handlers |
-| Dependency failure | each fact-sheet failure mode, crash mid-step | fault injection (VAR-14) | every EXT, error code |
-| Generated inputs | seeded random inputs vs invariants | property-based (VAR-15) | parsers, money, ranking |
-| Order, partition | permutation, duplication, split/merge | metamorphic (VAR-16) | unordered sources |
-| Idle | untouched > longest timer | idle budget (VAR-17) | timers, polling |
-| Data flow | recorded payload → persisted → shown | chain (VAR-18) | every data flow |
-| Flags, config | off, on, toggle, shipped defaults | VAR-19 | every flag |
-| Background job | schedule, no overlap, rerun, crash/retry, flag off | VAR-12, VAR-13, VAR-14, VAR-19 | every job |
-| Side effects | re-read, absence, audit actor, notifications | VAR-20 | mutations, admin actions |
-| Locale, format | each locale; 24 h; number, currency, sign | EP + LOC rules | every displayed value |
-| UI state | empty, loading, error, partial, max | E2E, VIS rules | every SCR |

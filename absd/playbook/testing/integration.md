@@ -3,21 +3,23 @@
 Code **INTEG**. Tests that run the product's own composition root against the real things it owns at its boundary —
 database engine, broker, filesystem, child processes, its own transport — with only external systems (those in
 `EXTERNAL-FACTS.md`) and time replaced. Applicability (`absd/playbook/testing/strategy.md`): **M** web-ui, native-app,
-http-api, cli, data-pipeline · **R** library (when it does I/O); chain tests **M** except library (**R**). Fakes and
-recorded facts are FAKE/EXT rules in `absd/playbook/testing/contracts-and-fakes.md`; access cells are ACCESS rules in
-`absd/playbook/testing/access-visibility.md`; migration gates (from empty, previous-release upgrade, drift) are GATE rules
-in `absd/playbook/testing/gates.md`; test-code hygiene is TCQ in `absd/playbook/testing/test-code.md`.
+http-api, cli, data-pipeline · **R** library (when it does I/O); chain tests **M** except library (**R**). Fakes are
+FAKE rules in `absd/playbook/testing/contracts-and-fakes.md`, recorded facts EXT rules in
+`absd/playbook/testing/external-facts.md`; access cells are ACCESS rules in `absd/playbook/testing/access-visibility.md`;
+migration gates (from empty, previous-release upgrade, drift) are GATE-12 in
+`absd/playbook/testing/ci-and-release-gates.md`; test-code hygiene is TCQ in `absd/playbook/testing/test-code.md`.
 
 ## Checklist
 
 - [ ] The shipped entry point runs over its real transport against the production engine; nothing internal is mocked (INTEG-1)
 - [ ] Stores are built only by the shipped migrations and seeders; one seeded fact asserted (INTEG-2)
-- [ ] Throwaway store per run (per worker), unique name, dropped after; no registry pull in CI (INTEG-3)
+- [ ] Throwaway store per run (per worker; managed: an ephemeral namespace), unique name, dropped after; no registry pull in CI (INTEG-3)
 - [ ] Isolation strategy declared; tests assert only on their own data; doubles reset automatically (INTEG-4)
 - [ ] Time only through an injectable clock; every time rule at T−ε, T, T+ε and long after (INTEG-5)
 - [ ] Only external systems, time and randomness replaced; shipped settings; every other override has a reason (INTEG-6)
 - [ ] Data arranged through public operations as the real actor; no minted tokens, no dev-auth (INTEG-7)
-- [ ] Exact status/exit on every call; negative tests assert the machine-readable error code; error bodies schema-checked (INTEG-8)
+- [ ] Exact status/exit on every call; negative tests assert the error code; error bodies schema-checked (INTEG-8)
+- [ ] Emitted codes = catalogue, both ways; clients map every code or show the cause-neutral generic message (INTEG-8)
 - [ ] Audited actions: exactly one entry with action, actor, real actor, subject, time (INTEG-9)
 - [ ] Every data flow: chain test from a recorded real payload to the persisted AND displayed outcome (INTEG-10)
 - [ ] Every specified step of a flow asserted on the persisted end state (INTEG-11)
@@ -50,11 +52,11 @@ in `absd/playbook/testing/gates.md`; test-code hygiene is TCQ in `absd/playbook/
 - *Provenance:* LL-21 (KatenatsioTipster, 2026-10)
 - Illustration: e.g. EF Core migrations, Flyway, Alembic, Prisma Migrate.
 
-**INTEG-3** — Give each test run, and each parallel worker, its own throwaway store with a unique name, created at start and force-dropped after, runnable locally (disposable container) and in CI (a preinstalled service) without per-run registry pulls.
+**INTEG-3** — Give each test run, and each parallel worker, its own throwaway store with a unique name, created at start and force-dropped after, runnable locally (disposable container) and in CI (a preinstalled service) without per-run registry pulls; a managed store the product runs on gets an ephemeral namespace per run in the real service instead (E2E-3).
 - *Why:* CI broke with no code change when an image registry's anonymous pull limit was hit (LL-30); shared stores leak state between runs.
 - *Check:* store names carry the run and worker id; no store survives the suite; the CI definition shows a service, not a pull per run.
 - *Applies when:* the integration suite uses a store or broker.
-- *Provenance:* LL-30 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-30 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 - Illustration: e.g. Testcontainers or Docker Compose locally; GitHub Actions service containers or GitLab CI services.
 
 **INTEG-4** — Declare the isolation strategy in `TESTING.md` and enforce it: one shared host per run with unique data per test, or per-test isolation (transaction rollback, schema or store per test) where cheap; tests assert only on data they created; global aggregates run in their own tenant or store, or assert relative to a snapshot taken during arrange; clock, fakes and environment reset automatically after every test.
@@ -82,11 +84,11 @@ in `absd/playbook/testing/gates.md`; test-code hygiene is TCQ in `absd/playbook/
 - *Applies when:* integration, chain and end-to-end tests.
 - *Provenance:* industry baseline
 
-**INTEG-8** — Assert the exact outcome of every call, arrange steps included, and in every negative test also the machine-readable error code from `architecture.md`'s error catalogue — never only the human message, never "A or B" — and validate every error body against the catalogue's schema.
-- *Why:* same-status refusals with different causes let a test pass for the wrong reason; expected client errors were logged as server errors with stack traces (LL-15).
-- *Check:* the Auditor flags status-only negative assertions and alternative-status oracles; one TC per catalogue entry, incl. "an expected 4xx produces no error-level log" (OPS rules in `absd/playbook/testing/nonfunctional.md`). cli: exit-code table + stderr, stdout clean on error; library: documented error type + code; data-pipeline: dead-letter reason code.
-- *Applies when:* always; the table below for http-api.
-- *Provenance:* LL-15 (KatenatsioTipster, 2026-10)
+**INTEG-8** — Assert the exact outcome of every call, arrange steps included, and in every negative test also the machine-readable error code from `architecture.md`'s error catalogue — never only the human message, never "A or B" — and validate every error body against the catalogue's schema. Prove completeness both ways: a test compares the codes the product can emit (its error types or code registry, read from the built product) with the catalogue — an emitted code missing from the catalogue fails, as does an entry no TC raises; every client (web-ui, native-app, cli, SDK) maps each code to its designed message or shows the generic one, and a fallback chosen by status alone never names a specific cause.
+- *Why:* same-status refusals with different causes let a test pass for the wrong reason; expected client errors were logged as server errors with stack traces (LL-15); completeness ran one way only, and a client guessing from the status named the wrong cause for an illegal transition (LL-57).
+- *Check:* the Auditor flags status-only negative assertions and alternative-status oracles; one TC per catalogue entry, incl. "an expected 4xx produces no error-level log" (OPS rules in `absd/playbook/testing/nonfunctional.md`); the completeness TC reports both differences; each client has a mapping TC per code plus an unknown code → generic message. cli: exit-code table + stderr, stdout clean on error; library: documented error type + code; data-pipeline: dead-letter reason code.
+- *Applies when:* always; the table below for http-api; the client part wherever a client shows catalogue errors.
+- *Provenance:* LL-15 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 ### HTTP status semantics (http-api)
 

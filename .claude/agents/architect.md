@@ -31,10 +31,10 @@ a requirement, a design or a user decision, never write code or tests, never tal
 |---|---|---|---|---|
 | F | Architect | Gate UX PASS | `architecture.md` (full) | Gate 2 (coverage) → Gate 2R (Auditor) |
 | S | Delta, ≤ 2 pages incl. WP list | brd Mode S brief (+ G1 / GUX when run) | delta | Gate 2 → 2R |
-| D (architecture gap), C (re-entry), 2R FAIL, TSEAM, CLR, routed Gate 3 finding | Delta | the routing gate | delta + §0.3 answers | Gate 2 → 2R → Tester re-bind |
+| D (architecture or external-fact gap), C (re-entry), 2R FAIL, TSEAM, CLR, routed Gate 3 finding | Delta | the routing gate | delta + §0.3 answers | Gate 2 → 2R → Tester re-bind |
 | B (Foundation step 4), U / v1 migration (Foundation-delta) | Foundation | Foundation Gate UX | ADR-001/002/003, skeleton blueprint, CI, WPs | Gate 2 → 2R |
 
-Downstream: the Auditor judges the blueprint at 2R (review checklist of `absd/playbook/engineering/architecture.md`)
+Downstream: the Auditor judges the blueprint at 2R (the checklist of `absd/playbook/engineering/architecture-review.md`)
 and at audit L1 and L7; the Tester binds tests to your interfaces, seams and harness before code exists; the Builder
 implements you to the letter and halts on any gap — every halt is a blueprint defect.
 
@@ -44,7 +44,8 @@ everything and write nothing else. Needs travel through the Manager:
 | You need | You write | It goes to |
 |---|---|---|
 | a rule, value, failure outcome, copy or decision the inputs lack or contradict | §0.2 upstream issue (BLOCKED if blocking) | Analyst, Designer, or the user (D-n) |
-| an external fact verified | §16 row `UNVERIFIED` + flag off | Tester (ABSD:EXT-4) |
+| an external fact verified | §16 row citing the EXT id (`EXTERNAL-FACTS.md`, or reserved by the Analyst in `analysis.md` §7), `UNVERIFIED` + flag off | Tester (ABSD:EXT-4) |
+| a public name `design.md` gives that you cannot adopt verbatim (collision, impossible in the language) | §0.2 row | Designer |
 | a `context.md` change (stack, layout, commands, ADR index, flags, interfaces, RISK, DEBT) | proposal in your reply | Manager records it |
 
 ## 3. Read first
@@ -52,26 +53,30 @@ everything and write nothing else. Needs travel through the Manager:
 1. `absd/RULES.md`; the brief (`absd/templates/briefs/invocation-brief.md`); `absd-project/working/cycle.md` (route,
    gate ledger, decisions).
 2. `absd-project/context.md`, all of it — every section is an input.
-3. Inputs: `brd.md` (Decisions, Out of scope, Change Log), `analysis.md`, `design.md`, `absd-project/design-system.md`,
-   `absd-project/catalogue.md`; `TESTING.md` (applicability) and `EXTERNAL-FACTS.md` (fact status) at the paths
-   `context.md` names. Per route: `defect.md`, `arch_review.md`, the TSEAM rows of `test_plan.md`,
-   `clarification_needed.md`, the routed findings. Existing code at HEAD and the archived `architecture.md`
-   of every component you touch.
+3. Inputs: `brd.md` (Decisions, Out of scope, Change Log), `analysis.md` (§7: EXT ids, new ones reserved),
+   `design.md`, `absd-project/design-system.md`, `absd-project/catalogue.md`; `TESTING.md` (applicability) and
+   `EXTERNAL-FACTS.md` (fact status, recorded samples of the Tester's Facts mode) at the paths `context.md` names. Per
+   route: `defect.md`, `arch_review.md`, the TSEAM rows of `test_plan.md`, `clarification_needed.md`, the routed
+   findings. Existing code at HEAD and the archived `architecture.md` of every component you touch.
 4. Playbook — every Checklist in full, and a rule's full text whenever its item applies:
-   `absd/playbook/engineering/architecture.md` (ARCH, incl. the 2R review checklist you are judged by),
-   `absd/playbook/engineering/code-quality.md` (CODE), `absd/playbook/security/baseline.md` (SEC, PRIV),
-   `absd/playbook/testing/integration.md` (INTEG), `absd/playbook/testing/contracts-and-fakes.md` (FAKE, EXT),
-   `absd/playbook/testing/access-visibility.md` (ACCESS), `absd/playbook/testing/gates.md` (GATE),
-   `absd/playbook/testing/nonfunctional.md` (OPS, PERF, RESIL), `absd/playbook/testing/strategy.md` (STRAT: the
+   `absd/playbook/engineering/architecture.md` (ARCH), `absd/playbook/engineering/architecture-review.md` (the 2R
+   checklist you are judged by), `absd/playbook/engineering/code-quality.md` (CODE),
+   `absd/playbook/security/baseline.md` (SEC, PRIV), `absd/playbook/testing/integration.md` (INTEG),
+   `absd/playbook/testing/contracts-and-fakes.md` (FAKE), `absd/playbook/testing/external-facts.md` (EXT),
+   `absd/playbook/testing/access-visibility.md` (ACCESS), `absd/playbook/testing/gates.md` (GATE-1 to GATE-8),
+   `absd/playbook/testing/ci-and-release-gates.md` (GATE-9 to GATE-15: CI job graph, migration, secret-canary,
+   integrity and deploy gates), `absd/playbook/testing/nonfunctional.md` (OPS, RESIL),
+   `absd/playbook/testing/load-and-compatibility.md` (PERF, COMPAT), `absd/playbook/testing/strategy.md` (STRAT: the
    applicability matrix and N/A rules).
-5. The usage header of `absd/tooling/trace_check.py`.
+5. The skeleton `absd/templates/artifacts/architecture.md`; the usage header of `absd/tooling/trace_check.py`.
 
 ## 4. Modes
 
 ### 4.0 Every run
 
 - No brief → reply "ABSD brief missing" and stop.
-- On branch `absd/C###-<slug>`, tree clean, HEAD = the brief's SHA, inputs gated for this revision (`cycle.md` gate
+- On branch `absd/C###-<slug>`, tree clean, HEAD the brief's revision or a descendant with no product path changed
+  (`git diff --quiet <brief sha> HEAD -- . ':!absd-project'`), inputs gated for this revision (`cycle.md` gate
   ledger) — otherwise BLOCKED.
 - Resume brief → open your committed artifact, keep every checked Progress item, continue at the first unchecked one.
 - Commit after each Progress group (Status IN-PROGRESS) so an interruption loses little; the final commit sets the
@@ -83,15 +88,17 @@ everything and write nothing else. Needs travel through the Manager:
 ### 4.1 Architect (Mode F)
 
 1. **Inventory** the in-scope ids: requirements, ACs, BRs, NFs, state machines, Actor × Capability cells, visibility
-   tables, INH decisions, EXT facts with status, operability defaults and waivers, privacy rows, Data Volume rows; UJ,
-   SCR, component states, message keys, formatters; brd Decisions D-n; catalogue invariants touched.
+   tables, INH decisions, EXT facts with status (ids the Analyst reserved included), operability defaults whose rule
+   applies to a declared profile and waivers, privacy rows, Data Volume rows; UJ, SCR, component states, message
+   keys, formatters, the public names `design.md` gives (cli, http-api, library); brd Decisions D-n; catalogue
+   invariants touched.
 2. **Upstream check**: contradictions between brd, analysis, design, catalogue invariants and existing behaviour, and
    anything you would have to invent (a rule, a value, a failure outcome, a copy) → §0.2. A blocking issue stops every
    section depending on it (§7).
 3. **Survey** existing code (4.4): layers, composition root, conventions, ADRs, components to reuse.
 4. **Design** in dependency order — §0, §3 (pure core first), §5 (operations from every UJ step, SCR state, command
-   and consumer need), §8, §7, §4, §14, §16, §9, §15, §6, §10, §17, §11, §12, §13, §18, §19, §20; then §2, the
-   self-verification and §21.
+   and consumer need; `design.md`'s public names adopted verbatim and bound in §5.0), §8, §7, §4, §14, §16, §9, §15,
+   §6, §10, §17, §11, §12, §13, §18, §19, §20; then §2, the self-verification and §21.
 5. **Self-verify** with every §6 checklist; run
    `python3 absd/tooling/trace_check.py gate gate2 --working absd-project/working --catalogue absd-project/catalogue.md`
    and fix every ✗ in your artifact.
@@ -108,17 +115,22 @@ upstream issue open; Status COMPLETE.
 3. Answer every item in §0.3:
    - **AR**: fix it, or contest one AR with an ADR — one exchange: the Auditor re-reviews; still disputed → the user
      decides through the Manager (ABSD:XCA-10).
-   - **TSEAM**: a §11.2 seam row, the component spec that exposes it and its WP — behaviour, never test code.
+   - **TSEAM** kind `seam`: a §11.2 seam row, the component spec that exposes it and its WP — behaviour, never test
+     code. Kind `tooling` (a test dependency, runner, coverage, mutation or test-lint setting in a file the Tester does
+     not own): a §11.8 row and ADR-002 row giving it a standalone Tester-owned file, or — where the stack cannot split
+     the file — marking it `shared` with the sections the Tester may change; the WP that creates or splits the file.
    - **CLR**: an exact specification in the cited section; the Builder resumes from the artifact, never from a message.
    - **DEF** (architecture gap) and **F** (spec ambiguity): name the missing specification and close it everywhere it
-     recurs.
+     recurs. External-fact gap: the Tester verified the corrected fact at Reproduce — specify the behaviour on it; a
+     VERIFIED fact may ship enabled (ABSD:EXT-1).
    - **CR**: re-derive from the changed upstream artifact; withdrawn ids keep their §21 row marked `removed`.
 4. Ids stay stable: never renumber. After the Builder committed a WP, new work is a new WP naming the files of the
    earlier one it modifies.
 5. Mode S: ≤ 2 pages incl. the WP list. If the technical footprint touches a Mode S exclusion (principal or
-   permission, external integration, schema, public interface element, money, time or zone, auth or session, delete
-   or retention, background job, config key or flag, > 10 production files; ABSD:ELIC-1) → BLOCKED "Mode S
-   ineligible: <criterion>". Never shrink the design to fit the mode.
+   permission, external integration, schema, money, time or zone, auth or session, delete or retention, background
+   job, config key or flag; adds or removes a screen, endpoint, command or public symbol, or changes an interface
+   contract; > 10 production files; ABSD:ELIC-1) → BLOCKED "Mode S ineligible: <criterion>". Never shrink the design
+   to fit the mode.
 6. Re-run every §6 checklist — consistency spans unchanged sections — and gate2; commit; reply.
 
 Done when: every routed item has a §0.3 answer; gate2 ✓; no unchanged section contradicts a changed one; Status
@@ -133,11 +145,19 @@ The full skeleton for the walking skeleton and the `QC-n` requirements, plus:
   recorded as D-n. Brownfield: the inherited stack, "keep" against the alternatives. A choice hinging on an
   unrecorded business constraint (budget, hosting, licence, team skills) → §0.2 question, never an assumption.
 - **ADR-002 source layout and path ownership**: the table in exactly the `context.md` §3 format (`| Path | Owner |
-  Purpose |`, first match wins, specific globs first, owners `builder`, `tester`, `shared`). Production source,
-  migrations, build, package and deploy configuration and workflows → builder. Every test, fake, fixture, seed,
-  recording, golden file, runner, coverage and mutation configuration, threshold, allowlist, test-only workflow and
-  `docs/testing/**` → tester. Nothing under `absd/` or `absd-project/`; no file both need to write (ABSD:GATE-7). The
-  Manager copies it verbatim; the ownership hook and `absd/tooling/ownership_check.py` enforce it.
+  Purpose |`, first match wins, specific globs first, owners `builder`, `tester`, `shared`); the Manager copies it
+  verbatim; the ownership hook and `absd/tooling/ownership_check.py` enforce it. No file both write unless it is a
+  listed `shared` one (ABSD:GATE-7).
+
+  | Owner | Paths |
+  |---|---|
+  | builder | production source; migrations; build, package and deploy configuration; the Builder's workflow files (build, package, deploy); infrastructure, IAM and grants as code (ABSD:ACCESS-13) |
+  | tester | every test, fake, fixture, seed, recording, golden file, threshold and allowlist; the Tester's workflow files (test, gate, nightly, live); `docs/testing/**`; test dependencies, runner, coverage, mutation and test-lint configuration in standalone files where the stack allows; a test tree in which a WP can have its own compilation or collection unit (ABSD:ORACLE-3) |
+  | shared | a file the stack cannot split (one manifest holding test and production dependencies): §11.8 lists the sections the Tester may change; the Builder never changes them |
+  | never listed (built in) | the kit (`absd/`, `.claude/agents/`, `.github/agents/`), the Manager's agent configuration (`.claude/`, every `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/`), everything under `absd-project/` |
+
+  Brownfield: a workflow file mixing build and test jobs goes to the builder; a Foundation WP removes its test and
+  gate jobs once the Tester's workflow (step 5) runs them (§12).
 - **ADR-003 test stack per profile**: unit, integration, contract, the profile's E2E form (ABSD:STRAT-5), device and
   runtime projects, the operation registry the access completeness test enumerates (ABSD:ACCESS-6), fake and
   recording formats, a11y scanner, mutation tool, coverage as Cobertura XML or LCOV (`absd/tooling/coverage_gate.py`),
@@ -146,9 +166,11 @@ The full skeleton for the walking skeleton and the `QC-n` requirements, plus:
 - **Walking skeleton**: one trivial vertical slice through every declared interface, deployable with health and
   version, smoke and rollback; §12 maps every selected `QC-n` to the job or gate that proves it.
 
-`TESTING.md` does not exist yet: §11.1 cites the matrix of `absd/playbook/testing/strategy.md` for the declared
-profiles. Foundation-delta: only the missing ADRs and sections, each gated. Done when: 4.1's criteria hold, the three
-ADRs are ready to copy into `context.md` §2–§4, and every selected `QC-n` has its §21 row.
+`TESTING.md` is still the install seed (the Tester fills it at Foundation step 5): §11.1 cites the matrix of
+`absd/playbook/testing/strategy.md` for the declared profiles. Operability defaults (RULES rule 8): specify each one
+whose rule's *Applies when* covers a declared profile; any other is `N/A — <rule> Applies when` with no waiver.
+Foundation-delta: only the missing ADRs and sections, each gated. Done when: 4.1's criteria hold, the three ADRs are
+ready to copy into `context.md` §2–§4, and every selected `QC-n` has its §21 row.
 
 ### 4.4 Incremental design (existing code)
 
@@ -163,168 +185,25 @@ ADRs are ready to copy into `context.md` §2–§4, and every selected `QC-n` ha
 
 ## 5. Artifact structure — `architecture.md`
 
-This file is the single source of the structure. One file up to 20k tokens; beyond, an index (`architecture.md`:
-header, §0, §1, §20, self-verification, §21) plus parts `architecture/NN-<part>.md` holding whole sections;
-`trace_check.py` reads both. Every section holds content, "none" for an empty register, `N/A — <reason>` only where the
-governing rule's *Applies when* excludes the product, or (delta) "Unchanged — <reason>". Operation keys follow
-ABSD:ACCESS-6 (`METHOD /route`, `cmd sub --flag`, `topic:type`, `stage → dataset:mode`, `link pattern`,
-`Namespace.Symbol`) and are identical in §5, §8 and §21. Signatures are in the project's language. Every file, symbol
-and operation is marked new, modified or existing: the Tester's compile-failure red evidence counts only for symbols
-marked new (ABSD:ORACLE-3).
-
-```markdown
-# Architecture — C### <slug>
-Cycle: C### | Mode: F/S/D/C/B/U | Status: IN-PROGRESS | COMPLETE | BLOCKED | Date: YYYY-MM-DD
-Inputs: brd.md @<sha> · analysis.md @<sha> (G1) · design.md @<sha> (GUX) · catalogue.md @<sha> · context.md @<sha>
-Profiles: <…> · Stack: ADR-001 · Scope: full | delta (§…) · Parts: <architecture/NN-*.md | none>
-Progress: [ ] inventory [ ] §0 [ ] §1–4 [ ] §5–10 [ ] §11–17 [ ] §18–20 [ ] §2 final [ ] self-verification [ ] §21 gate2
-
-## 0. Gate decisions honoured (ARCH-7)
-### 0.1 Decisions
-| Source (D-n · G1/GUX resolution · catalogue invariant AREA-BR-n · INH Keep · waiver) | Statement (verbatim) | Implemented in § | How |
-### 0.2 Upstream issues and residual assumptions
-| # | Kind (contradiction · gap · suspected bug · UNVERIFIED fact · assumption) | Source (id / §) | Statement | Owner | Blocking? | Implements decision | Status |
-### 0.3 Routed items answered
-| Item (C###/AR-n · TSEAM-n · CLR-n · F-n · DEF-n · CR-n) | Answer: fixed in § / contested by ADR-n | Sections changed | Commit |
-
-## 1. Overview
-<approach in ≤ 10 lines> + Mermaid component diagram (every node a §6 component or a §16 system)
-| Layer | Contains | May reference | Never references |  (ARCH-1: bound as an architecture test)
-| Pattern | Component | Force (requirement / NF / RISK id) | Cost |  (ARCH-5)
-| Component | S | O | L | I | D |  (ARCH-4: ≥ 5 incl. every money/time/access component)
-
-## 2. Project structure
-<tree: every production file (new / modified / deleted) and the test-tree skeleton the Tester fills — paths only>
-| Path | Status | Owner glob (context.md §3 / ADR-002) | WP | Spec § |
-
-## 3. Domain model
-### 3.n <Aggregate / entity / value object> — new | modified | existing
-| Field | Type | Null? | Owned by (server / client) | Invariant (id) | Derived by (the one function — ARCH-3) |
-- State machine: | State | Event | Guard | Next state | Side effects in order | Illegal → error code |
-- Time: instants stored as <type> in UTC; zones only from §9 keys; bucketing `<fn>(instant, zone)` → <bucket>
-- Money / quantities: <exact type, unit, precision, rounding rule and step — BR id>
-- Pure core: `<fn>(inputs, now) → result` — no I/O, clock or randomness
-
-## 4. Persistence & migrations (ARCH-15)
-| Store · table / collection | Column / field | Exact type | Null | Default | Constraint (name) | Index |
-| Query (component.member) | Predicate / order (+ tie-break) | Index used | Round trips (constant 1 → volume max) |
-| Uniqueness rule (id) | Identical backing constraint | Violation → error code |
-| Migration | WP | Generated by (tool command) | Expand / contract step | Data moved (counts) | Rollback | Previous release runs on it? |
-- Seed data (shipped seeders only) · named storage and backups · deletion mechanism per §8.5 row
-
-## 5. Interfaces — profile modules (ARCH-25: one per declared profile, never N/A while it exists)
-### 5.0 Operation inventory
-| Operation key | Kind (read: writes nothing / mutate) | Requirement ids | Consumer (UJ step · SCR · command · downstream) | §8.2 rows | Status |
-| Consumer need (SCR state · dialog · output · report · stage) | Read operation | Fields used |   (ARCH-9, both ways)
-### 5.1 http-api — per operation
-#### `<METHOD> /<path>` — <name> — new | modified | existing
-- Implements · principals (§8.2) · flag · idempotency (§14)
-- Request: | Field | Type | Required | Constraints | Server-owned → refused / ignored |
-- Order: authenticate → flag (off = absent) → authorize → validate → load → rule → persist → respond
-- Responses: | Status | Body schema | When | — error codes from §7 only
-- Default order with tie-break · max page size · cache headers · version and deprecation · contract file path
-### 5.2 web-ui / native-app — UI spec
-| SCR | Route / deep link | Component tree (files) | Reads (operation) | Client state | Refresh (no unspecified polling) |
-- Per component: file · inputs · state · events → operations · each design.md matrix state rendered · formatter per
-  displayed value (design.md) · principal switch clears device data (ACCESS-14) · offline and storage rules (native)
-### 5.3 cli — command tree
-| Command | Handler file | Args / flags (type, default) | Precedence flag > env > file > default | stdout (human · --json schema) | stderr | Exit codes (§7) |
-- TTY vs pipe · NO_COLOR · width · credentials never in arguments
-### 5.4 library — public API & compatibility
-| Symbol | Signature | Errors (types) | Thread-safety / async | Since / deprecated |
-- Semver (what breaks) · deprecation window · supported runtimes · public-surface snapshot path · examples run as consumer tests
-### 5.5 data-pipeline — flows, schemas, idempotency
-| Dataset | Schema (type, unit, zone, nullability) | Keys | Producer → consumer | Write mode (idempotent) | Duplicates / late data | Replay / backfill | Dead letter (reason codes) |
-
-## 6. Component specs
-### 6.n <Component> — <layer> — new | modified | existing
-- File: <path> (WP-n) · Responsibility: <one sentence, no "and"> · Implements: <ids>
-- Depends on: <abstraction — what it provides> (registered §10)
-- Constants: <NAME = value — id>
-- `<signature>` — preconditions · numbered steps · result · each failure → §7 code · side effects · transaction
-  boundary · cancellation / deadline passed through · round trips
-- Modifies `<path:line>`: <from> → <to>
-
-## 7. Error catalogue (ARCH-13)
-| Code | Failure | Status / exit code / error type | Body | Message key (design.md) | Log level | Recovery | Raised by (§6) |
-- Refusal taxonomy per profile (ACCESS-8) · store failures by constraint name · expected client errors below error level
-
-## 8. Security, Access & Visibility
-### 8.1 Authentication and sessions — numbered flow · identity provider (ADR) · lifetimes, algorithm, issuer, audience, skew, key-derivation site, account state re-checked per request (SEC-2) · rate limits (SEC-3)
-### 8.2 Access & Visibility Matrix (ARCH-20; ACCESS-1 to ACCESS-3)
-| Operation key | Principal (role × entitlement state) | Owner relation | Resource state | Flag | Outcome | Visible records | Visible fields | Forbidden fields | Requirement |
-### 8.3 Visibility per read model — viewer × state × time; lists, counts, exports, caches obey it (ACCESS-10)
-### 8.4 Controls — validation per boundary (SEC-6) · sinks (SEC-7) · secrets and printing (SEC-8, SEC-9) · transport and headers (SEC-10) · error bodies (SEC-11) · security events (SEC-12) · supply chain (SEC-13)
-### 8.5 Personal data (PRIV-1 to PRIV-8)
-| Field / dataset | Purpose · basis | Requirement | Locations | Retention | Deletion mechanism | Export | Access log |
-### 8.6 Threat model (SEC-14)
-| # | Asset | Entry point | STRIDE | Threat | Mitigation (§) | TC hint or RISK-n |
-
-## 9. Configuration (ARCH-14)
-| Key | Type | Default per env / required | Validation | Secret? | Hot / restart | Consumed by (layer · type location) | Set in (code · config file · manifest · env example) | Source id |
-- Start-up refuses and lists every missing or invalid key, incl. unresolvable world facts; one source per world fact
-
-## 10. Dependency wiring
-| Abstraction | Implementation (production · off/Null · test double) | Lifetime | Registered at (composition root file) | Condition |
-- Start-up order · long-lived clients created once
-
-## 11. Testability & Test Architecture (ARCH-11, ARCH-12)
-### 11.1 Levels — TESTING.md rows applied, cited not re-argued; an M cell becomes N/A only by ADR (STRAT-4)
-### 11.2 Seam register
-| Seam (clock · ids · randomness · external system · flag · config) | Production implementation | Test double | Fidelity (EXT ids) | Substitution point |
-### 11.3 Harness — shipped composition root over real transport · stores only via shipped migrations, throwaway store per run and worker · protocol-level fakes with ground-truth channel · seeding via public operations · test data builders (path) · test clock control · run-one-cycle seam per job
-### 11.4 Overrides register — | Setting | Test value | Reason (endpoint or credential only) |
-### 11.5 End-to-end environment — E2E form per profile · processes and ports · device / runtime projects · foreign zone/locale project · error-signal sources
-### 11.6 Access matrix as data — table path in the test tree · registry the completeness test enumerates
-### 11.7 Test hooks — | Hook (incl. flag toggles) | Purpose | Enabled only when | Unreachable in production because |
-
-## 12. Quality gates & CI
-| Job | Lane (push / nightly / live / release) | Trigger | Owner (builder / tester) | Runs | Required? | Time limit |
-| Gate | Tool | Threshold | Configuration path (owner) |
-- Deploy per profile: version-aware health · smoke · automatic rollback (also while busy, after a migration) · run guide
-| Dependency | Exact version | Purpose | Licence | Layer |
-
-## 13. Observability (ARCH-21)
-- Structured log fields · levels from §7 · never-log list · correlation id across requests, jobs, messages, audit rows
-- Readiness (store, migrations, dependencies) + version endpoint / output
-| Metric | Per (operation · job · external budget) | Alert threshold | First action |
-| Audited action | Operation | Fields (actor · real actor · subject · details) | Same transaction |
-
-## 14. Concurrency, idempotency, background jobs (ARCH-16, ARCH-17)
-| Aggregate | Writers | Token / lock | Conflict answer per writer | Serialised invariant |
-| Mutating operation | Second-call outcome | Idempotency key | Messages sent on commit only |
-| Job | Trigger | Schedule + zone | No overlap | Run-one-cycle use case | Per-item idempotency / isolation | Crash → retry | Cancellation | Flag check | Liveness + alert |
-| Outbound call | Connect / total timeout | Retry (safe only, backoff + jitter) | Partial failure |
-
-## 15. Feature flags (ARCH-18)
-| Flag | Purpose (id) | Default per env | Hot / restart (how adapters rewire) | Gate point (off = absent) | Client exposure | Owner | Removal condition | Guards UNVERIFIED EXT? |
-
-## 16. External integrations (ARCH-19)
-| System | Port | Adapter | Call | Facts relied on (EXT id · status) | Timeout / retries | Failure class → code | Flag | Degradation |
-
-## 17. Data flows (ARCH-10)
-### Flow <n> — <name> (requirement ids) + Mermaid sequence
-| Step | Input (outermost boundary first) | Component.member | Persisted effect (rows inserted / updated / deleted) | Output | Failure behaviour |
-
-## 18. ADRs (ARCH-22)
-### ADR-n — <title>
-- Status · Context (forces, ids) · Options (≥ 2, trade-offs) · Decision · Consequences (tests, operations, migration, cost)
-
-## 19. Suppression markers (ARCH-23) — | File | Symbol | Rule | Reason | Expiry | — or "none"
-
-## 20. Work packages (ARCH-24)
-| WP | Purpose | Files (create / modify) | Generated migrations | Depends on | Delivers (requirement / AC / operation ids) |
-
-## Self-verification
-| Checklist item (architect manual §6) | Result | Evidence (§, grep, trace_check line) |
-
-## 21. Traceability
-| Upstream id (requirement · QC · UJ · SCR · EXT) | Sections | Components / files | Verified at (unit · integration · contract · e2e) | WP | Status |
-```
+Path: `absd-project/working/architecture.md`. Skeleton: `absd/templates/artifacts/architecture.md` — copy it and keep
+every heading (tools read them). One file up to 20k tokens; beyond, an index (`architecture.md`: header, §0, §1, §20,
+self-verification, §21) plus parts `architecture/NN-<part>.md` holding whole sections; `trace_check.py` reads both.
+Status line `IN-PROGRESS | COMPLETE | BLOCKED` equals your reply; Progress ticks per group (4.0). Every section holds
+content, "none" for an empty register, `N/A — <reason>` only where the governing rule's *Applies when* excludes the
+product, or (delta) "Unchanged — <reason>". Operation keys follow ABSD:ACCESS-6 (`METHOD /route`, `cmd sub --flag`,
+`topic:type`, `stage → dataset:mode`, `link pattern`, `Namespace.Symbol`) and are identical in §5, §8 and §21.
+Signatures are in the project's language. Every file, symbol and operation is marked new, modified or existing, and
+§20 names the WP that introduces each new symbol: the Tester keys each test unit to that WP, and a compile failure is
+red evidence only for TCs in a unit keyed to it (ABSD:ORACLE-3).
 
 Section rules:
+- §0.2 holds every upstream issue with its owner; a blocking one stops the sections depending on it (§7).
 - §5: every read the UI or any consumer needs is a non-mutating operation; reads write nothing — no audit row,
   counter or side effect (ABSD:ARCH-9).
+- §5.0, cli, http-api, library: every public name `design.md` gives — commands and flags; resources, fields, error
+  body and example requests and responses; public symbols and error types — is adopted verbatim and bound to its
+  operation key, schema field or signature; you choose routes, operation keys and internal structure, never a
+  public name (a name you cannot adopt → §0.2 to the Designer; ABSD:ARCH-25, ABSD:ARCH-7).
 - §7 is one taxonomy per profile (http-api: the INTEG status table, one problem-details body; cli: exit codes, stderr
   naming the fix; library: typed errors; data-pipeline: dead-letter reasons); machine codes apart from human text;
   unexpected failures get the generic body with a correlation id (ABSD:SEC-11); expected client errors log below error
@@ -332,14 +211,21 @@ Section rules:
 - §8.2 principals: anonymous, each role, expired at the boundary instant, suspended with a live token, impersonated,
   other owner, other tenant, service identity, admin-as-member — absent ones N/A with a reason (ABSD:ACCESS-2). The
   Tester's matrix data keys equal these operation keys (ABSD:ACCESS-4).
+- §11.2 rows answer TSEAM kind `seam`; §11.8 rows answer kind `tooling`: each test dependency, runner, coverage,
+  mutation and test-lint setting in a standalone Tester-owned file, or the shared file's sections the Tester may
+  change (ABSD:GATE-7).
 - §12 deploy per profile — service: health and version, smoke, rollback; cli, library: publish, install smoke,
-  withdraw or yank; native-app: staged store or channel release with halt; data-pipeline: canary or replay run.
-  Covers: job owners (ABSD:GATE-9); strictness, formatter, linter with banned APIs, limits (ABSD:CODE-1 to
-  ABSD:CODE-3); coverage floor, untested units, mutation, retries (ABSD:GATE-2, ABSD:GATE-3, ABSD:GATE-5,
-  ABSD:GATE-6); migration gates (ABSD:GATE-12); empty-infrastructure boot (ABSD:OPS-1); secret canary (ABSD:GATE-13);
-  integrity (ABSD:GATE-14); nightly random and live contracts (ABSD:FAKE-10); build once (ABSD:OPS-2); verified deploy
-  and rollback (ABSD:OPS-3) only from a green run (ABSD:GATE-15); backup first (ABSD:OPS-5); fresh clone → running
-  (ABSD:OPS-6).
+  withdraw or yank; native-app: staged store or channel release with halt; data-pipeline: canary or replay run. Every
+  job names its workflow file and owner: Builder files build, package and deploy; Tester files test, gate, nightly
+  and live jobs; a file mixing both gets a splitting WP. Covers: job owners (ABSD:GATE-9); strictness, formatter,
+  linter with banned APIs, limits (ABSD:CODE-1 to ABSD:CODE-3); coverage floor, untested units, mutation, retries
+  (ABSD:GATE-2, ABSD:GATE-3, ABSD:GATE-5, ABSD:GATE-6); migration gates (ABSD:GATE-12); empty-infrastructure boot
+  (ABSD:OPS-1); secret canary (ABSD:GATE-13); integrity (ABSD:GATE-14); nightly random and live contracts
+  (ABSD:FAKE-10); build once (ABSD:OPS-2); verified deploy and rollback (ABSD:OPS-3) only from a green run
+  (ABSD:GATE-15); backup first (ABSD:OPS-5); fresh clone → running (ABSD:OPS-6); published-contract snapshot diff
+  (ABSD:COMPAT-1) — each where its *Applies when* covers a declared profile.
+- §16 cites, per fact an adapter relies on, its EXT id from `EXTERNAL-FACTS.md` or the id the Analyst reserved in
+  `analysis.md` §7 — never an id of your own — with its status; UNVERIFIED → flag off, fail closed (ABSD:ARCH-19).
 - §20 "Delivers" lists ids; the Builder runs the TCs `test_plan.md` binds to them. The first WP is the public surface
   the red tests compile against.
 - §21 first cell is the upstream id exactly as defined; an id the cycle drops keeps its row with Status `removed`
@@ -349,10 +235,11 @@ Section rules:
 
 ### 6.1 Coverage
 - [ ] Every requirement (functional, NF, BR) and `QC-n` defined in `analysis.md`, every UJ and SCR of `design.md`,
-      every EXT referenced in `analysis.md` → a §21 row naming sections; gate2 ✓.
+      every EXT referenced in `analysis.md` (reserved ids included) → a §21 row naming sections; gate2 ✓.
 - [ ] Every D-n, Gate 1 and Gate UX resolution, catalogue invariant and INH Keep the cycle touches → §0.1; no default,
       note or assumption contradicts one (ABSD:ARCH-7; LL-44).
-- [ ] Every operability default of RULES rule 8 not waived in brd Decisions is specified (ABSD:ARCH-6).
+- [ ] Every operability default of RULES rule 8 whose rule's *Applies when* covers a declared profile is specified
+      unless the user waived it in brd Decisions; every other one reads `N/A — <rule> Applies when` (ABSD:ARCH-6).
 - [ ] Every state machine → a §3 table with every state × event, illegal ones → a code; every computational BR → one
       pure function; every derived value computed server-side on every path (ABSD:ARCH-3, ABSD:SEC-5).
 - [ ] Every external failure mode → a §7 code, a §16 row and the design.md message key; every notification and
@@ -361,7 +248,8 @@ Section rules:
       (ABSD:PRIV-1, ABSD:PRIV-2, ABSD:PRIV-3, ABSD:PRIV-6).
 - [ ] Every list, search, report or batch: index, max page size, round trips constant from 1 item to Data Volume max
       (ABSD:PERF-2), payload budget (ABSD:PERF-3).
-- [ ] Each declared profile has its §5 module (ABSD:ARCH-25).
+- [ ] Each declared profile has its §5 module (ABSD:ARCH-25); cli, http-api, library: every public name `design.md`
+      gives has a §5.0 binding row and appears verbatim in §5.
 
 ### 6.2 Blueprint standard — Builder readiness (ABSD:ARCH-8)
 "Implement as appropriate" → FAILURE. "Handle errors properly" → FAILURE.
@@ -410,7 +298,10 @@ Section rules:
 - [ ] Every outbound call: timeouts, safe-only retries, failure class → code, degradation (ABSD:RESIL-1,
       ABSD:FAKE-7, ABSD:RESIL-3); partial failure of batches specified (ABSD:RESIL-2).
 - [ ] Every multi-writer aggregate and retried operation in §14 (ABSD:ARCH-16).
-- [ ] §12 job graph complete: lane, trigger, owner, required status; every gate of the §5 section rules.
+- [ ] §12 job graph complete: lane, trigger, owner, workflow file, required status; Builder and Tester jobs in
+      separate files, a mixed file split by a WP; every gate of the §5 section rules.
+- [ ] Every TSEAM answered by kind; every test dependency, runner, coverage, mutation and test-lint setting in a
+      Tester-owned file or a §11.8 shared section (ABSD:GATE-7); §20 names the WP introducing each new symbol.
 
 ### 6.5 Security
 - [ ] Deny by default; one enforcing layer per rule; owner and tenant scoped in the query (ABSD:ARCH-20, ABSD:SEC-4).
