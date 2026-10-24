@@ -1,88 +1,101 @@
 # Oracles — where expected values come from
 
 Code **ORACLE**. The source, form and life of every expected value: allowed sources and their precedence, independent
-calculation, red before green, amendments and disputes, characterization of inherited behaviour, and how mutation
-testing proves that oracles can fail. Which cases to write: VAR (`absd/playbook/testing/test-design.md`); mutation
-thresholds and flake policy: GATE (`absd/playbook/testing/gates.md`); external facts: FAKE, EXT
-(`absd/playbook/testing/contracts-and-fakes.md`).
+calculation, red before green, amendments and disputes, characterization of inherited behaviour, and mutation as
+proof that oracles can fail. Which cases to write: VAR (`absd/playbook/testing/test-design.md`); mutation
+thresholds and flake policy: GATE (`absd/playbook/testing/gates.md`); fakes: FAKE
+(`absd/playbook/testing/contracts-and-fakes.md`); external facts: EXT (`absd/playbook/testing/external-facts.md`).
 
 ## Checklist
 
-- [ ] Every TC row in `test_plan.md`: concrete inputs → concrete expected values → allowed source (ORACLE-1)
+- [ ] Every TC row: concrete inputs → concrete expected values → a prefixed source that resolves (ORACLE-1)
 - [ ] No oracle comes from code, its output, a log or a person's word about an external system (ORACLE-1)
 - [ ] Every expected value changed since T-SHA cites an approved Gate T amendment (ORACLE-2)
-- [ ] Every new TC was RED for its stated reason before code; evidence attached (ORACLE-3)
+- [ ] Every new TC RED for its stated reason at the tests commit; the evidence commit is T-SHA (ORACLE-3)
+- [ ] Red isolated by WP: compile/collection red only in a unit keyed to the WP adding the symbol (ORACLE-3)
 - [ ] No expected value or arranged input comes from calling production code (ORACLE-4)
-- [ ] Snapshot/golden files are oracles only after their owner approved them (ORACLE-4)
+- [ ] Golden files: Designer-approved (human-facing output) or citing an Analyst example table (ORACLE-4)
 - [ ] Money/time/ranking oracles show worked arithmetic or an outside reference (ORACLE-5)
 - [ ] Computational ACs carry worked numbers and inclusivity; gaps are blocking spec defects (ORACLE-6)
 - [ ] Business oracles cite analysis/design, never architecture; conflicts raised, not resolved (ORACLE-7)
 - [ ] Every failing TC and TC-CONFLICT has exactly one class and a route (ORACLE-8)
+- [ ] Mode D Gate T: one class per DEF; each TC red or `binds at re-bind` (ORACLE-8)
 - [ ] Assertions are strong: whole record, exact money, which rule failed, forbidden data absent (ORACLE-9)
 - [ ] Relational oracles only in addition to literals on money/time/ranking/access paths (ORACLE-10)
 - [ ] FACT oracles only from VERIFIED facts; UNVERIFIED → fail-closed behaviour asserted (ORACLE-11)
 - [ ] CHAR tests labelled, tied to INH ids, never specification before the user decides (ORACLE-12)
-- [ ] Tests written after the code are shown able to fail (ORACLE-13)
+- [ ] Tests written after the code shown able to fail; faults injected outside the project (ORACLE-13)
 - [ ] Every surviving mutant on money/time/access is killed by a spec-sourced TC or justified (ORACLE-14)
 - [ ] A rule implemented in several tiers reads one shared golden-vector file (ORACLE-15)
 
 ## Rules
 
-**ORACLE-1** — Take every expected value from an allowed source and cite it in the oracle table (TC → concrete inputs →
-concrete expected values → source): `SPEC:<ID>.AC<n>` or a `design.md` id for business and experience behaviour;
-`SPEC:architecture §x` only for internal units with no business meaning; `FACT:EXT-<SYS>-<n>` for what an external
-system does; `CHAR:INH-<n>` only for inherited behaviour the user confirmed. Code, its current output, logs, the
-Builder's explanation and a person's statement about an external system are never sources. Every money, time and
-ranking oracle shows an independent calculation (ORACLE-5).
+**ORACLE-1** — Take every expected value from an allowed source and cite it with its prefix in the oracle table (TC →
+concrete inputs → concrete expected values → source): `SPEC:<REQ>[.ACn]` — business behaviour from the requirement
+source (`analysis.md`; Mode S/D: `brd.md`, `defect.md`) or the catalogue, incl. an Analyst example table of expected
+output; `SPEC:<UJ-n|SCR-n>[.<state>]` — experience in `design.md`; `SPEC:architecture §x` — internal units only, on
+rows citing no requirement; `FACT:EXT-<SYS>-n` — VERIFIED external facts (ORACLE-11); `CHAR:INH-n` — inherited
+behaviour the user confirmed (ORACLE-12). Code, its output, logs, the Builder's explanation and a person's statement
+about an external system are never sources; money, time and ranking oracles show an independent calculation (ORACLE-5).
 - *Why:* oracles written after and from the code made every cycle need a second build (LL-29); a field's meaning taken
-  from a person's word shipped a dormant blocker (LL-2); measurable criteria passed audits by code reading (LL-45).
-- *Check:* trace_check: every TC row has a source of an allowed form whose id exists; the Auditor checks 100% of
-  money/time/access oracles and a sample of the rest against the cited text (L6).
+  from a person's word shipped a dormant blocker (LL-2); measurable criteria passed audits by code reading (LL-45); a
+  check of the prefix alone let invented ids and unverified facts pass as sources (LL-57).
+- *Check:* `trace_check gate gateT` resolves each source (SPEC in the requirement source, catalogue or `design.md`;
+  FACT VERIFIED in `--external-facts`, form only without a register; CHAR to an INH id of the requirement source) and
+  rejects `SPEC:architecture` on a row citing a requirement; the Auditor checks the cited text supports the value —
+  100% of money/time/access oracles, a sample of the rest (L6).
 - *Applies when:* always.
-- *Provenance:* LL-2, LL-29, LL-45 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-2, LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **ORACLE-2** — Change an oracle only through a Gate T amendment in `test_plan.md` (TC, old → new expected value, reason,
 new source, Manager approval line). Disputes follow the citation: a failing TC goes to the owner of its cited source
 (Analyst for analysis, Designer for design, Architect for architecture, Tester for EXT facts, the user for CHAR), never
 to whoever finds the test inconvenient. The Builder never edits a test; the Tester never edits an expected value to
 match the code without an amendment.
-- *Why:* a test asserted the wrong behaviour — keeping client-declared figures against an earlier rule — and an audit
-  rationalized it (LL-48); oracles bent to the code cannot catch it (LL-29).
-- *Check:* the Auditor diffs `<T-SHA>..HEAD` over the Tester's globs: every changed expected value or assertion maps to
-  an approved amendment, else Major (Q1); ownership_check shows no Builder commit on test paths.
+- *Why:* a test asserted a rule contradicting an earlier one and an audit rationalized it (LL-48); oracles bent to the
+  code cannot catch it (LL-29).
+- *Check:* the Auditor reviews every test change `ownership_check.py --t-sha <first> --t-sha <amendment> …` lists for
+  the `cycle.md` chain: each changed expected value or assertion maps to an approved amendment, else Major (Q1); no
+  Builder commit touches test paths.
 - *Applies when:* every TC after Gate T, in every mode.
-- *Provenance:* LL-29, LL-48 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-29, LL-48 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
 
-**ORACLE-3** — Show every new test RED for its stated reason before the production code exists: run it at T-SHA and
-attach the output under `evidence/`; the failure must be the asserted behaviour missing or wrong (assertion failure,
-unknown route, missing command, absent field). A compile or import failure counts only for types or symbols that
-`architecture.md` lists as new. A test that passes before the code exists, or fails for another reason, is repaired
-before Gate T.
-- *Why:* tests specified by the architecture and written by the code's author after the code were never seen failing
-  (LL-29); criteria nobody turned into failing tests passed as "satisfiable" (LL-45).
-- *Check:* Gate T: red evidence per new TC; the Auditor confirms `test_plan.md` and the red tests are ancestors of the
-  first production commit and that each red reason matches its TC.
-- *Applies when:* Plan & Bind (Modes F, S) and Reproduce (Mode D).
-- *Provenance:* LL-29, LL-45 (KatenatsioTipster, 2026-10)
+**ORACLE-3** — Show every new test RED for its stated reason before the production code exists: commit the tests and
+plan, run them at that commit, commit the output under `absd-project/working/evidence/tester/` with plan §14 — that
+evidence commit is T-SHA; each approved amendment or re-bind repeats this and appends its T-SHA to the `cycle.md` chain.
+Red means the asserted behaviour missing or wrong (assertion failure, unknown route, missing command, absent field).
+Isolate red by work package: tests touching a symbol new in WP-n sit in a compilation or collection unit keyed to WP-n
+(own test project, module or file, or imports inside the test body), mapped unit → WP in plan §12; a compile or
+collection failure is red evidence only there; every other unit compiles and stays green at T-SHA, and a new TC
+arranges its own data, never in the shared seed. A test that passes before the code exists, or fails for another
+reason, is repaired before Gate T. Mode D exception: `binds at re-bind` (ORACLE-8).
+- *Why:* tests written by the code's author after the code were never seen failing (LL-29); criteria nobody turned
+  into failing tests passed as "satisfiable" (LL-45); evidence could not be "run at T-SHA" inside T-SHA itself (LL-55);
+  one missing symbol broke a whole compiled test project (LL-57).
+- *Check:* Gate T: red evidence per new TC, its reason matching the TC; plan §12 maps units to WPs, all others green at
+  T-SHA; the Auditor confirms the first T-SHA is an ancestor of every production commit (`ownership_check.py --t-sha`).
+- *Applies when:* Plan & Bind (Modes F, S), Reproduce (Mode D), every approved amendment and re-bind.
+- *Provenance:* LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-55, LL-57 (ABSD v2 kit review, 2026-10)
 
-**ORACLE-4** — Never compute an expected value by calling production code: not directly, not through a production
-helper or constant, not through a copy or re-implementation of the production algorithm, not by running the system and
-pasting its output, and not by arranging the inputs under test with production functions (e.g. deriving a field with
-the production calculator, then asserting on it). The expected side is a literal from the oracle table or an
-independent reference; a limit's value comes from the spec (5 MiB), not from the production constant. Snapshot and
-golden files are oracles only once their owner approved them against the spec (Designer for screens and output,
-Analyst for datasets); re-recording a snapshot to get green is changing an oracle (ORACLE-2).
-- *Why:* downstream tests were fed the computation's own outputs, so a misreading component stayed invisible (LL-2).
+**ORACLE-4** — Never compute an expected value by calling production code — directly, through a production helper,
+constant, copy or re-implementation of its algorithm, by pasting the running system's output, or by arranging the
+inputs under test with production functions (deriving a field with the production calculator, then asserting on it).
+The expected side is a literal from the oracle table or an independent reference; a limit's value comes from the spec
+(5 MiB), not from the production constant. Snapshot and golden files are oracles only once approved against the spec:
+the Designer approves human-facing output (screens, cli output, reports, rendered documents); any other golden file
+(datasets, machine formats) cites the Analyst's example table of expected output for its recorded input in
+`analysis.md` (`SPEC:`). Re-recording one to get green changes an oracle (ORACLE-2).
+- *Why:* downstream tests were fed the computation's own outputs, so a misreading component stayed invisible (LL-2);
+  one pipeline's golden dataset had three named approvers (LL-56).
 - *Check:* the Auditor greps expected sides and arrange blocks on money/time/ranking/access paths for production
   symbols (L6); any hit without a recorded reason is Major.
 - *Applies when:* always; strictest on money, time, ranking and access.
-- *Provenance:* LL-2 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-2 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **ORACLE-5** — Derive money, time and ranking expectations by an independent calculation and show it: worked arithmetic
-in the oracle table and as a comment beside the assertion (`// 3 × 19.99 = 59.97; × 0.90 = 53.973 → 53.97`), or a
-reference outside the system — a published table, an official schedule, a calculation by another party, the fake's
-ground-truth record of what it served. Disagreement with the Analyst's worked example is a spec defect that blocks
-Gate T; the Tester never picks a side.
+in the oracle table and as a comment beside the assertion (TC-0042 below), or a reference outside the system — a
+published table, an official schedule, another party's calculation, the fake's ground-truth record of what it served.
+A disagreement with the Analyst's worked example is a spec defect blocking Gate T; the Tester never picks a side.
 - *Why:* prize positions after a disqualification were wrong in a way only a hand calculation of the interacting rules
   exposed (LL-9).
 - *Check:* each money/time/ranking TC carries a derivation; the Auditor recomputes three fresh cases per money/time BR
@@ -91,13 +104,12 @@ Gate T; the Tester never picks a side.
 - *Provenance:* LL-9 (KatenatsioTipster, 2026-10)
 
 **ORACLE-6** — Consume worked-number acceptance criteria verbatim: each computational AC and BR carries concrete inputs
-and outputs ("pool 1000 split 50/30/20 → 500/300/200"; "12 entries over 6 days vs minimum 10/5 → qualified"), and each
+and outputs ("pool 1000 split 50/30/20 → 500/300/200"), and each
 threshold states its inclusivity. Missing numbers, missing inclusivity or arithmetic that does not add up is a blocking
 spec defect routed to the Analyst; the Tester does not invent the business answer.
 - *Why:* measurable criteria (offsets, re-runs, volume, midnight boundaries) existed but nobody turned them into
   expected values (LL-45).
-- *Check:* every TC citing a computational AC reuses its numbers; the spec-defect list in `test_plan.md` is empty of
-  blocking items at Gate T.
+- *Check:* every TC citing a computational AC reuses its numbers; no blocking spec defect is open at Gate T (gateT).
 - *Applies when:* every computational rule, threshold or time boundary.
 - *Provenance:* LL-45 (KatenatsioTipster, 2026-10)
 
@@ -106,22 +118,28 @@ recorded gate decisions and existing catalogue invariants decides business behav
 (copy, states, formats, focus); `architecture.md` decides only addresses (routes, signatures, payload shapes, error
 codes) and internal units. When sources disagree — architecture vs analysis, a new rule vs an existing invariant,
 design vs analysis — raise a spec defect to their owners; never build the oracle from the lower or the newer text alone.
-- *Why:* a Gate 1 decision ("missing numbers fail validation") was reversed by an architecture note and every gate passed
-  (LL-44); a test encoded a rule contradicting an earlier business rule (LL-48).
-- *Check:* no business TC cites `SPEC:architecture`; spec defects in `test_plan.md` are resolved before Gate T.
+- *Why:* a Gate 1 decision was reversed by an architecture note and every gate passed (LL-44); a test encoded a rule
+  contradicting an earlier one (LL-48).
+- *Check:* `trace_check gate gateT` rejects `SPEC:architecture` on a row citing a requirement id and fails on any open
+  blocking spec-defect row of `test_plan.md`.
 - *Applies when:* always.
-- *Provenance:* LL-44, LL-48 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-44, LL-48 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **ORACLE-8** — Classify every failing TC and every TC-CONFLICT, with evidence, into exactly one class in
-`test_report.md`: product defect (TF; the Manager routes a Builder fix, counted as an iteration) · spec defect (→ owner
-of the cited source, then amendment) · obsolete oracle (amendment citing the changed requirement; none exists → Analyst
-or user) · harness defect (test code fixed, expected value unchanged) · flaky (root cause under GATE-6; never skipped,
-TCQ-1).
+`test_report.md`: product defect (TF → Builder fix, counted as an iteration) · spec defect (→ owner of the cited source,
+then amendment) · oracle contradicts its unchanged cited source (→ amendment request the Tester proposes and the
+Manager approves; Analyst or user only if the source itself is unclear) · obsolete oracle (amendment citing the changed
+requirement; none exists → Analyst or user) · harness defect (test code fixed, expected value unchanged) · flaky
+(ESC-11; never skipped, TCQ-1). The Gate T after Mode D Reproduce classifies: one root-cause class per DEF (ESC-6);
+each TC has red evidence or reads `binds at re-bind` (a requirements, UX or external-fact gap with no source yet — red
+at the re-bind after the delta).
 - *Why:* when the party that can only edit tests triages failures alone, "fix the test to match the code" becomes the
-  default (LL-29).
-- *Check:* every red TC in the report has one class and a route; harness fixes leave expected values byte-identical.
+  default (LL-29); an oracle mis-copied from an unchanged design ("9:00 AM" for "09:00") fitted no class (LL-55); a
+  Mode D Gate T could not pass for a gap with no source yet (LL-56).
+- *Check:* every red TC in the report has one class and a route; harness fixes leave expected values byte-identical;
+  an amendment request quotes the source line the oracle contradicts.
 - *Applies when:* Verify, Reproduce, every TC-CONFLICT.
-- *Provenance:* LL-29 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-29 (KatenatsioTipster, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 
 **ORACLE-9** — Make every oracle discriminating: assert the whole result record of a calculation, exact decimal money,
 a tolerance only where the spec states a precision, which rule failed (error code or field) rather than "invalid", the
@@ -147,10 +165,10 @@ EXT-2). While a fact is UNVERIFIED, the test asserts the fail-closed behaviour �
 the designed message (EXT-1) — never the assumed value, and the fake never serves the assumption as truth (FAKE-1).
 - *Why:* fakes served the team's assumed zone and every test passed while deadlines were hours late (LL-1); "the owner
   confirmed" a field's meaning (LL-2); the provider's served days were never checked (LL-3).
-- *Check:* every `FACT:` source resolves to a VERIFIED entry in `EXTERNAL-FACTS.md`; each UNVERIFIED fact has a
-  fail-closed TC.
+- *Check:* `trace_check gate gateT --external-facts` resolves every `FACT:` source to a row whose
+  Status starts with VERIFIED; each UNVERIFIED fact has a fail-closed TC.
 - *Applies when:* the product talks to any external system.
-- *Provenance:* LL-1, LL-2, LL-3 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-1, LL-2, LL-3 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **ORACLE-12** — Before changing inherited code (brownfield adoption, a port, prototype code), pin its observable
 behaviour with characterization tests labelled `CHAR` and tagged with their `INH-n`. They are change detectors, not
@@ -160,17 +178,20 @@ amendment; Unknown → asked before build. A suspected bug on a money, time, acc
 "for parity".
 - *Why:* a prototype's "clear all" behaviour shipped unspecified (LL-6); a suspected bug in a legacy formula was ported
   verbatim (LL-50).
-- *Check:* the Baseline report pairs CHAR TCs with INH ids; no TC cites `CHAR:INH-n` unless INH-n is user-confirmed Keep.
+- *Check:* the Baseline report pairs CHAR TCs with INH ids; trace_check resolves each `CHAR:INH-n` in the requirement
+  source; the Auditor confirms INH-n is a user-confirmed Keep.
 - *Applies when:* Mode B adoption, ports, rewrites, behaviour copied from a prototype or spreadsheet.
 - *Provenance:* LL-6, LL-50 (KatenatsioTipster, 2026-10)
 
-**ORACLE-13** — Show every test written after the code exists — Verify white-box unit tests, CHAR tests, sweep tests,
+**ORACLE-13** — Show every test written after the code exists — Verify white-box tests, CHAR tests, sweep tests,
 gate negative controls — able to fail: a killed mutant on the asserted lines, or a negative control (inject the fault in
-a throwaway worktree, run, see red, leave the tree byte-identical), with the output attached.
-- *Why:* tests that have never failed may assert nothing; tests written after the code were never seen red (LL-29).
+a throwaway worktree outside the project, under `$TMPDIR`, never committed; run, see red, remove it — the project tree
+stays byte-identical), with the output attached.
+- *Why:* tests that have never failed may assert nothing; tests written after the code were never seen red (LL-29); a
+  worktree inside the project tripped the write-time ownership hook (LL-57).
 - *Check:* `test_report.md` links one red run or killed mutant per such TC.
 - *Applies when:* Verify, Baseline, sweeps, Foundation gate negative controls.
-- *Provenance:* LL-29 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-29 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
 
 **ORACLE-14** — Measure oracle strength with mutation testing (e.g. Stryker, PIT, mutmut) on changed code and on every
 money, time and access rule: each surviving mutant is killed by a new TC whose expected value has a spec source — never
@@ -181,10 +202,10 @@ removed tie-break, removed branch, swapped precedence. Thresholds per GATE-5.
 - *Applies when:* every Verify; money, time and access rules always.
 - *Provenance:* industry baseline
 
-**ORACLE-15** — When one rule is implemented in more than one place (client preview and server, two services, two
-languages, a report and its export), keep one shared golden-vector file (inputs → expected, each row citing its spec
-source) in the test tree and make every implementation's suite load all of it; editing the file is an oracle change
-(ORACLE-2) and runs every consuming suite.
+**ORACLE-15** — When one rule is implemented in more than one place (client preview and server, two services, a report
+and its export), keep one shared golden-vector file (inputs → expected, each row citing its spec source) in the test
+tree and make every implementation's suite load all of it; editing the file is an oracle change (ORACLE-2) and runs
+every consuming suite.
 - *Why:* hand-copied, partly overlapping case lists let a preview show one number while the server pays another.
 - *Check:* each duplicated rule listed in `architecture.md` has one vector file; CI fails if a consuming suite does not
   load it or if the file changes without all consumers running.

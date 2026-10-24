@@ -6,7 +6,8 @@ truncation, exact copy and wording, localisation readiness. The Designer writes 
 Policy (shared parts in `design-system.md` §4, cycle additions in `design.md`); the Manager checks presence at Gate UX;
 the Tester takes literal oracles from them (ORACLE-1); Design QA checks the rendered result (DSN-20). Applies to every
 human-facing output: screens, CLI human output, human-readable messages in API errors, notifications, exports for
-people. Visual and interaction rules are DSN (`absd/playbook/design/excellence.md`).
+people; machine outputs follow LOC-3. Visual and interaction rules are DSN (`absd/playbook/design/excellence.md`;
+rubric and Design QA: `absd/playbook/design/rubric-and-qa.md`).
 
 ## Checklist
 
@@ -123,7 +124,7 @@ people. Visual and interaction rules are DSN (`absd/playbook/design/excellence.m
 - *Applies when:* human-facing text; expansion and right-to-left checks only when a second locale is in scope.
 - *Provenance:* industry baseline
 
-**LOC-15** — Verify formats mechanically, never by memory: formatting and label lookup each live in one module, a lint or grep fails the build on formatting, zone-less date handling or enum display outside them, one end-to-end project runs with the browser zone and locale deliberately different from the profile, and expected display strings are literals from `design.md`, never produced by the production formatter.
+**LOC-15** — Verify formats mechanically, never by memory: formatting and label lookup each live in one module, a lint or grep fails the build on formatting, zone-less date handling or enum display outside them, one end-to-end project runs with the browser, device or process zone and locale deliberately different from the profile, and expected display strings are literals from `design.md`, never produced by the production formatter.
 - *Why:* tests pinned to the audience's own zone and locale hid reliance on the browser zone (LL-13); 12-hour times reached users because nothing checked rendered formats (LL-4).
 - *Check:* lint output in test_report.md; the foreign zone and locale project green (VAR-8); the Auditor flags mirrored oracles (ORACLE-1).
 - *Applies when:* any human-facing time, date, number or enumeration.

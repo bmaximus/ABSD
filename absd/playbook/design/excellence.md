@@ -1,11 +1,11 @@
 # Design Excellence
 
-Code **DSN**. The design bar and its proof: beauty through hierarchy, rhythm and restraint; minimal flows; every
-device class, volume, state and failure designed; WCAG 2.2 AA as testable checks; per-profile deliverables; the
-quality rubric; Design QA on the rendered product. Applied by the Designer (`design.md`, `design-system.md`,
-`design_review.md`); the Checklist is the Manager's Gate UX checklist (QA items: Design QA); the Tester binds it at
-Plan & Bind; the Auditor cites it at L2. Related: LOC (`absd/playbook/design/content-and-locale.md`); A11Y, VIS
-(`absd/playbook/testing/nonfunctional.md`).
+Code **DSN** (DSN-1 to DSN-16). The design bar and its proof: beauty through hierarchy, rhythm and restraint; minimal
+flows; every device class, volume, state and failure designed; WCAG 2.2 AA as testable checks; per-profile
+deliverables. Applied by the Designer (`design.md`, `design-system.md`); this Checklist and the one in
+`absd/playbook/design/rubric-and-qa.md` (CLI and machine surfaces, the rubric per profile, Design QA, baselines:
+DSN-17 to DSN-21) are the Manager's Gate UX checklist; the Tester binds them at Plan & Bind; the Auditor cites them at
+L2. Related: LOC (`absd/playbook/design/content-and-locale.md`); A11Y, VIS (`absd/playbook/testing/nonfunctional.md`).
 
 ## Checklist
 
@@ -25,11 +25,7 @@ Plan & Bind; the Auditor cites it at L2. Related: LOC (`absd/playbook/design/con
 - [ ] Name, role, state per interactive element; labels linked; keyboard path; dialog contract (DSN-14)
 - [ ] Computed contrast; targets ≥ 24×24, 44×44 on touch; reflow 320 px; zoom 200 % (DSN-15)
 - [ ] Every statement observable; trace table complete (DSN-16)
-- [ ] cli: grammar, help, `--json`, stdout/stderr, exit codes, `NO_COLOR`/TTY/width (DSN-17)
-- [ ] library / http-api / data-pipeline: surface, errors, examples, contracts, runbook (DSN-18)
-- [ ] Rubric with evidence: every dimension ≥ 4, every ★ dimension 5 (DSN-19)
-- [ ] QA: every gallery image or golden output reviewed; DQ findings; verdict (DSN-20)
-- [ ] QA: baselines of protected screens approved by path + hash (DSN-21)
+- [ ] CLI and machine surfaces, rubric per profile, Design QA, baselines: `absd/playbook/design/rubric-and-qa.md` (DSN-17–21)
 
 ## Rules
 
@@ -135,51 +131,3 @@ Plan & Bind; the Auditor cites it at L2. Related: LOC (`absd/playbook/design/con
 - *Check:* Plan & Bind raises 0 blocking "untestable design statement" defects; trace_check gate-ux has no unmapped requirement.
 - *Applies when:* always.
 - *Provenance:* LL-45, LL-29 (KatenatsioTipster, 2026-10)
-
-**DSN-17** — Design the CLI: one grammar (`tool noun verb` or `tool verb`) and flag style (long kebab-case, short only for the commonest); `--help` per command with usage, examples and exit codes; human output by default and a stable documented `--json`; data to stdout, progress, prompts and diagnostics to stderr; an exit-code table (0 ok, 2 usage, others documented); colour only on a TTY with `NO_COLOR` unset; wrap to terminal width; prompts only on a TTY, destructive commands need `--yes` otherwise; every error says what failed and what to do.
-- *Why:* nobody designed a CLI's grammar, errors or exit codes, so tests had no oracle (LL-41).
-- *Check:* golden output per command × {TTY, pipe, `NO_COLOR`, narrow, `--json`}; subprocess tests assert stdout, stderr and exit code.
-- *Applies when:* cli.
-- *Provenance:* LL-41 (ABSD v2 design review, 2026-10)
-
-**DSN-18** — Design machine surfaces for consumers: library — smallest public surface, names per the naming guide, typed documented errors, a runnable example per public symbol, deprecation + semver; http-api — resource model, one error body (code, message key, field errors, correlation id), stable-order pagination with a max page size, versioning, an example per operation and error; data-pipeline — a contract per dataset (schema, units, explicit zones, nullability, keys, duplicate and late-data semantics, field meaning from a recorded real sample) and a runbook (rerun, backfill, alert → first action).
-- *Why:* a field's meaning and a source's date zone were taken from a description; stored results were wrong (LL-2).
-- *Check:* examples run as consumer tests on the installed package or running service; contract fields match recorded payloads (FAKE-2).
-- *Applies when:* library, http-api, data-pipeline.
-- *Provenance:* LL-2 (KatenatsioTipster, 2026-10)
-
-**DSN-19** — Score `design.md` against the rubric with evidence per dimension; submit only when every dimension is ≥ 4 and every ★ dimension 5; a score without evidence counts as 1; non-visual profiles mark D2, D5 and D7 N/A with a reason.
-- *Why:* a gate taking assessment without evidence approved a hover-only design (LL-52).
-- *Check:* Gate UX: each score cites a section, computed value or blueprint; any score below the bar returns the design.
-- *Applies when:* always.
-- *Provenance:* LL-52 (KatenatsioTipster, 2026-10)
-
-Scale: 1 missing or broken · 2 breaks a DSN/LOC rule · 3 meets every rule of the dimension · 4 meets them on every
-screen, class and state with no Minor finding · 5 is 4 plus craft: a peer cannot name an in-scope improvement.
-
-| Dimension (5 looks like) | Evidence: spec → rendered |
-|---|---|
-| D1 Hierarchy (one focal point and primary action) | blueprints → squint test |
-| D2 Type, rhythm & grid (scale only, aligned at every class) | tokens, blueprints → overlay |
-| D3 Colour ★ (roles only, computed ratios pass) | ratio table → scan |
-| D4 States ★ (empty, loading, error as crafted as populated) | 0 blank cells → SCR × state gallery |
-| D5 Motion (purposeful; signature moments delight) | motion table → recording |
-| D6 Flow (fewest steps, plain words) | step counts → journey run |
-| D7 Devices ★ (every class designed, touch-first) | device table → phone/tablet gallery |
-| D8 Accessibility ★ (DSN-14, DSN-15 met) | names, keyboard paths → scan, keyboard TCs |
-| D9 Content ★ (copy deck, label maps, formatters) | LOC tables → literal oracles |
-| D10 Resilience (volume, idle, races, failures) | volume and error rows → TCs |
-| D11 Consistency (design system only) | amendment log → cross-screen gallery |
-| D12 Testability ★ (every statement observable) | trace table → 0 untestable |
-
-**DSN-20** — Run Design QA on the rendered product: open every image of the Tester's gallery (`absd-project/working/evidence/tester/screens/`, SCR × state × device class × theme) or golden output, compare with `design.md`, `design-system.md` and the rubric, re-score from what is visible, write DQ-n findings (unified schema, image path as evidence; drift → Builder, design gap → Designer), and pass only at the DSN-19 bar with 0 Critical/Major.
-- *Why:* fidelity audits passed by reading code while raw enums, mixed formats and truncation were on screen (LL-19).
-- *Check:* every gallery cell marked reviewed; a missing cell makes the verdict BLOCKED (GATE-1); a wrong value users act on is Critical, a rule breach with user impact Major, polish Minor.
-- *Applies when:* web-ui, native-app; cli and data-pipeline via golden output.
-- *Provenance:* LL-19 (KatenatsioTipster, 2026-10)
-
-**DSN-21** — List the protected screens (SCR × state × device class × theme), approve each baseline by path and content hash in `design_review.md`, and change a baseline only when a `design.md` change intends it and the Designer re-approves, never auto-updated to turn a run green.
-- *Why:* a "no visual regression" requirement written every cycle was never automated (LL-53).
-- *Check:* the visual suite (VIS) compares against approved baselines; every baseline change has an approval row (Auditor; GATE-6).
-- *Applies when:* web-ui, native-app; golden output for cli and data-pipeline.
-- *Provenance:* LL-53 (KatenatsioTipster, 2026-10)
