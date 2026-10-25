@@ -333,6 +333,29 @@ class OwnershipCheckTests(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertEqual(data["errors"], [])
 
+    def test_kit_sync_commit_may_complete_the_settings_and_record_local_edits(self):
+        self.commit("product", None, [".claude/settings.json", "CLAUDE.md"])
+        self.commit("absd: upgrade ABSD 2.1.0", None, ["absd/RULES.md", ".claude/settings.json", "CLAUDE.md",
+                                                       "absd-project/upgrade-local-edits.md"],
+                    trailers="ABSD-Sync: upgrade 2.1.0")
+        code, out, data = self.run_json("--allow-unattributed")
+        self.assertEqual(code, 0, out)
+
+    def test_kit_sync_commit_inside_a_cycle_is_an_error(self):
+        self.commit("absd(C001): plan & bind — tester", "tester", ["tests/test_cart.py"])
+        self.commit("absd: upgrade ABSD 2.1.0", None, ["absd/RULES.md"], trailers="ABSD-Sync: upgrade 2.1.0")
+        self.commit("absd(C001): WP-01 — builder", "builder", ["src/cart.py"])
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1)
+        self.assertIn("sits inside cycle C001", "\n".join(data["errors"]))
+
+    def test_kit_sync_commit_between_cycles_is_fine(self):
+        self.commit("absd(C001): WP-01 — builder", "builder", ["src/cart.py"])
+        self.commit("absd: upgrade ABSD 2.1.0", None, ["absd/RULES.md"], trailers="ABSD-Sync: upgrade 2.1.0")
+        self.commit("absd(C002): WP-01 — builder", "builder", ["src/cart.py"], cycle="C002")
+        code, out, data = self.run_json()
+        self.assertEqual(code, 0, out)
+
     def test_kit_sync_commit_may_not_change_product_files(self):
         self.commit("absd(C001): verify — tester", "tester", ["docs/testing/TESTING.md"])
         self.commit("absd: upgrade ABSD 2.1.0", None, ["absd/RULES.md", "docs/testing/TESTING.md", "src/cart.py"],
@@ -585,6 +608,24 @@ class OwnershipCheckTests(unittest.TestCase):
         self.assertEqual(data["skippedMerges"], [])
         self.assertIn(f"{merge[:7]} (builder) 'merge side' changed absd-project/working/test_report.md, owned by tester",
                       "\n".join(data["errors"]))
+
+    def test_a_merge_with_changes_of_its_own_is_checked(self):
+        self.commit("absd(C001): plan & bind — tester", "tester", ["tests/test_cart.py"])
+        self.git("checkout", "-q", "-b", "side")
+        self.commit("absd(C001): WP-01 — builder", "builder", ["src/cart.py"])
+        self.git("checkout", "-q", self.BRANCH)
+        self.git("merge", "-q", "--no-ff", "--no-commit", "side")
+        with open(os.path.join(self.repo, "tests", "test_cart.py"), "a", encoding="utf-8") as f:
+            f.write("assert True  # weakened inside the merge\n")
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "merge side", "-m", "ABSD-Agent: builder\nABSD-Cycle: C001")
+        merge = self.git("rev-parse", "HEAD")
+        code, out, data = self.run_json()
+        self.assertEqual(code, 1, out)
+        self.assertEqual(data["skippedMerges"], [])
+        self.assertIn(f"{merge[:7]} (builder) 'merge side' changed tests/test_cart.py, owned by tester",
+                      "\n".join(data["errors"]))
+        self.assertNotIn("src/cart.py", "\n".join(data["errors"]))   # what one side brought is not the merge's own
 
     # --- range and input errors -------------------------------------------------------------------------------
 

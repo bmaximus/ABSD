@@ -2,6 +2,7 @@
 import io
 import json
 import os
+import shutil
 import sys
 import tempfile
 import unittest
@@ -481,7 +482,7 @@ class TraceCheckTests(unittest.TestCase):
         code, out = self.run_gate("gateT")
         self.assertEqual(code, 0, out)
         self.assertIn("✓ every AC in scope of analysis.md is referenced in a TC row of test_plan.md (4 checked)", out)
-        self.assertIn("gateT: PASS — 11 checks passed", out)
+        self.assertIn("gateT: PASS — 12 checks passed", out)
 
     def test_gate_t_reports_each_uncovered_family(self):
         self.write("working/test_plan.md", "| TC | Source |\n|---|---|\n| TC-0001 | SPEC:ACC-1.AC1 |\n")
@@ -836,6 +837,30 @@ class TraceCheckTests(unittest.TestCase):
                    + reproduce.format("TC-0950 after the Designer delta"))
         self.assertEqual(self.gate_json("gateT")[2][name]["missing"], [])   # a UX gap binds after Gate UX
 
+    def test_gate_t_mode_d_plan_whose_every_def_binds_at_re_bind_needs_no_tc(self):
+        self.remove("working/analysis.md")   # a classification Gate T: no delta yet
+        self.remove("working/design.md")
+        shutil.rmtree(os.path.join(self.working, "architecture"))
+        self.write("working/defect.md", "| DEF | Title | Class |\n|---|---|---|\n| DEF-4 | no undo | Requirements gap |\n")
+        reproduce = "# Test plan\n## 15. Reproduce\n### DEF-4 — no undo\nwhy missed: #3 · binds at re-bind: {}\n"
+        self.write("working/test_plan.md", reproduce.format("TC-0101, TC-0102 after the Analyst delta"))
+        code, out, checks = self.gate_json("gateT")
+        self.assertNotIn("test_plan.md defines at least one TC", checks)
+        self.assertEqual(code, 0, out)
+        self.assertIn("every DEF binds at re-bind", out)
+        self.write("working/test_plan.md", reproduce.format("none"))   # a DEF that does not bind needs its TC
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(code, 1)
+        self.assertEqual(checks["test_plan.md defines at least one TC"]["failure"], "none defined")
+
+    def test_gate_t_a_tc_id_defined_twice_fails(self):
+        name = "every TC id is defined once in test_plan.md"
+        self.assertEqual(self.gate_json("gateT")[2][name]["missing"], [])
+        self.write("working/test_plan.md", TEST_PLAN + "\n## Amendments\n| TC | Purpose | Source | Status |\n|---|---|---|---|\n"
+                   "| TC-0001 | a second test under the same id | SPEC:ACC-1.AC1 | planned |\n"
+                   "| TC-0002 | re-stated | SPEC:ACC-1.AC1 | removed (D-1) |\n")
+        self.assertEqual(self.gate_json("gateT")[2][name]["missing"], ["TC-0001"])
+
     # --- generic check ----------------------------------------------------------------------------------------
 
     def test_check_with_comma_separated_files_and_directories(self):
@@ -896,7 +921,7 @@ class TraceCheckTests(unittest.TestCase):
                 text = f.read()
             self.assertIn("### trace_check gateT", text)
             self.assertIn("- ✗ no TSEAM defined in test_plan.md is open: 1 open — TSEAM-1", text)
-            self.assertIn("**gateT: FAIL — 1 of 11 checks failed**", text)
+            self.assertIn("**gateT: FAIL — 1 of 12 checks failed**", text)
 
     def test_json_lists_every_check_and_note(self):
         code, out, data = self.run_json("gate", "gate1", "--working", self.working, "--catalogue", self.catalogue)

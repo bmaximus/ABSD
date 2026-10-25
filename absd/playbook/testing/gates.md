@@ -44,7 +44,8 @@ absence of its failure.
 - *Provenance:* LL-24, LL-25 (KatenatsioTipster, 2026-10); LL-55, LL-57 (ABSD v2 kit review, 2026-10)
 
 **GATE-2** — Fail the build on any production unit no test executes — a class in class-based languages (named nested
-types are units of their own; only compiler-generated types fold into their declaring type), else a file or module
+types are units of their own; only compiler-generated types fold into their declaring type; an unqualified class name,
+such as a Go converter's `-` or receiver type or a file stem, is a unit within its file), else a file or module
 (`absd/tooling/coverage_gate.py --untested-allowlist <path> --fail-on-stale`, `--min-lines` ≤ 5) — unless the Tester's
 allowlist names it with a valid reason, one line per unit: `<unit>  # <reason> · <owner> · <expires YYYY-MM-DD>`. An
 entry without a reason fails; a stale entry (unit now tested or gone) fails the push lane, which reads every report, and
@@ -52,13 +53,15 @@ is removed in the same change; an entry past its expiry is a finding until teste
 exclusion needing a user-approved Gate T amendment (GATE-6), except the Mode B Baseline seeding ("baseline pre-ABSD —
 DEBT-n", burned down). Only unit, component (STRAT-13), integration and contract reports count (STRAT-6).
 - *Why:* a results reader shipped with 0% coverage behind a total floor and read half-time as the final score; the sweep
-  this gate forced found six more untested areas (LL-2); stale entries that only warned outlived their units (LL-57).
+  this gate forced found six more untested areas (LL-2); stale entries that only warned outlived their units (LL-57);
+  keyed by a bare class or file name, a whole package that no test ran merged into a tested one (LL-58).
 - *Check:* push-lane step with `--fail-on-stale`; the tool requires the reason after `#`, the Auditor checks owner,
   expiry and validity — valid reasons: schema seam without behaviour, design-time factory, development-only shim off in
   tests and production, generated code; "hard to test", "trivial", "covered elsewhere" are rejected; Gate 3 lists
   every allowlist change.
 - *Applies when:* always, every profile.
-- *Provenance:* LL-2 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-2 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10); LL-58 (ABSD v2 acceptance
+  review, 2026-10)
 
 **GATE-3** — Gate total line coverage merged across every unit, component, integration and contract suite of every
 production language (a line is covered if any suite ran it; Cobertura XML or LCOV) against a floor that only rises:

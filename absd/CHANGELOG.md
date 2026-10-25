@@ -6,7 +6,24 @@ artifact structure, ids, gates or routes (with migration notes); MINOR = rules a
 ## 2.0.0 — 2026-10-14
 
 The first version built from a real product's lessons (KatenatsioTipster, ABSD 1.x: four cycles, a cross-cycle audit,
-and the escaped defects and test suite that followed). Ledger: LL-1 … LL-57.
+and the escaped defects and test suite that followed). Ledger: LL-1 … LL-58.
+
+**Acceptance review fixes (LL-58, proposal acceptance-review-2026-10-25)**
+- `trace_check.py gateT` passes a Mode D plan whose every DEF binds at re-bind (no TC yet) and fails a TC id defined
+  twice; `traceability_report.py --plan` accepts the same re-bind-only plan and refuses duplicate TC ids.
+- `coverage_gate.py` keys an unqualified class name (Go's `-` and receiver types, grcov's file stems) by its file and
+  resolves Cobertura file names against the report's `<source>` roots, so per-package monorepo reports stay distinct
+  (GATE-2).
+- The tools never write `__pycache__` into the kit and never load bytecode the manifest does not cover; manifest
+  hashes read CRLF as LF (Git for Windows' `core.autocrlf`).
+- `ownership_check.py` checks a merge that carries changes of its own (conflict resolution, evil merge) and rejects a
+  kit-sync commit inside a cycle; a kit sync may complete `.claude/settings.json` and `CLAUDE.md` and write the
+  upgrade's local-edits record.
+- `absd_sync.py install` completes an existing `.claude/settings.json` (agent, permission rules, ownership hook) and
+  `CLAUDE.md` (imports) instead of silently keeping them; `upgrade` refuses while any `absd/C###-*` branch holds an
+  IN-PROGRESS cycle, names seeds whose template changed, and orders its steps so the kit-sync commit comes first.
+- The settings template denies force-push and amend variants (`git push * --force*`, `+refspec`, `--amend`, rebase).
+- The Manager's session start finds an in-progress cycle on its branch from the default branch.
 
 **Structure (MAJOR)**
 - The kit moves into `absd/` (vendored, read-only in products, replaced on upgrade, hash-listed in `absd/MANIFEST`);

@@ -2,6 +2,9 @@
 import io
 import json
 import os
+import py_compile
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -150,6 +153,46 @@ class OwnershipHookTests(unittest.TestCase):
         code, err = self.call("builder", "src/x.py", raw="{not json")
         self.assertEqual(code, 2)
         self.assertIn("unreadable", err)
+
+
+
+class BytecodeTests(unittest.TestCase):
+    """The hook neither writes __pycache__ into the kit (a dirty tree) nor loads bytecode the manifest does not cover."""
+
+    def setUp(self):
+        self.dir = tempfile.TemporaryDirectory()
+        self.tooling = os.path.join(self.dir.name, "absd", "tooling")
+        os.makedirs(self.tooling)
+        here = os.path.dirname(os.path.abspath(__file__))
+        for name in ("ownership_hook.py", "ownership_check.py", "absd_sync.py"):
+            shutil.copy(os.path.join(here, name), self.tooling)
+        os.makedirs(os.path.join(self.dir.name, "absd-project"))
+        with open(os.path.join(self.dir.name, "absd-project", "context.md"), "w", encoding="utf-8") as f:
+            f.write(CONTEXT)
+
+    def tearDown(self):
+        self.dir.cleanup()
+
+    def run_hook(self):
+        event = {"hook_event_name": "PreToolUse", "tool_name": "Write", "cwd": self.dir.name, "agent_type": "builder",
+                 "tool_input": {"file_path": os.path.join(self.dir.name, "src", "cart.py")}}
+        env = {**os.environ, "CLAUDE_PROJECT_DIR": self.dir.name}
+        env.pop("PYTHONDONTWRITEBYTECODE", None)
+        env.pop("PYTHONPYCACHEPREFIX", None)
+        return subprocess.run([sys.executable, os.path.join(self.tooling, "ownership_hook.py")], input=json.dumps(event),
+                              capture_output=True, text=True, env=env).returncode
+
+    def test_no_bytecode_is_written_next_to_the_tooling(self):
+        self.assertEqual(self.run_hook(), 0)
+        self.assertFalse(os.path.exists(os.path.join(self.tooling, "__pycache__")))
+
+    def test_planted_bytecode_is_never_loaded(self):
+        planted = os.path.join(self.dir.name, "planted.py")
+        with open(planted, "w", encoding="utf-8") as f:
+            f.write("raise SystemExit(99)\n")
+        target = os.path.join(self.tooling, "__pycache__", f"ownership_check.{sys.implementation.cache_tag}.pyc")
+        py_compile.compile(planted, cfile=target, invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)
+        self.assertEqual(self.run_hook(), 0)
 
 
 if __name__ == "__main__":

@@ -204,6 +204,18 @@ class CheckTests(SyncTestCase):
             self.assertEqual(json.load(f), {"root": kit, "version": "2.0.0", "files": 15, "passed": True,
                                             "modified": [], "missing": [], "extra": []})
 
+    def test_crlf_checkout_and_bytecode_are_the_same_kit(self):
+        kit = self.make_kit()
+        for path in ("absd/RULES.md", ".claude/agents/tester.md"):   # core.autocrlf=true on Git for Windows
+            full = os.path.join(kit, *path.split("/"))
+            with open(full, "rb") as f:
+                data = f.read()
+            with open(full, "wb") as f:
+                f.write(data.replace(b"\n", b"\r\n"))
+        write(os.path.join(kit, "absd", "tooling", "__pycache__", "x.cpython-312.pyc"), "bytecode\n")
+        code, out = self.run_sync("check", "--root", kit)
+        self.assertEqual(code, 0, out)
+
     def test_modified_missing_and_extra_kit_files_fail(self):
         kit = self.make_kit()
         write(os.path.join(kit, "absd", "RULES.md"), "# Rules, locally edited\n")
@@ -295,8 +307,9 @@ class InstallTests(SyncTestCase):
         # never shipped: the inbox, maintainer files, non-agent files; product files untouched
         expected = set(KIT_OWNED) | {"absd/MANIFEST"} | set(seeds) | set(PRODUCT)
         self.assertEqual(set(files), expected)
-        for path, text in PRODUCT.items():
-            self.assertEqual(files[path], text.encode(), path)
+        for path, text in PRODUCT.items():   # an existing CLAUDE.md gains the pipeline's imports on top
+            expected_text = KIT["absd/templates/project/CLAUDE.md"] + "\n" + text if path == "CLAUDE.md" else text
+            self.assertEqual(files[path], expected_text.encode(), path)
         self.assertIn("kept     CLAUDE.md", out)
         self.assertIn("copied   absd/RULES.md", out)
         self.assertIn("::warning title=Template not in this kit::absd/templates/project/catalogue.md — "
@@ -305,6 +318,29 @@ class InstallTests(SyncTestCase):
         self.assertIn("Bootstrap", out)
         code, out = self.run_sync("check", "--root", product)
         self.assertEqual(code, 0, out)
+
+    def test_an_existing_settings_file_and_claude_md_are_completed_not_replaced(self):
+        template = {"agent": "manager", "permissions": {"allow": ["Bash(git status:*)"], "deny": ["Bash(git push -f:*)"]},
+                    "hooks": {"PreToolUse": [{"matcher": "Write", "hooks": [{"type": "command",
+                                                                             "command": "python3 absd/tooling/ownership_hook.py"}]}]}}
+        kit = self.make_kit(changes={"absd/templates/project/claude-settings.json": json.dumps(template)})
+        mine = {"permissions": {"allow": ["Bash(npm test:*)"]}, "model": "mine"}
+        product = self.tree("product", {**PRODUCT, ".claude/settings.json": json.dumps(mine),
+                                        "CLAUDE.md": "@absd/RULES.md\n# Shop\n"})
+        code, out = self.run_sync("install", "--from", kit, "--to", product)
+        self.assertEqual(code, 0, out)
+        with open(os.path.join(product, ".claude", "settings.json"), encoding="utf-8") as f:
+            merged = json.load(f)
+        self.assertEqual(merged["agent"], "manager")
+        self.assertEqual(merged["model"], "mine")
+        self.assertEqual(merged["permissions"], {"allow": ["Bash(npm test:*)", "Bash(git status:*)"],
+                                                 "deny": ["Bash(git push -f:*)"]})
+        self.assertIn("ownership_hook.py", json.dumps(merged["hooks"]))
+        self.assertEqual(read(os.path.join(product, "CLAUDE.md")), "@absd-project/context.md\n\n@absd/RULES.md\n# Shop\n")
+        self.assertIn("::warning title=Merged::.claude/settings.json existed", out)
+        product2 = self.tree("product2", {**PRODUCT, ".claude/settings.json": "{ not json"})
+        code, out = self.run_sync("install", "--from", kit, "--to", product2)
+        self.assertIn("::error title=Not merged::.claude/settings.json", out)
 
     def test_seeds_claude_md_when_the_product_has_none(self):
         kit = self.make_kit()
@@ -420,7 +456,9 @@ class UpgradeTests(SyncTestCase):
         self.assertIn("kept     absd-project/catalogue.md", out)
         self.assertIn("removed  .claude/agents/tester.md", out)
         self.assertIn("CHANGELOG", out)
-        self.assertIn('"ABSD version" in absd-project/context.md to 2.1.0', out)
+        self.assertIn('"ABSD version: 2.1.0" in absd-project/context.md', out)
+        self.assertLess(out.index("ABSD-Sync: upgrade 2.1.0"), out.index("ABSD version: 2.1.0"))   # sync commit first
+        self.assertIn("::warning title=Seed template changed::absd/templates/project/context.md", out)
         code, out = self.run_sync("check", "--root", product)
         self.assertEqual(code, 0, out)
 
@@ -447,6 +485,24 @@ class UpgradeTests(SyncTestCase):
                 self.assertEqual(code, 2, out)
                 self.assertIn("between cycles", out)
                 self.assertEqual(self.snapshot(product), before)
+
+    @unittest.skipUnless(shutil.which("git"), "git is not installed")
+    def test_refuses_while_a_cycle_branch_is_in_progress(self):
+        _, product = self.installed_product()
+        run = lambda *args: subprocess.run(["git", "-C", product, *args], capture_output=True, text=True, check=True)
+        run("init", "-q", "-b", "main")
+        run("config", "user.name", "Test")
+        run("config", "user.email", "test@example.com")
+        run("add", "-A")
+        run("commit", "-q", "-m", "installed")
+        run("switch", "-q", "-c", "absd/C004-cart")
+        write(os.path.join(product, "absd-project", "working", "cycle.md"), "# Cycle\nStatus: IN-PROGRESS\n")
+        run("add", "-A")
+        run("commit", "-q", "-m", "cycle open")
+        run("switch", "-q", "main")   # the default branch's tree shows no cycle
+        code, out = self.upgrade(product, self.make_next_kit())
+        self.assertEqual(code, 2, out)
+        self.assertIn("cycle in progress on absd/C004-cart", out)
 
     def test_allowed_when_the_cycle_is_complete(self):
         _, product = self.installed_product()

@@ -112,7 +112,8 @@ count for the whole cycle.
   amendment, Reproduce and re-bind adds its own evidence commit to the T-SHA chain in `cycle.md`.
 - Kit installs, upgrades and v1 migrations (`absd/tooling/absd_sync.py`) are committed on the default branch with the
   trailer `ABSD-Sync: <install|upgrade|migrate-v1> <version>` instead of `ABSD-Agent`; they may change only the kit,
-  add the seeds and make the migration moves.
+  add the seeds (install also completes an existing `.claude/settings.json` and `CLAUDE.md`) and make the migration
+  moves, and never sit between two commits of one cycle.
 - Enforced twice: at write time by the hook `absd/tooling/ownership_hook.py` (installed by the settings template; it
   refuses an ABSD agent's file write outside its own paths) and in history by `absd/tooling/ownership_check.py`
   (ownership and ordering per commit); the Auditor reviews every test change after T-SHA.

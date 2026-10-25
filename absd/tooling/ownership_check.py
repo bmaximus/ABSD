@@ -31,10 +31,14 @@ the range this check proves that
 
 Kit-sync commits carry the trailer `ABSD-Sync: <install|upgrade|migrate-v1> <version>` instead of ABSD-Agent (absd_sync.py
 prints the command): they may change the kit paths (absd/, .claude/agents/*.md, .github/agents/*.agent.md), ADD the
-product-owned seeds and make the v1 migration's moves — nothing else. The kit paths are read-only for every agent.
+product-owned seeds, complete .claude/settings.json and CLAUDE.md, write absd-project/upgrade-local-edits.md and make
+the v1 migration's moves — nothing else — and only between cycles: a kit-sync commit between two commits of one cycle
+is an error (RULES §5: kit syncs land on the default branch between cycles). The kit paths are read-only for every agent.
 
-Merge commits are skipped with a notice unless --include-merges (their files are then those that differ from any
-parent). Git reads trailers only from the LAST paragraph of the message, so write both in one paragraph:
+A merge commit whose result equals one of its parents for every file is skipped with a notice. A merge that carries
+changes of its own (a conflict resolution, or an "evil merge" that edits a file neither side changed that way: the
+files its combined diff lists) is checked like any commit, with those files. --include-merges checks every merge
+with every file that differs from any parent. Git reads trailers only from the LAST paragraph of the message, so write both in one paragraph:
   git commit -m "absd(C001): WP-01 — builder" -m $'ABSD-Agent: builder\\nABSD-Cycle: C001'
   git commit -m "absd(C001): WP-01 — builder" --trailer "ABSD-Agent: builder" --trailer "ABSD-Cycle: C001"
 
@@ -95,8 +99,10 @@ GLOB_SEPARATORS = re.compile(r"<br\s*/?>|[,\s]+")
 PLACEHOLDER = re.compile(r"<(?!br\b)[^<>]*>")   # a whole path cell that is a template placeholder
 
 
+sys.dont_write_bytecode = True   # no __pycache__ in the kit: an untracked file breaks every clean-tree hand-off
+sys.pycache_prefix = os.path.join(os.devnull, "absd")   # and never load bytecode the manifest does not cover
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from absd_sync import SEEDS  # noqa: E402  (the product-owned seeds a kit-sync commit may add)
+from absd_sync import LOCAL_EDITS, MERGED_SEEDS, SEEDS  # noqa: E402  (what a kit-sync commit may add or change)
 
 SEED_PATHS = frozenset(destination for _, destination in SEEDS)
 
@@ -354,6 +360,22 @@ def changed_files(repo: str, sha: str) -> tuple[list[str], set[str], set[str]]:
     return sorted(files), deleted, added
 
 
+def merge_own_files(repo: str, sha: str) -> tuple[list[str], set[str], set[str]]:
+    """The files a merge changes on its own — those that differ from EVERY parent (git's combined diff)."""
+    out = git(repo, "diff-tree", "--cc", "--no-commit-id", "--name-status", "-r", "--no-renames", "-z", sha)
+    fields = out.split("\0")
+    files, deleted, added = set(), set(), set()
+    for status, path in zip(fields[0::2], fields[1::2]):
+        if not status or not path:
+            continue
+        files.add(path)
+        if set(status) == {"D"}:
+            deleted.add(path)
+        elif set(status) == {"A"}:
+            added.add(path)
+    return sorted(files), deleted, added
+
+
 def is_archive_move(commit: Commit, path: str) -> bool:
     """The Manager archives a cycle by moving every per-cycle artifact out of working/ into archive/ (RULES §1):
     deleting another agent's file there in a commit that also adds archive files is that move, not authorship. Writing
@@ -398,14 +420,28 @@ def check_attribution(commits: list[Commit], allow_unattributed: bool, findings:
 
 def sync_allows(commit: Commit, path: str, rules: list[Rule]) -> bool:
     """A kit-sync commit (absd_sync.py install / upgrade / migrate-v1) may change kit paths, ADD the product-owned
-    seeds, and make the v1 migration's moves (v1 working/archive paths out, absd-project/ context and archive in)."""
+    seeds, complete .claude/settings.json and CLAUDE.md (install), write the upgrade's local-edits record, and make the
+    v1 migration's moves (v1 working/archive paths out, absd-project/ context and archive in)."""
     if owner_of(path, kit_rules())[0] == KIT:
         return True
-    if path in commit.added and path in SEED_PATHS:
+    if (path in commit.added and path in SEED_PATHS) or path in MERGED_SEEDS or path == LOCAL_EDITS:
         return True
     if path in commit.deleted and path.startswith(V1_PATHS):
         return True
     return path in commit.added and (path == f"{PROJECT_DIR}/context.md" or path.startswith(f"{PROJECT_DIR}/archive/"))
+
+
+def check_sync_placement(commits: list[Commit], findings: Findings) -> None:
+    """A kit-sync commit is never inside a cycle: no cycle id appears both before and after it in the range."""
+    for index, commit in enumerate(commits):
+        if commit.agent != SYNC:
+            continue
+        before = {c for other in commits[:index] for c in other.cycles}
+        after = {c for other in commits[index + 1:] for c in other.cycles}
+        inside = sorted(before & after)
+        if inside:
+            findings.errors.append(("ownership", f"{describe(commit)} (kit sync) sits inside cycle {', '.join(inside)}: "
+                                    "kit syncs are committed on the default branch between cycles (RULES §5)"))
 
 
 def check_ownership(commits: list[Commit], rules: list[Rule], strict: bool, findings: Findings) -> None:
@@ -415,7 +451,8 @@ def check_ownership(commits: list[Commit], rules: list[Rule], strict: bool, find
             for path in commit.files:
                 if not sync_allows(commit, path, rules):
                     findings.errors.append(("ownership", f"{describe(commit)} (kit sync) changed {path}: a kit-sync "
-                                            "commit may only change kit paths, add seeds and make v1 migration moves"))
+                                            "commit may only change kit paths, add seeds, complete the settings and CLAUDE.md, record "
+                                            "local kit edits and make v1 migration moves"))
             continue
         if commit.agent not in AGENTS:
             continue
@@ -535,14 +572,18 @@ def main(argv: list[str] | None = None) -> int:
             raise InputError(f"no commits in range {rev_range} — check --range or --base")
         t_shas = [resolve_commit(args.repo, sha) for sha in args.t_sha]
         check_chain(args.repo, t_shas)
-        skip_merges = not args.include_merges
-        merges = [c for c in commits if skip_merges and c.is_merge]
-        checked = [c for c in commits if not (skip_merges and c.is_merge)]
-        for commit in checked:
-            commit.files, commit.deleted, commit.added = changed_files(args.repo, commit.sha)
+        merges, checked = [], []
+        for commit in commits:
+            if commit.is_merge and not args.include_merges:
+                commit.files, commit.deleted, commit.added = merge_own_files(args.repo, commit.sha)
+                (checked if commit.files else merges).append(commit)
+            else:
+                commit.files, commit.deleted, commit.added = changed_files(args.repo, commit.sha)
+                checked.append(commit)
         findings = Findings()
         check_attribution(checked, args.allow_unattributed, findings)
         check_ownership(checked, rules, args.strict, findings)
+        check_sync_placement(commits, findings)
         if t_shas:
             check_gate_t(args.repo, checked, rules, t_shas, findings)
     except (OSError, InputError, GitError) as error:
@@ -557,7 +598,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"::warning title={title}::{message}")
     if merges:
         print(f"::notice title=merges::{len(merges)} merge commits skipped ({', '.join(c.short for c in merges)}) — "
-              "pass --include-merges to check them")
+              "they change no file on their own; pass --include-merges to check them anyway")
     for target in filter(None, (args.summary_md, os.environ.get("GITHUB_STEP_SUMMARY"))):
         with open(target, "a", encoding="utf-8") as out:
             out.write(summary + "\n")

@@ -15,13 +15,14 @@ Subcommands:
               manifest does not list (extra). Any difference fails.
   install     first installation into a product. Refuses when <to>/absd exists, when a v1 project is still in place
               (run migrate-v1 first so its context.md is kept), and when the kit checkout is not clean. Copies the kit
-              files and the MANIFEST, seeds missing product-owned files, prints the next steps.
-  upgrade     only between cycles: refuses while absd-project/working/cycle.md has a "Status: IN-PROGRESS" line,
-              when the kit checkout is not clean, and when check finds local changes to kit paths — unless
+              files and the MANIFEST, seeds missing product-owned files, completes an existing .claude/settings.json
+              (agent, permission rules, the ownership hook) and CLAUDE.md (the @-imports), prints the next steps.
+  upgrade     only between cycles: refuses while absd-project/working/cycle.md — in the working tree or on any
+              absd/C###-* branch, local or remote-tracking — has a "Status: IN-PROGRESS" line, when the kit checkout is not clean, and when check finds local changes to kit paths — unless
               --accept-local-edits, which records them in absd-project/upgrade-local-edits.md (old → new hash, path)
               for the Manager to turn into enrichment proposals. Then copies the new kit files, deletes kit files the
-              new manifest no longer lists, writes the new MANIFEST and seeds product-owned files whose template this
-              kit version introduces.
+              new manifest no longer lists, writes the new MANIFEST, seeds product-owned files whose template this
+              kit version introduces and names the seeds whose template changed (they are never overwritten).
   migrate-v1  moves a v1 project's working/context.md (or .claude/working/context.md) to absd-project/context.md and
               every entry of its sibling archive/ (or .claude/archive/) to absd-project/archive/<same name> — with
               `git mv` for tracked paths in a git work tree, plain moves otherwise. Never overwrites. Other v1 working
@@ -126,16 +127,14 @@ def local(root: str, path: str) -> str:
 
 
 def sha256_of(path: str) -> str:
-    digest = hashlib.sha256()
+    """Over the content with CRLF read as LF: a checkout with core.autocrlf (Git for Windows' default) is the same kit."""
     with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+        return hashlib.sha256(f.read().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def is_kit_owned(path: str) -> bool:
     """Contract §1.1 for a posix path relative to the repository root."""
-    if path.endswith(BYTECODE):
+    if path.endswith(BYTECODE) or "/__pycache__/" in f"/{path}":
         return False
     if path.startswith(KIT_DIR + "/"):
         return path != MANIFEST and not path.startswith(INBOX)
@@ -256,6 +255,56 @@ def seed(kit: str, target: str, manifest: Manifest, seeds: tuple[tuple[str, str]
     return seeded, kept, unshipped
 
 
+SETTINGS = ".claude/settings.json"
+CLAUDE_MD = "CLAUDE.md"
+MERGED_SEEDS = (SETTINGS, CLAUDE_MD)   # an existing one is completed at install, never left without the pipeline
+
+
+def merge_settings(template: str, existing: str) -> list[str]:
+    """Complete an existing .claude/settings.json with what the pipeline needs; returns what was added. The product's
+    own entries stay; nothing it allows is removed."""
+    with open(template, encoding="utf-8") as f:
+        seed_json = json.load(f)
+    with open(existing, encoding="utf-8") as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        raise InputError(f"{existing} is not a JSON object — merge {template} into it by hand")
+    added = []
+    if "agent" in seed_json and "agent" not in data:
+        data["agent"] = seed_json["agent"]
+        added.append(f'"agent": "{seed_json["agent"]}"')
+    for kind, rules in seed_json.get("permissions", {}).items():
+        if not isinstance(rules, list):
+            continue
+        mine = data.setdefault("permissions", {}).setdefault(kind, [])
+        for rule in rules:
+            if rule not in mine:
+                mine.append(rule)
+                added.append(f"{kind} {rule}")
+    hooks = seed_json.get("hooks", {}).get("PreToolUse", [])
+    if hooks and "ownership_hook.py" not in json.dumps(data.get("hooks", {}).get("PreToolUse", [])):
+        data.setdefault("hooks", {}).setdefault("PreToolUse", []).extend(hooks)
+        added.append("PreToolUse ownership hook")
+    if added:
+        with open(existing, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+            f.write("\n")
+    return added
+
+
+def merge_claude_md(template: str, existing: str) -> list[str]:
+    """Put the template's @-imports (RULES.md, context.md) at the top of an existing CLAUDE.md that lacks them."""
+    with open(template, encoding="utf-8") as f:
+        imports = [line for line in f.read().splitlines() if line.startswith("@")]
+    with open(existing, encoding="utf-8") as f:
+        text = f.read()
+    missing = [line for line in imports if line not in text.splitlines()]
+    if missing:
+        with open(existing, "w", encoding="utf-8", newline="\n") as f:
+            f.write("\n".join(missing) + "\n\n" + text)
+    return missing
+
+
 def remove_empty_dirs(root: str, directory: str) -> None:
     """Remove `directory` (posix, relative to root) and then its parents while they are empty; never root itself."""
     parts = directory.split("/") if directory else []
@@ -273,6 +322,22 @@ def cycle_in_progress(target: str) -> bool:
         return False
     with open(path, encoding="utf-8", errors="replace") as f:
         return any(IN_PROGRESS.search(line) for line in f)
+
+
+def cycle_branches_in_progress(target: str) -> list[str]:
+    """Cycle branches (absd/C###-*, local or remote-tracking) whose cycle.md says Status: IN-PROGRESS — a cycle lives
+    on its branch, so the default branch's working tree never shows it."""
+    if not is_git_work_tree(target):
+        return []
+    refs = run_git(target, "for-each-ref", "--format=%(refname:short)", "refs/heads/absd/", "refs/remotes/")
+    active = []
+    for ref in (refs.stdout.split() if refs is not None and refs.returncode == 0 else []):
+        if not re.search(r"(^|/)absd/C\d{3,}", ref):
+            continue
+        shown = run_git(target, "show", f"{ref}:{CYCLE}")
+        if shown is not None and shown.returncode == 0 and any(IN_PROGRESS.search(line) for line in shown.stdout.splitlines()):
+            active.append(ref)
+    return active
 
 
 def local_edit_rows(target: str, old: Manifest, diff: Differences) -> list[tuple[str, str, str, str]]:
@@ -440,12 +505,22 @@ def cmd_install(args: argparse.Namespace) -> int:
         copy_from(kit, target, path)
     copy_from(kit, target, MANIFEST)
     seeded, kept, unshipped = seed(kit, target, manifest, SEEDS)
+    merged = {}
+    for path, merge, template in ((SETTINGS, merge_settings, "claude-settings.json"), (CLAUDE_MD, merge_claude_md, "CLAUDE.md")):
+        if path in kept and f"{TEMPLATES}/{template}" in manifest.files:
+            try:
+                merged[path] = merge(local(kit, f"{TEMPLATES}/{template}"), local(target, path))
+            except (ValueError, KeyError) as error:   # json.JSONDecodeError is a ValueError
+                print(f"::error title=Not merged::{path}: {error} — merge {TEMPLATES}/{template} into it by hand")
     leftover = [path for path in kit_files(target) if path not in manifest.files]
 
     print(f"Installed ABSD {manifest.version} from {kit} into {target}:")
     print_paths("copied", sorted(manifest.files) + [MANIFEST])
     print_paths("seeded", seeded)
     print_paths("kept", kept)
+    for path, added in merged.items():
+        if added:
+            print(f"::warning title=Merged::{path} existed; added {'; '.join(added)} (the product's own entries stay)")
     for path in replaced:
         print(f"::warning title=Replaced::{path} existed and now holds the kit's version (git history has the old one)")
     for template, destination in unshipped:
@@ -470,6 +545,10 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
     if cycle_in_progress(target):
         raise InputError(f"{CYCLE} says Status: IN-PROGRESS — upgrade only between cycles: finish (Gate 3, archive) "
                          "or park the cycle first")
+    active = cycle_branches_in_progress(target)
+    if active:
+        raise InputError(f"cycle in progress on {', '.join(active)} — upgrade only between cycles: finish (Gate 3, "
+                         "merge) or park it first")
     new = require_clean_kit(kit)
     diff = compare(target, old)
     if not diff.clean and not args.accept_local_edits:
@@ -492,6 +571,9 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
     introduced = tuple((template, destination) for template, destination in SEEDS
                        if f"{TEMPLATES}/{template}" not in old.files)
     seeded, kept, _ = seed(kit, target, new, introduced)
+    changed_seeds = [(f"{TEMPLATES}/{template}", destination) for template, destination in SEEDS
+                     if old.files.get(f"{TEMPLATES}/{template}") not in (None, new.files.get(f"{TEMPLATES}/{template}"))
+                     and f"{TEMPLATES}/{template}" in new.files]
     if edits:
         write_local_edits(target, old.version, new.version, edits)
     leftover = [path for path in kit_files(target) if path not in new.files]
@@ -507,15 +589,21 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
         print(f"::warning title=Local kit edits::{len(edits)} local changes to kit paths recorded in {LOCAL_EDITS}")
     for path in leftover:
         print(f"::warning title=Not in the kit manifest::{path} sits under a kit-owned path — move it out, or check fails")
+    for template, destination in changed_seeds:
+        print(f"::warning title=Seed template changed::{template} changed in this version — {destination} is "
+              "product-owned and was not touched: compare them and merge what the new template adds")
     steps = [
+        f'Commit the upgrade alone as a kit-sync commit (kit paths, the MANIFEST, new seeds'
+        f'{", " + LOCAL_EDITS if edits else ""}): git add -A && git commit -m "absd: upgrade ABSD {new.version}" '
+        f'--trailer "ABSD-Sync: upgrade {new.version}" (ownership_check accepts it).',
         f"Read absd/CHANGELOG.md for every version after {old.version} up to {new.version}.",
-        f'Update "ABSD version" in {PROJECT_DIR}/context.md to {new.version}.',
+        f'Manager commit: "ABSD version: {new.version}" in {PROJECT_DIR}/context.md'
+        + (f", and the changed seed templates merged into {', '.join(d for _, d in changed_seeds)}" if changed_seeds else "")
+        + " (ABSD-Agent: manager).",
         "Tester baseline against the new and changed rules → gap list → DEBT items or a Foundation-delta cycle (Mode U).",
     ]
     if edits:
         steps.append(f"Manager: turn {LOCAL_EDITS} into enrichment proposals (ABSD playbook ENR).")
-    steps.append(f'Commit the upgrade as a kit-sync commit: git add -A && git commit -m "absd: upgrade ABSD {new.version}" '
-                 f'--trailer "ABSD-Sync: upgrade {new.version}".')
     print_steps("Next steps:", steps)
     return 0
 

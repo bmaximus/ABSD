@@ -186,6 +186,21 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("plans no test case", out)
 
+    def test_a_mode_d_plan_whose_every_def_binds_at_re_bind_conforms_with_no_test_case(self):
+        plan = self.write("rebind_plan.md", "# Test plan\n## 15. Reproduce\n### DEF-4 — no undo\n"
+                          "why missed: #3 · binds at re-bind: TC-0101 after the Analyst delta\n")
+        self.write("r/junit.xml", junit([("old test", "passed", {})]))
+        code, out = self.run_report("--plan", plan)
+        self.assertEqual(code, 0, out)
+        self.assertIn("0/0 planned test cases passing", out)
+
+    def test_duplicate_tc_ids_are_an_input_error(self):
+        self.write("test_plan/02-e2e.md", "| TC | Status |\n|---|---|\n| TC-0001 | planned |\n")
+        self.write("r/junit.xml", junit([("TC-0001", "passed", {})]))
+        code, out = self.run_report("--plan", self.plan)
+        self.assertEqual(code, 2)
+        self.assertIn("duplicate TC ids", out)
+
     def test_missing_failed_and_unplanned_test_cases(self):
         self.write("r/junit.xml", junit([
             ("TC-0001 signs in", "passed", {}),

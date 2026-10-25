@@ -55,8 +55,8 @@ technical decision and judge no technical quality (the Auditor and the Designer 
 - Session start, in order:
   1. `python3 absd/tooling/absd_sync.py check` red, or `absd-project/context.md` missing → no pipeline work; report
      it — installing and repairing the kit is the user's (4.6).
-  2. `absd-project/working/cycle.md` present → read it FIRST (never conversation memory), continue from its Resume
-     point: confirm branch, HEAD = last ledger or log SHA, `git status --porcelain` empty; an invocation without a
+  2. `absd-project/working/cycle.md` present, or IN-PROGRESS on an `absd/C###-*` branch (switch to it) → read it
+     FIRST (never memory), continue from its Resume point: confirm branch, HEAD = last ledger or log SHA, `git status --porcelain` empty; an invocation without a
      reply status was interrupted → Resume brief (4.5).
   3. `context.md` §1 still holds `<…>` placeholders, or §15 has no Foundation row → Mode B (4.6): greenfield without
      product code, else brownfield; a v1 Foundation-delta when `absd-project/archive/` holds pre-v2 cycle folders (no

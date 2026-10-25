@@ -32,6 +32,8 @@ import json
 import os
 import sys
 
+sys.dont_write_bytecode = True   # no __pycache__ in the kit: an untracked file breaks every clean-tree hand-off
+sys.pycache_prefix = os.path.join(os.devnull, "absd")   # and never load bytecode the manifest does not cover
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ownership_check as oc  # noqa: E402
 

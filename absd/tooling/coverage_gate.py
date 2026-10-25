@@ -17,7 +17,9 @@ into their declaring type — C# async state machines, lambdas and display class
 JVM anonymous and synthetic classes (`Outer$1`, `Outer$$Lambda$7`), generic arity and arguments (`Outer`1`,
 `Outer<T>`) — while named nested types (`Outer/Inner`, `Outer$Inner`) stay units of their own. A "class" named after
 its file (coverage.py, istanbul/nyc/c8 and similar emit `cart.py` / `index.ts`) is keyed by its file path, so two
-`index.ts` in different folders are two units.
+`index.ts` in different folders are two units; an unqualified name (Go's `-` and receiver types, grcov's `mod`) is
+keyed `<path>::<name>`, unique within its file. A Cobertura filename is resolved against the report's `<source>`
+roots, so per-package reports in a monorepo that each write `src/index.ts` stay distinct files.
 
 Cobertura is written by coverlet (.NET), coverage.py (`coverage xml`), istanbul/nyc/c8/vitest/jest
 (`cobertura` reporter), gocover-cobertura (Go), cargo-llvm-cov / grcov (Rust), JaCoCo via converters (JVM).
@@ -62,6 +64,7 @@ class Coverage:
 
 GENERATED_NESTED = re.compile(r"/<|\$(?=\d|\$)")   # C# Outer/<M>d__3, Outer/<>c · JVM Outer$1, Outer$$Lambda$7
 GENERIC_ARITY = re.compile(r"`\d+")
+UNIT_QUALIFIER = re.compile(r"[./:$]")   # Ns.Type, pkg.Class, Outer/Inner, Outer$Inner, crate::mod
 
 
 def normalise_unit(name: str, filename: str, mode: str) -> str:
@@ -70,8 +73,23 @@ def normalise_unit(name: str, filename: str, mode: str) -> str:
     if mode == "file" or not name or name == path or path.endswith("/" + name):
         return path
     match = GENERATED_NESTED.search(name)
-    unit = name[:match.start()] if match else name
-    return GENERIC_ARITY.sub("", unit).split("<")[0] or path   # Outer`1 → Outer · Outer<T> → Outer
+    unit = GENERIC_ARITY.sub("", name[:match.start()] if match else name).split("<")[0]   # Outer`1, Outer<T> → Outer
+    if not unit:
+        return path
+    # An unqualified name is only unique within its file: Go converters name package functions "-" and methods after
+    # the receiver ("Service"), grcov names a class after the file stem ("mod", "lib").
+    return unit if UNIT_QUALIFIER.search(unit) else f"{path}::{unit}"
+
+
+def resolve(filename: str, sources: list[str]) -> str:
+    """A Cobertura filename is relative to the report's <source> roots: per-package reports in a monorepo all write
+    `src/index.ts`. Key it by its path from the working directory when a root holds it, else as written."""
+    for source in sources:
+        candidate = os.path.join(source, filename)
+        if os.path.isfile(candidate):
+            relative = os.path.relpath(candidate)
+            return (candidate if relative.startswith("..") else relative).replace("\\", "/")
+    return filename.replace("\\", "/")
 
 
 def is_lcov(path: str) -> bool:
@@ -124,8 +142,10 @@ def read_report(path: str, excludes: list[re.Pattern], unit_mode: str, cov: Cove
     if is_lcov(path):
         return read_lcov(path, excludes, cov)
     count = 0
-    for cls in ET.parse(path).getroot().iter("class"):
-        filename = (cls.get("filename") or "").replace("\\", "/")
+    root = ET.parse(path).getroot()
+    sources = [(s.text or "").strip() for s in root.iter("source") if (s.text or "").strip()]
+    for cls in root.iter("class"):
+        filename = resolve(cls.get("filename") or "", sources)
         if any(rx.search(filename) for rx in excludes):
             continue
         unit = normalise_unit(cls.get("name") or "", filename, unit_mode)

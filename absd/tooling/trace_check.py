@@ -34,8 +34,8 @@ Gates (artifacts read from --working):
   gate2    every requirement in scope, every DEF defined in defect.md (whenever it is in --working), every UJ/SCR
            defined in design.md and every EXT referenced in the requirement source is referenced in architecture.md;
            it defines at least one WP.
-  gateT    test_plan.md defines at least one TC; every AC in scope, every NF and BR requirement in scope, every DEF
-           defined in defect.md (whenever it is in --working — or its "### DEF-n" Reproduce section says
+  gateT    test_plan.md defines at least one TC (none while every DEF binds at re-bind), each TC id once; every AC
+           in scope, every NF and BR requirement in scope, every DEF defined in defect.md (whenever it is in --working — or its "### DEF-n" Reproduce section says
            "binds at re-bind: <TCs>"), every UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
            or in its heading's section, and every source resolves (ABSD:ORACLE-1): SPEC:<AC|requirement> exists in
            the source or catalogue, SPEC:<UJ|SCR>[.state] exists in design.md, SPEC:architecture only on a TC that
@@ -387,6 +387,20 @@ def at_least_one(name: str, ids: set) -> Check:
     return Check(name, len(ids), failure="" if ids else "none defined")
 
 
+def duplicate_tcs(plan: Doc) -> list[str]:
+    """TC ids with more than one definition not marked removed — two planned tests under one id."""
+    seen: dict[str, int] = {}
+    for d in plan.definitions:
+        if in_family(d.id, "tc") and not d.excluded:
+            seen[d.id] = seen.get(d.id, 0) + 1
+    return sorted((tc for tc, n in seen.items() if n > 1), key=natural)
+
+
+def unique_tcs(plan: Doc) -> Check:
+    return Check("every TC id is defined once in test_plan.md", len(plan.defined("tc")), duplicate_tcs(plan),
+                 noun="defined twice")
+
+
 def excluded_note(doc: Doc, family: str) -> list[tuple[str, str]]:
     excluded = sorted(doc.excluded(family), key=natural)
     if not excluded:
@@ -627,8 +641,15 @@ def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
         requirements, acs, brief_notes = with_brief(working, requirements, acs)
         result.notes += brief_notes
     tcs = plan.defined("tc")
+    defects = source if source.label == "defect.md" else artifact(working, "defect.md", required=False)
+    rebind = {d.id for d in plan.definitions if in_family(d.id, "def") and REBIND.search(d.context)}
+    defs = defects.defined("def") if defects is not None else set()
+    if not tcs and defs and defs <= rebind:   # Mode D classification: every DEF waits for a source that is not there yet
+        result.notes.append(("notice", "no TC yet — every DEF binds at re-bind (ABSD:ORACLE-8)"))
+    else:
+        result.checks.append(at_least_one("test_plan.md defines at least one TC", tcs))
     result.checks += [
-        at_least_one("test_plan.md defines at least one TC", tcs),
+        unique_tcs(plan),
         coverage(f"every AC in scope of {source.label} is referenced in a TC row of test_plan.md", acs,
                  plan.tc_referenced("ac")),
         coverage(f"every NF requirement in scope of {source.label} is referenced in a TC row of test_plan.md",
@@ -636,9 +657,7 @@ def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
         coverage(f"every BR requirement in scope of {source.label} is referenced in a TC row of test_plan.md",
                  {r for r in requirements if "-BR-" in r}, plan.tc_referenced("requirement")),
     ]
-    defects = source if source.label == "defect.md" else artifact(working, "defect.md", required=False)
     if defects is not None:   # also after a requirements or UX delta added analysis.md to a Mode D cycle
-        rebind = {d.id for d in plan.definitions if in_family(d.id, "def") and REBIND.search(d.context)}
         result.checks.append(coverage("every DEF defined in defect.md is referenced in a TC row of test_plan.md or "
                                       "binds at re-bind", defects.defined("def"), plan.tc_referenced("def") | rebind))
     design_checks(result, design, working, plan, in_tc_rows=True)

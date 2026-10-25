@@ -50,6 +50,8 @@ import sys
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 
+sys.dont_write_bytecode = True   # no __pycache__ in the kit: an untracked file breaks every clean-tree hand-off
+sys.pycache_prefix = os.path.join(os.devnull, "absd")   # and never load bytecode the manifest does not cover
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import trace_check  # noqa: E402  (one Markdown reading of test_plan.md for both tools)
 
@@ -172,9 +174,12 @@ def read_plan(path: str) -> list[str]:
     except trace_check.InputError as error:
         raise ValueError(str(error)) from error
     planned = sorted(doc.defined("tc"), key=trace_check.natural)
-    if not planned:
+    duplicates = trace_check.duplicate_tcs(doc)
+    if duplicates:
+        raise ValueError(f"duplicate TC ids in {path}: {', '.join(duplicates)} (one planned test would never exist)")
+    if not planned and not trace_check.REBIND.search(doc.text):
         raise ValueError(f"{path} plans no test case (no TC-nnnn defined) — nothing to conform to")
-    return planned
+    return planned   # empty only for a Mode D plan whose every DEF binds at re-bind
 
 
 def verdict(statuses: list[str]) -> str:

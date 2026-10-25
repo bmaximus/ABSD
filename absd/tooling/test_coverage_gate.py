@@ -12,9 +12,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import coverage_gate  # noqa: E402
 
 
-def cobertura(classes):
-    """classes: list of (name, filename, [hits per line])"""
-    parts = ['<?xml version="1.0"?><coverage><packages><package name="p"><classes>']
+def cobertura(classes, sources=()):
+    """classes: list of (name, filename, [hits per line]); sources: the report's <source> roots"""
+    roots = "".join(f"<source>{root}</source>" for root in sources)
+    parts = [f'<?xml version="1.0"?><coverage><sources>{roots}</sources><packages><package name="p"><classes>']
     for name, filename, hits in classes:
         lines = "".join(f'<line number="{i + 1}" hits="{h}"/>' for i, h in enumerate(hits))
         parts.append(f'<class name={quoteattr(name)} filename={quoteattr(filename)}><lines>{lines}</lines></class>')
@@ -74,6 +75,29 @@ class CoverageGateTests(unittest.TestCase):
         code, out = self.run_gate("--min-total", "0", "--untested-allowlist", allow)
         self.assertEqual(code, 1)
         self.assertIn("Shop.ResultsReader (6 lines)", out)
+
+    def test_unqualified_class_names_are_units_within_their_file(self):
+        # gocover-cobertura: package functions are class "-", methods are the receiver type; grcov: the file stem
+        self.write("a/coverage.xml", cobertura([
+            ("-", "pkg/cart/cart.go", [1] * 4), ("Service", "pkg/cart/service.go", [1] * 4),
+            ("-", "pkg/pay/pay.go", [0] * 5), ("Service", "pkg/pay/service.go", [0] * 3),
+            ("mod", "src/net/mod.rs", [1] * 2), ("mod", "src/db/mod.rs", [0] * 2),
+        ]))
+        code, out = self.run_gate("--min-total", "0", "--min-lines", "1", "--untested-allowlist", self.write("allow.txt", ""))
+        self.assertEqual(code, 1, out)
+        for unit in ("pkg/pay/pay.go::-", "pkg/pay/service.go::Service", "src/db/mod.rs::mod"):
+            self.assertIn(unit, out)
+        self.assertNotIn("pkg/cart/cart.go::-", out)
+
+    def test_monorepo_reports_resolve_filenames_against_their_source_roots(self):
+        for package, hits in (("a", [1, 1]), ("b", [0, 0])):
+            self.write(f"packages/{package}/src/index.ts", "export {}\n")
+            self.write(f"reports/{package}.xml", cobertura([("index.ts", "src/index.ts", hits)],
+                                                          [os.path.join(self.root, "packages", package)]))
+        code, out = self.run_gate("--min-total", "0", "--min-lines", "1", "--untested-allowlist", self.write("allow.txt", ""))
+        self.assertEqual(code, 1, out)
+        self.assertIn("packages/b/src/index.ts", out)
+        self.assertIn("50.0%", out)
 
     def test_a_listed_unit_with_a_reason_is_allowed(self):
         self.write("a/coverage.xml", cobertura([("Shop.PaymentSeam", "src/PaymentSeam.cs", [0] * 6)]))
