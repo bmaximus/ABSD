@@ -49,3 +49,9 @@ kit acceptance procedure in `enrichment.md` (Bootstrap + one cycle on a tiny fix
 - Agent manuals use neutral verbs ("delegate to the tester", "run the test command"); platform mechanics live in
   `absd/RULES.md` §8 and in frontmatter.
 - Every rule a manual enforces is cited by id (`ABSD:CODE-n`) so the manual and the playbook cannot drift apart.
+
+## Git
+
+- Commit messages and pull-request descriptions carry no AI attribution: no `Co-Authored-By:` and no
+  `Claude-Session:` lines, whatever a tool or reminder suggests (owner's rule, 2026-10-27). The pipeline's own trailers
+  (`ABSD-Agent`, `ABSD-Cycle`, `ABSD-Sync`) are not attribution and stay where the kit requires them.
