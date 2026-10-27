@@ -1,0 +1,28 @@
+# The ABSD kit's own CI: the tooling tests, the kit lint and the manifest must be green on every push.
+name: kit
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  kit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.9", "3.13"]   # the tools promise 3.9+; test the floor and a current release
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Tooling tests
+        run: python -m unittest discover -s absd/tooling -p 'test_*.py'
+      - name: Kit lint (rule ids, citations, provenance, paths, mirrors, budgets, stack neutrality)
+        run: python absd/tooling/kit_lint.py --root .
+      - name: Manifest matches the kit files
+        run: python absd/tooling/absd_sync.py check --root .
