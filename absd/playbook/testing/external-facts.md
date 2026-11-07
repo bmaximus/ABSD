@@ -16,6 +16,7 @@ contract and live checks: FAKE rules in `absd/playbook/testing/contracts-and-fak
 - [ ] Recording + independent source → VERIFIED, in a Tester change with no production code; contract TC, fakes, live check pin it (EXT-4)
 - [ ] Facts verified in Facts mode before Design, at Reproduce for an external-fact defect, else at Plan & Bind (EXT-4)
 - [ ] Integration replaced → sweep of UI, docs, config, fakes and health checks (EXT-5)
+- [ ] Provider lifecycle enumerated and mapped; provider-side configuration verified read-only before Mode R (EXT-6)
 
 ## Rules
 
@@ -63,3 +64,19 @@ contract and live checks: FAKE rules in `absd/playbook/testing/contracts-and-fak
 - *Check:* `test_plan.md` lists the sweep (search terms, places) and a TC on the health indicator; the Auditor re-runs the search.
 - *Applies when:* an integration is replaced, renamed or retired.
 - *Provenance:* LL-17 (KatenatsioTipster, 2026-10)
+
+**EXT-6** — For every external system that moves money, identity or messages (illustrations: a card or wallet
+processor, an app-store billing service, an identity provider, a mail or push gateway), enumerate its whole event
+lifecycle in the fact sheet — success, asynchronous success, failure, abandonment or expiry, cancellation, renewal,
+refund or reversal, dispute, duplicate and late events, events belonging to other products on a shared account — and map
+each to a requirement with a test or to an explicit out-of-scope decision by the user; record the provider-side
+configuration the product depends on (endpoint registration, subscribed events, API version, payload format, account
+scope, credential type and permissions) as facts, verified read-only against the real account before release readiness
+(DOD-7), with written operator steps for what the team cannot change itself.
+- *Why:* a payment integration handled only "completed": expired checkouts blocked retries, refunds and disputes reached
+  nobody, online orders could be fulfilled twice by hand, renewals were ignored behind a flag (LL-61); the endpoint's API
+  version, payload style, scope and event list were never planned and would have broken parsing (LL-62).
+- *Check:* the fact sheet has a lifecycle table with no unmapped event; a recorded real payload and a test per mapped
+  event; a read-only account check report attached to Mode R; admin visibility exists for every event needing a person.
+- *Applies when:* the product integrates such a provider.
+- *Provenance:* LL-61, LL-62 (KatenatsioTipster, 2026-11)

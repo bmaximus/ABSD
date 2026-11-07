@@ -177,7 +177,9 @@ Done when: every routed item has a §0 answer; no unchanged section contradicts 
 10. **A statement is not evidence**: a fact about an external system from anyone, the owner included, is UNVERIFIED
     with a reserved EXT id and a verification owner; the dependent behaviour is specified flag-off and fail-closed
     (Q6; ABSD:EXT-1, ABSD:EXT-2). A new or changed system or fact → "Facts needed" in your reply (the Tester's Facts
-    mode records it before Design); a result that changes a fact comes back to you as a Delta.
+    mode records it before Design); a result that changes a fact comes back to you as a Delta. A provider that moves
+    money, identity or messages gets its whole event lifecycle and provider-side configuration listed, each event a
+    requirement or an explicit out-of-scope decision (ABSD:EXT-6).
 11. **Derived values are recomputed** by the system from source facts; a requirement accepting a total, status, score,
     owner or time from a caller fails (ABSD:ELIC-9, ABSD:SEC-5).
 12. **What, not how**: observable outcomes in business terms — what the principal sees, receives, can do next, what

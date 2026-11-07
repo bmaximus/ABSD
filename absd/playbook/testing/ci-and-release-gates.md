@@ -19,6 +19,7 @@ its negative control (GATE-8), and its invocation and thresholds are indexed in 
 - [ ] Merge: CI green at the Gate 3 product SHA; later commits only `absd-project/` or Log-step Lesson cells (GATE-14)
 - [ ] Ownership hook installed from the settings template (GATE-14)
 - [ ] Deploy only the exact commit of a green push-triggered run, one release at a time (GATE-15)
+- [ ] Shared default branch: tip diffed against the release tree; unintended removals → rebuild and re-verify (GATE-16)
 
 ## Rules
 
@@ -112,3 +113,14 @@ cancelled midway; keep manual dispatch as the audited override with validated in
   tested script (GATE-8); release concurrency queues; the Auditor matches the released commit to the tested one.
 - *Applies when:* the product deploys or publishes automatically.
 - *Provenance:* LL-33 (KatenatsioTipster, 2026-10)
+
+**GATE-16** — When more than one contributor (people, sessions or bots) can push to the default branch, diff its current
+tip against the release tree immediately before pushing a release: every removed line must be intended by the release;
+if the tip moved since the release was built, rebuild the release on the new tip and re-run every suite the moved
+commits or the merge touched. After any merge or conflict resolution on an integration branch, re-run the full suites
+before claiming it green.
+- *Why:* a release built from a stale shared branch removed a feature another contributor had merged minutes earlier;
+  a conflict resolution silently dropped a guard that only the full suites caught (LL-63, LL-64).
+- *Check:* the release record shows the diff check at the pushed tip; no release pushes onto a tip it was not built on.
+- *Applies when:* more than one writer to the default branch, or an integration branch merged from several packages.
+- *Provenance:* LL-63, LL-64 (KatenatsioTipster, 2026-11)

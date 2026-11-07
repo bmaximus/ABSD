@@ -3,6 +3,23 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.1.0 — 2026-11-07
+
+Payments reported "implemented" while members could not pay (KatenatsioTipster, proposal
+katenatsiotipster-2026-11-07, accepted). Ledger: LL-59 … LL-64.
+
+- **DOD-11** (new, LL-59): a status answer names the level a capability reached — specified, built, reachable,
+  verified, live — with evidence and known gaps; never a bare yes.
+- **E2E-18** (new, LL-60): every user-facing capability has a journey from the role's real navigation; a capability
+  only a test can open is not built.
+- **EXT-6** (new, LL-61, LL-62): providers that move money, identity or messages get their whole event lifecycle
+  mapped to requirements and tests, and their provider-side configuration verified read-only before release readiness.
+- **GATE-16** (new, LL-63, LL-64): with several writers to the default branch, diff the tip against the release tree
+  before pushing and rebuild on a moved tip; full suites after every merge or conflict resolution.
+- Manuals: Analyst cites EXT-6; Manager cites GATE-16 and DOD-11 (Mode R and status answers); Auditor's Mode R rows
+  add EXT-6 and E2E-18.
+- Scoreboard: KatenatsioTipster 31 → 37.
+
 ## 2.0.0 — 2026-10-14
 
 The first version built from a real product's lessons (KatenatsioTipster, ABSD 1.x: four cycles, a cross-cycle audit,
