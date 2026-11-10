@@ -39,7 +39,17 @@ acceptance-2-2-0-2026-11-10 (reports verbatim). Ledger: LL-66.
   compile failure. Designer: a data pipeline's trigger surface is named in design §17.
 - **SEC-8** (amended): synthetic test secrets use marked constants; evidence redacts scanner matches. Architecture
   template §12 pre-fills the secret, static, dependency and agent-configuration scan rows.
-- Kit acceptance run (ENR-14): see the bottom of this entry once re-run.
+- Kit acceptance run (ENR-14), 2026-11-10, one agent playing every role (independence not exercised):
+
+  | Fixture | Profiles | 2.2.0 run (full: Foundation + cycles) | 2.3.0 re-run (upgrade + replay of every failure) |
+  |---|---|---|---|
+  | tally | cli, library | FAIL: criteria 2, 3 (blocker K1, K2) | PASS: upgrade + sync check; empty-range check on the default branch passes; whole history passes; K1 replayed — the GATE-18 self-check flags the foreign file, the repair commit turns it into a notice and keeps the Manager's own file |
+  | shelf | web-ui, http-api | FAIL: criterion 3 (rounds) | PASS: upgrade + sync check; empty range and whole history pass; round counting now stated |
+  | ledger | data-pipeline | PASS with caveats (red run, rounds) | PASS: the C002 red run replayed on its own evidence — 2.2.0 command fails on 59 inherited TCs, the 2.3.0 command passes (59 inherited, 0 unplanned) |
+  | — | native-app | not run (no emulator in the run environment) | not run |
+
+  Criterion 1 (negative controls) passed in all three 2.2.0 runs and no gate tool's red behaviour changed. The
+  2.3.0 re-run replays the failures on the fixtures' real histories; it is not a new full cycle per profile.
 
 ## 2.2.0 — 2026-11-10
 
