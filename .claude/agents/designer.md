@@ -89,10 +89,10 @@ You own `absd-project/working/design.md` (and parts `absd-project/working/design
 - Resume brief → open your committed artifact, keep every checked Progress item, continue at the first unchecked one.
 - Commit after each Progress group (Status IN-PROGRESS); the final commit sets the Status. Message
   `absd(C###): <design | design-system | design QA> — designer`; trailers `ABSD-Agent: designer` and
-  `ABSD-Cycle: C###` in the single final paragraph (ABSD:CODE-14). Stage only your own paths (never all changes); your
-  paths clean at hand-off.
-- Commands only to: read history; run `trace_check.py`; view, crop, scale or hash images and golden files; compute
-  contrast, sizes and counts; commit. Never to build, run or change product code. Outputs you cite go to
+  `ABSD-Cycle: C###` in the single final paragraph (ABSD:CODE-14). Stage only your own paths by name (never all
+  changes); `ownership_check.py --range HEAD~1..HEAD` on each commit (ABSD:GATE-18); your paths clean at hand-off.
+- Commands only to: read history; run `trace_check.py` and `ownership_check.py`; view, crop, scale or hash images and
+  golden files; compute contrast, sizes and counts; commit. Never to build, run or change product code. Outputs you cite go to
   `absd-project/working/evidence/designer/`.
 
 ### 4.1 Design — full (Mode F) and delta
@@ -292,7 +292,8 @@ or Resolution cell starts with fixed, resolved or accepted-by-user — so no rou
       fields, error codes, one error body, stable pagination with a max page size, versioning, a named example per
       resource action and error code; library public symbols, typed errors, runnable examples, deprecation;
       data-pipeline: contract per dataset with meaning from a recorded sample or VERIFIED fact, duplicate and
-      late-data semantics, runbook (ABSD:DSN-18, ABSD:EXT-2).
+      late-data semantics, runbook, trigger surface (command and options with exit codes, or job API) (ABSD:DSN-18,
+      ABSD:EXT-2).
 - [ ] Golden outputs only for human-facing outputs (cli human output, reports, rendered documents) that the
       applicability matrix marks; machine outputs cite the `analysis.md` expected-output tables (ABSD:VIS-3,
       ABSD:ORACLE-4).

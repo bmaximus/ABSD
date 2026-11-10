@@ -85,11 +85,15 @@ reserved device names are refused.
 
 ### Secrets
 
-**SEC-8** — Keep secrets out of source, history, images, bundles, URLs, logs, error bodies, artifacts: production reads a secret store (vault, KMS, platform secret manager); development uses throwaway values; production manifests require each secret, no default (FAKE-3); credentials in headers, never query strings; one derivation site per secret-derived value; rotation rehearsed; a leaked secret is rotated at once (deleting history does not un-leak it).
+**SEC-8** — Keep secrets out of source, history, images, bundles, URLs, logs, error bodies, artifacts: production reads a secret store (vault, KMS, platform secret manager); development uses throwaway values; production manifests require each secret, no default (FAKE-3); credentials in headers, never query strings; one derivation site per secret-derived value; rotation rehearsed; a leaked secret is rotated at once (deleting history does not un-leak it). Synthetic test secrets
+(passwords, keys, tokens in tests and fixtures) come from named constants carrying a recognisable marker the secret
+scan's reviewed allowlist names, never a realistic literal; evidence, reports and audit notes quote a scanner match
+redacted (rule, file, line — never the value).
 - *Why:* a secret survived in a legacy file outside a narrowed audit (LL-43); a key derived twice broke sign-in (LL-22).
 - *Check:* a scanner (e.g. gitleaks, trufflehog) over tree and history every push (GATE-13) and by the Auditor (XCA-1); start-up refuses missing secrets.
 - *Applies when:* any secret; library: never ships, logs, defaults one.
-- *Provenance:* LL-43, LL-22 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-43, LL-22 (KatenatsioTipster, 2026-10); LL-66 (ENR-14 acceptance of 2.2.0, 2026-11-10: audit
+  evidence quoting test passwords tripped the repository's own scan)
 
 **SEC-9** — Print configuration by name, never by value: every path printing settings, URLs, traces, environment, diffs or dry-run plans emits names, hashes, changed markers or values of an allow-list of non-secret keys (never a deny-list); framework logging of full URLs and headers off; every secret in every config input (env, files, manifests, CI variables) has a test canary; a canary in any log, report, artifact, diff or summary fails GATE-13.
 - *Why:* a manifest secret reached a CI log via a dry-run diff (LL-8).

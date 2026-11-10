@@ -26,7 +26,7 @@ package (ARCH-24).
 
 | # | Step | Evidence | Rules |
 |---|---|---|---|
-| B1 | Scanner results at the audited product SHA: secret scan over tree and history, dependency, static and image scans at 0 open Critical/High (or a RISK), baseline dynamic scan at 0 high, agent-configuration scan clean | report paths, exit codes | SEC-8, SEC-13, SEC-16, XCA-1 |
+| B1 | Scanner results at the audited product SHA: secret scan over tree and history, dependency, static and image scans at 0 open Critical/High (or a RISK), baseline dynamic scan at 0 high, agent-configuration scan clean; synthetic test secrets come from marked constants and every quoted match is redacted | report paths, exit codes | SEC-8, SEC-13, SEC-16, XCA-1 |
 | B2 | Every threat row's TC and every abuse case's TC exists and passed in your own run | threat → TC → result table | SEC-14, ELIC-23 |
 | B3 | The parallel duplicate-request TC per money, entitlement or permission change asserts exactly one effect | TC ids, results | SEC-14, VAR-12 |
 | B4 | Access completeness test enumerates the running system's operations; cells assert status and visible fields; a suspended principal's live token is refused | test output | ACCESS-3, ACCESS-6, ACCESS-11 |

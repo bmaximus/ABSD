@@ -17,6 +17,8 @@
 - Audiences and devices: <who uses it, on what: e.g. members on phones (portrait), admins on desktop> · phone tests waived (web-ui, native-app): <no | yes — user's decision, date | n/a>
 - Principals: <every role and identity: anonymous, each role, admin-as-member, service identities, jobs>
 - Entitlement states: <e.g. active, expired, suspended, impersonated — or none>
+- Deploy target: <where each deployable runs and how it is reached: host or platform, environments (e.g. staging, production) — or "none: published package" (cli, library)>
+- CI service: <the CI platform running the push and nightly lanes | none — local gate script `<path>` run at every hand-off, nightly run by hand at cycle start (ADR, RISK; ABSD:DOD-5)>
 - Requirement area codes: <AREA = meaning; must not collide with the reserved codes in `absd/playbook/README.md`>
 
 ## 2. Technology stack (ADR-001)
@@ -43,6 +45,7 @@ every `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/`) a
 | `<test-config-files>` | tester | runner, coverage, mutation and test-lint configuration (standalone files): thresholds, retries, reporters |
 | `<shared-package-manifest>` | shared | only where the stack cannot split it; its test-dependency sections are the Tester's (architecture §11.8) |
 | `docs/testing/**` | tester | TESTING, ESCAPED-DEFECTS, EXPLORATORY, EXTERNAL-FACTS |
+| `<root ignore file, e.g. .gitignore>` | shared | each agent adds only the lines for its own outputs (dependencies, build output, test reports); the Tester may add its lines at Plan & Bind, before the Builder's first WP |
 | `<README.md, docs/**>` | shared | product docs |
 
 ## 4. Execution Environment
@@ -109,7 +112,7 @@ A suite that cannot run here is proven only by a CI run at the product SHA, the 
 - Builder model tier (RULES §8): strongest (default) | <faster tier> for mechanical WPs — never money, permission or security WPs
 - Second audit on money/permission cycles (XCA-17): ask per cycle (default) | always | never
 
-## 15. Completed cycles (the first row is the Foundation, Mode B; the merge is recorded here)
+## 15. Completed cycles (the first row is the Foundation, Mode B; the merge commit is filled in the next cycle's start commit)
 | Cycle | Date | Mode | Module | Gate 3 (product SHA) | Archive folder | Merge commit |
 |---|---|---|---|---|---|---|
 

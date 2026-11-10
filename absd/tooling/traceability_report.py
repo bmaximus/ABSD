@@ -187,12 +187,13 @@ def read_plan(path: str) -> list[str]:
 
 
 def read_inherited(patterns: list[str]) -> set[str]:
-    """TC ids planned in earlier cycles' plans: every glob must match a file (a missing input is RED, ABSD:GATE-1)."""
+    """TC ids planned in earlier cycles' plans. A glob matching nothing is a notice, not an error: the first cycle has no
+    archive, and a lost archive cannot hide anything — its tests then read as unplanned, which the red run fails on."""
     inherited: set[str] = set()
     for pattern in patterns:
         matched = sorted(p for p in glob.glob(pattern, recursive=True) if os.path.isfile(p))
         if not matched:
-            raise ValueError(f"No inherited plan found for: {pattern}")
+            print(f"::notice::no inherited plan matches {pattern} (none archived yet)")
         for path in matched:
             try:
                 doc = trace_check.load([path], os.path.basename(path))

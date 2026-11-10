@@ -147,7 +147,8 @@ semver policy
 | Dataset | Field | Type | Unit | Zone | Nullable | Key | Meaning (recorded sample · EXT id) |
 |---|---|---|---|---|---|---|---|
 Duplicate and late-data semantics · expected datasets: the analysis.md example tables (never designed here) · runbook:
-rerun · backfill · alert → first action
+rerun · backfill · alert → first action · trigger surface: how a scheduler or operator starts a run (command, options,
+exit codes — or the job API), even when no cli profile is declared
 
 ## 18. Protected screens and golden outputs (human-facing only: screens, cli human output, reports, rendered documents)
 | SCR / command / output | State / variant | Device class | Theme | Why protected | Dynamic regions to mask |

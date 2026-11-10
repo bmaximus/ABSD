@@ -38,9 +38,9 @@ is an error (RULES §5: kit syncs land on the default branch between cycles). Th
 Repairing a committed violation (history is never rewritten): the Manager reverts the violating commit's changes in a
 commit of its own that carries, per repaired commit, the trailer `ABSD-Repair: <sha> D-<n>` (D-n: the user's recorded
 decision). The repaired commit must be in the range and earlier than the repair commit, and the repair commit must
-touch every file the repaired commit changed; then the repaired commit's attribution and ownership errors become
-notices ("repaired by <repair sha> under D-<n>"), and the repair commit may change those files (only those) whoever
-owns them. A malformed trailer, a missing D-n, a commit outside the range or later than the repair, a repair not
+touch every file the repaired commit changed outside its agent's own paths (all its files when it was unattributed);
+then the repaired commit's attribution and ownership errors become notices ("repaired by <repair sha> under D-<n>"),
+and the repair commit may change those foreign files (only those) whoever owns them. A malformed trailer, a missing D-n, a commit outside the range or later than the repair, a repair not
 attributed to the manager, or a repair that leaves a file of the repaired commit untouched is an error on the repair
 commit. The owner re-commits the content it wants afterwards, in its own commit.
 
@@ -494,8 +494,17 @@ def check_ownership(commits: list[Commit], rules: list[Rule], strict: bool, find
         (findings.errors if strict else findings.warnings).append(("unowned", message))
 
 
-def check_repairs(repo: str, commits: list[Commit], findings: Findings) -> None:
-    """Read the ABSD-Repair trailers: a valid one marks its commit repaired and lets the repair touch its files."""
+def foreign_files(commit: Commit, rules: list[Rule]) -> list[str]:
+    """The files of `commit` its own agent may not change: all of them when it is not attributed to an agent."""
+    if commit.agent not in AGENTS:
+        return list(commit.files)
+    return [path for path in commit.files
+            if owner_of(path, rules)[0] not in (commit.agent, SHARED, UNOWNED) and not is_archive_move(commit, path)]
+
+
+def check_repairs(repo: str, commits: list[Commit], rules: list[Rule], findings: Findings) -> None:
+    """Read the ABSD-Repair trailers: a valid one marks its commit repaired and lets the repair touch the files the
+    repaired commit changed outside its own paths (its own files stay as they are)."""
     order = {commit.sha: index for index, commit in enumerate(commits)}
     for index, commit in enumerate(commits):
         for value in commit.repairs:
@@ -514,12 +523,13 @@ def check_repairs(repo: str, commits: list[Commit], findings: Findings) -> None:
                 elif order[target] >= index:
                     problem = f"ABSD-Repair names {repaired.short}, which is not earlier than the repair"
                 else:
-                    untouched = sorted(set(repaired.files) - set(commit.files))
+                    foreign = foreign_files(repaired, rules)
+                    untouched = sorted(set(foreign) - set(commit.files))
                     if untouched:
-                        problem = f"the repair of {repaired.short} leaves its files untouched: {', '.join(untouched)}"
+                        problem = f"the repair of {repaired.short} leaves its foreign files untouched: {', '.join(untouched)}"
                     else:
                         findings.repaired[repaired.sha] = (commit.short, match.group(2))
-                        findings.repair_files.setdefault(commit.sha, set()).update(repaired.files)
+                        findings.repair_files.setdefault(commit.sha, set()).update(foreign)
             if problem:
                 findings.errors.append(("repair", f"{describe(commit)}: {problem}"))
 
@@ -656,7 +666,7 @@ def main(argv: list[str] | None = None) -> int:
                 commit.files, commit.deleted, commit.added = changed_files(args.repo, commit.sha)
                 checked.append(commit)
         findings = Findings()
-        check_repairs(args.repo, checked, findings)
+        check_repairs(args.repo, checked, rules, findings)
         check_attribution(checked, args.allow_unattributed, findings)
         check_ownership(checked, rules, args.strict, findings)
         check_sync_placement(commits, findings)

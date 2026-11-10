@@ -106,7 +106,7 @@ Written before reading §9 of the first audit; independent findings with evidenc
 ## Iteration <n> — audited product SHA <sha> · trigger: fix pass <n> / close-out edit / merge · product diff <sha>..<sha>   (append-only)
 Runs (§2 format) · levels (§4 format) · fix-diff review · probes on touched rules
 
-| Finding | Severity | Result: RESOLVED / ACCEPTED / CARRIED / NEW / PRE-EXISTING | Failing TC before the fix (#) | Status | Evidence # |
+| Finding | Severity | Result: RESOLVED / ACCEPTED / CARRIED / NEW / PRE-EXISTING | Failing TC before the fix (#) | Status (starts with its state word: open · resolved · accepted-by-user) | Evidence # |
 |---|---|---|---|---|---|
 
 New and pre-existing findings: full rows in the §9 format, new ids.

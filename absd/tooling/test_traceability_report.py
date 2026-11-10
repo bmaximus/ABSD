@@ -234,11 +234,11 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertNotIn("TC-0051", self.load(out_json)["problems"]["missing"])
         self.assertIn("inherited from earlier cycles: 2 in tests, 1 passing, failing: TC-0060", out)
 
-    def test_inherited_plan_glob_must_match_and_needs_plan(self):
+    def test_unmatched_inherited_plan_is_a_notice_and_needs_plan(self):
         self.write("r/junit.xml", junit([("TC-0001", "passed", {})]))
         code, out = self.run_report("--plan", self.plan, "--inherited-plan", os.path.join(self.root, "nope", "*.md"))
-        self.assertEqual(code, 2)
-        self.assertIn("No inherited plan found", out)
+        self.assertIn("::notice::no inherited plan matches", out)
+        self.assertNotIn("::error::", out)
         code, out = self.run_report("--catalogue", self.catalogue, "--inherited-plan", self.plan)
         self.assertEqual(code, 2)
         self.assertIn("needs --plan", out)

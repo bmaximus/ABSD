@@ -1,7 +1,7 @@
 <!-- ABSD skeleton: copy to absd-project/working/brd.md; keep every heading (tools read them).
      Owner: manager. -->
 # BRD — C### <slug>
-Cycle: C### | Mode: F/S/C | Status: IN-PROGRESS/COMPLETE | Date: YYYY-MM-DD
+Cycle: C### | Mode: F/S/C/B | Status: IN-PROGRESS/COMPLETE | Date: YYYY-MM-DD
 
 ## 1. Outcome
 - Problem · who has it · desired outcome · observable success signal

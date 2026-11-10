@@ -667,6 +667,18 @@ class OwnershipCheckTests(unittest.TestCase):
         self.commit("absd(C001): evidence — builder", "builder", ["absd-project/working/evidence/builder/run.log"])
         self.assertEqual(self.run_check()[0], 0)
 
+    def test_repair_covers_only_the_foreign_files(self):
+        # the tester's commit also changed its own test: the repair reverts only the builder's file and keeps the test
+        bad = self.commit("absd(C001): plan — tester", "tester", ["tests/test_cart.py", "src/cart.py"])
+        self.repair(["src/cart.py"], f"{bad[:9]} D-3")
+        code, out = self.run_check()
+        self.assertEqual(code, 0, out)
+        self.git("checkout", "-q", "-B", "too-wide", bad)
+        self.repair(["src/cart.py", "tests/test_cart.py"], f"{bad[:9]} D-3")
+        code, out = self.run_check("--base", "main")
+        self.assertEqual(code, 1, out)
+        self.assertIn("changed tests/test_cart.py, owned by tester", out)
+
     def test_repair_of_unattributed_commit(self):
         bad = self.commit("stray", None, ["src/cart.py"])
         self.repair(["src/cart.py"], f"{bad} D-2")
@@ -678,7 +690,7 @@ class OwnershipCheckTests(unittest.TestCase):
         cases = {
             "missing decision": ([f"{bad[:9]}"], ["src/cart.py", "src/util.py"], "manager", "malformed trailer"),
             "malformed": ([f"zz{bad[:5]} D-1"], ["src/cart.py", "src/util.py"], "manager", "malformed trailer"),
-            "not all files": ([f"{bad[:9]} D-1"], ["src/cart.py"], "manager", "untouched: src/util.py"),
+            "not all files": ([f"{bad[:9]} D-1"], ["src/cart.py"], "manager", "foreign files untouched: src/util.py"),
             "not the manager": ([f"{bad[:9]} D-1"], ["src/cart.py", "src/util.py"], "builder", "only the manager"),
         }
         for name, (values, files, agent, expected) in cases.items():

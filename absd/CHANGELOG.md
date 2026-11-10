@@ -3,6 +3,44 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.3.0 — 2026-11-10
+
+Fixes from the kit acceptance run (ENR-14) of 2.2.0 on three fixture products — tally (cli + library), shelf (web-ui +
+http-api), ledger (data pipeline), each a Foundation plus one or two feature or defect cycles; proposal
+acceptance-2-2-0-2026-11-10 (reports verbatim). Ledger: LL-66.
+
+- **GATE-18** (new, blocker in tally, major in shelf): every agent stages only its own paths (never the whole tree) and
+  runs `ownership_check --range HEAD~1..HEAD` on each new commit; a committed foreign-path change is repaired, never
+  rewritten — a Manager commit restores the foreign files with `ABSD-Repair: <sha> D-<n>` after the user's decision
+  (`procedures/ownership-repair.md`); all seven manuals' commit steps cite it; the settings template denies
+  `git add -A/--all/-u` and `git commit -a`. RULES §5 notes that the write-time hook does not see staging.
+- **ownership_check**: an empty range passes with a notice (the default branch was red after every merge); the
+  `ABSD-Repair` trailer turns the repaired commit's errors into notices when the repair touches exactly its foreign
+  files. **GATE-14** and the TESTING template follow.
+- **traceability_report `--inherited-plan`** + **TRACE-9** (all three runs): archived plans make earlier cycles' TCs
+  inherited — never unplanned or missing, still failing if they fail; the red run stays `--fail-on unknown,unplanned`.
+- **trace_check**: gateT resolves earlier cycles' `SPEC:` ids through the catalogue; `open_findings` reads a `Result`
+  column; the audit template's Status cell starts with its state word; push-lane gate checks run only for gates whose
+  latest ledger row is PASS.
+- **GATE-5 / ORACLE-14**: equivalent mutants are recorded (id, location, reason, reviewer) and the gate asserts on the
+  survivor list — never on a mutation tool's exit status alone (one such gate could never fail).
+- **Rounds** (RULES §2, Manager 4.13, `cycle.md` counters): a round is a review with a FAIL verdict; re-passes from
+  upstream gaps, spec defects, halts or CLRs are logged, not counted; a resumed halted Build is the same pass.
+- **DOD-3**, Builder, Architect: a lint/type/format finding on code the blueprint dictates may be a TC-CONFLICT; the
+  Architect lists lint scopes for entry-point scripts. Test-tool versions live only in the Tester's files, so a
+  security bump is a Tester change, not a Gate 2 round. **GATE-3 / DOD-2**: living docs are committed before the
+  evidence run; a coverage-floor raise is recorded at Verify and applied at the next Plan & Bind.
+- **Foundation and park**: the brd skeleton allows `Mode: B`, the Manager proposes the QC set and the user signs it
+  off as a D-n; a parked Foundation keeps its brief's QC and ADR ids (**DOD-10**); `procedures/park.md` with a
+  clean-tree check; a shared root ignore file where each agent adds its own lines; the merge commit is recorded in
+  the next cycle's start commit.
+- **DOD-5**: a product without a CI service runs a local gate script at each hand-off (ADR + RISK); `context.md` gains
+  Deploy target and CI service rows. TESTING template: the fast suite must not abort on a later WP's collection or
+  compile failure. Designer: a data pipeline's trigger surface is named in design §17.
+- **SEC-8** (amended): synthetic test secrets use marked constants; evidence redacts scanner matches. Architecture
+  template §12 pre-fills the secret, static, dependency and agent-configuration scan rows.
+- Kit acceptance run (ENR-14): see the bottom of this entry once re-run.
+
 ## 2.2.0 — 2026-11-10
 
 Harvest from a read-only evaluation of an external agent-pipeline kit (proposal ecc-evaluation-2026-11-10, accepted:
@@ -51,7 +89,8 @@ the shortlist and the structural ideas). Ledger: LL-65.
   and SEC-15; Manager offers XCA-17, passes the Builder tier per invocation (RULES §8 Model tier row joined to its
   table). Procedure inputs and playbook routing rows completed; README corrections.
   Copilot mirrors unchanged (they point to the manuals).
-- Kit acceptance run (ENR-14): not yet run for this version — required before tagging 2.2.0.
+- Kit acceptance run (ENR-14): run 2026-11-10 on three fixtures; it **failed** (one blocker, majors in every run), so
+  2.2.0 was never tagged. Its fixes are 2.3.0.
 - **Next (planned, not in this release):** move other long situation-triggered sequences out of the manuals into
   procedures, one per release, each cited by a rule: brownfield adoption and v1 migration (Manager, Tester Baseline),
   Mode X lenses (Auditor 4.5), Gate 2R probes (Auditor 4.1 step 3), flake triage (Tester), kit upgrade (Manager Mode

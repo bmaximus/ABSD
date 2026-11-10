@@ -75,7 +75,7 @@ flowchart LR
 The full set: ten immutable rules and twelve quality laws in [`absd/RULES.md`](absd/RULES.md), each law tied to
 playbook rules with ids (`ABSD:CODE-n`).
 
-## What improved (v1 → 2.2)
+## What improved (v1 → 2.3)
 
 | Version | In short |
 |---|---|
@@ -83,10 +83,11 @@ playbook rules with ids (`ABSD:CODE-n`).
 | **2.0** | Kit vendored into `absd/`, product state in `absd-project/`. New **Tester**: specification-sourced tests committed red *before* code. Gate 2R, Gate T, Design QA; modes S/D/C/X/R/H/U/P; interface profiles; ownership enforced by a write-time hook and git history; stack-neutral gate tools with tests; every rule with provenance from a real product. |
 | **2.1** | From a launch-night payments failure: a status answer names its level (built ≠ reachable ≠ live), every capability is reachable from real navigation, payment/identity/messaging providers get their whole event lifecycle, releases are diffed against a moving default branch. |
 | **2.2** | Security by design (abuse cases → design review → tests → evidence checklist; model-output and agent-configuration rules); evidenced, reachability-graded findings; planned-vs-actual diff per work package; gate pipes that cannot hide a failure; on-demand **procedures** to keep manuals short; a model tier per role; an optional second auditor on money and permission paths; `kit_lint` refuses hidden Unicode in the kit. |
+| **2.3** | From the first end-to-end acceptance run on three test products: a lawful repair for a commit that touched another agent's files (no history rewrite), each agent checks its own commits, later cycles inherit earlier test plans, a round counts only a failed review, mutation gates check the survivor list, clearer Foundation, park and no-CI routes. |
 
 Still open (honestly): the backlog in [`absd/lessons/inbox/`](absd/lessons/inbox/), a scored benchmark of the
 agents themselves, risk-based routing to make small work lighter, and moving more of the long manuals into
-procedures (one so far: the security review).
+procedures (three so far: security review, ownership repair, park).
 
 ## Modes
 

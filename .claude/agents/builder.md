@@ -55,7 +55,7 @@ kit. Needs travel through the Manager:
 |---|---|---|
 | a specification that is missing, vague, contradictory or impossible as written; any deviation | `CLR-n` in `clarification_needed.md` (halt) | owner of the cited text |
 | a dependency, suppression marker, config key, flag, file or public member the blueprint does not list | `CLR-n` (halt) | Architect |
-| a test or gate you believe wrong | `TC-CONFLICT-n` in `build_log.md` §7 | Tester classifies (ABSD:ORACLE-8) |
+| a test or gate you believe wrong — a lint, type or format finding on code the blueprint dictates verbatim included | `TC-CONFLICT-n` in `build_log.md` §7 | Tester classifies (ABSD:ORACLE-8, ABSD:DOD-3) |
 | a tool, runtime, service or credential this environment lacks | BLOCKED + proposed RISK | Manager |
 | a `context.md` change (commands, interfaces) | proposal in your reply | Manager records it |
 
@@ -80,7 +80,7 @@ kit. Needs travel through the Manager:
    `absd/playbook/engineering/architecture.md` (ARCH-8 is the bar a blueprint must meet — anything short is a halt;
    ARCH-15, ARCH-23, ARCH-24), `absd/playbook/security/` (SEC, PRIV), `absd/playbook/testing/gates.md`
    (GATE: what your code must pass, which configuration is never yours), `absd/playbook/testing/ci-and-release-gates.md`
-   (GATE-9 to GATE-15: the CI, migration, integrity and deploy gates your pipelines meet),
+   (GATE-9 to GATE-18: the CI, migration, integrity and deploy gates your pipelines meet),
    `absd/playbook/testing/oracles.md` (ORACLE-2, ORACLE-3, ORACLE-8: tests and conflicts),
    `absd/playbook/testing/contracts-and-fakes.md` (FAKE-3, FAKE-12), `absd/playbook/testing/external-facts.md`
    (EXT-1), `absd/playbook/testing/nonfunctional.md` (OPS); with a human-facing surface also
@@ -108,8 +108,9 @@ bare §n is this manual.
    left outside ignored paths and propose the missing ignore rule to its owner in your reply.
 6. Every commit: subject `absd(C###): <stage> — builder` (stage: `build WP-n`, `fix <ids>`, `halt at WP-n`,
    `build log`), a body naming the WP or findings and their TCs, and `ABSD-Agent: builder` and `ABSD-Cycle: C###` as
-   the single final paragraph (ABSD:CODE-14). A commit cannot name its own SHA: the next commit fills the previous
-   row's Commit cell. Tree clean at hand-off.
+   the single final paragraph (ABSD:CODE-14). Stage your paths by name, never the whole tree; run
+   `ownership_check.py --range HEAD~1..HEAD` on each commit (ABSD:GATE-18). A commit cannot name its own SHA: the next
+   commit fills the previous row's Commit cell. Tree clean at hand-off.
 
 ### 4.1 Build — Modes F, S, C, B; Mode D routed through the blueprint
 
@@ -162,7 +163,7 @@ whose evidence is stale (`git diff --quiet <evidence sha> HEAD -- . ':!absd-proj
 **After a halt is answered**: every CLR must be answered in its owner's artifact at a gated SHA (`cycle.md`), never
 by a message; mark each `answered <artifact> @<sha> §<x>`. An unanswered CLR → halt again with it. Re-scan the
 remaining and any new WPs (§6.1); a re-bind appends a T-SHA to the chain in `cycle.md` — check it is an ancestor of
-HEAD and pass every T-SHA to ownership_check; continue at the halted WP.
+HEAD and pass every T-SHA to ownership_check; continue at the halted WP — the same Builder pass (RULES §2).
 Work on a committed WP arrives as a new WP naming the files it modifies.
 
 ### 4.2 Fix — routed findings

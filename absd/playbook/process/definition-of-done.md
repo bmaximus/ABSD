@@ -11,11 +11,11 @@ the evidence (STRAT-4; the Auditor verifies).
 - [ ] Feature cycle (F, S): gates, verified catalogue, green lanes, Design QA, audit, living docs, harvest, log, archive, merge (DOD-2)
 - [ ] Each work package compiles with the test units of done WPs, fast suite green or TC-CONFLICT declared, committed (DOD-3)
 - [ ] Defect (D): contained if live Critical; red first at the right level; why-missed fixed; sweep verified; logged; lesson closed (DOD-4)
-- [ ] Foundation (B): kit installed by the user; frame, ADRs, QCs verified, every gate RED by a negative control then GREEN, skeleton shipped (DOD-5)
+- [ ] Foundation (B): kit installed; frame, ADRs, QCs verified, every gate RED by a negative control then GREEN, skeleton shipped (DOD-5)
 - [ ] Brownfield: ratchets seeded from measured values and only tightening; inventory over the whole product (DOD-6)
 - [ ] Release readiness run at every trigger, not only before users get a build (DOD-7)
 - [ ] Release checklist complete; any open row blocks the release (DOD-8)
-- [ ] Upgrade (U): between cycles, CHANGELOG read, baseline against new rules, gaps as DEBT, version recorded (DOD-9)
+- [ ] Upgrade (U): between cycles, CHANGELOG read, baseline against new rules, gaps as DEBT (DOD-9)
 - [ ] Park (P): archived `_abandoned` with `cycle.md` intact, nothing merged, risks and lessons recorded (DOD-10)
 - [ ] A status answer names its level (specified, built, reachable, verified, live) with evidence and known gaps (DOD-11)
 
@@ -23,10 +23,8 @@ the evidence (STRAT-4; the Auditor verifies).
 
 **DOD-1** — Declare a cycle, defect or mode done only when every row of its table holds at one product SHA, each
 linked from `cycle.md` to its evidence (command output or a CI run at that product SHA, artifact section, commit).
-Evidence taken at product SHA S stays valid while `git diff --quiet S HEAD -- . ':!absd-project'` holds; pipeline
-commits (artifacts, evidence, reports, archive) never invalidate it, nor does the Tester's Log commit (only Lesson
-cells of `ESCAPED-DEFECTS.md`; no re-audit), the one later commit outside `absd-project/` the merge allows
-(`absd/RULES.md` §5, §6). A row that could not be checked is open. Only the user waives a row: a brd Decision plus a
+Evidence stays valid while no path outside `absd-project/` changes, the Tester's Log commit excepted (`absd/RULES.md`
+§5, §6). A row that could not be checked is open. Only the user waives a row: a brd Decision plus a
 RISK in `context.md`.
 - *Why:* audits certified tests they never ran (LL-24); post-audit fixes were never re-audited, so "done" rested on the
   orchestrator's word (LL-46); "at the exact HEAD" could never hold, since every hand-off is a commit (LL-55).
@@ -38,7 +36,7 @@ RISK in `context.md`.
 - *Why:* every pre-v2 cycle closed with criteria nobody tested (LL-45) and fixes nobody re-audited (LL-46).
 - *Check:* the Manager ticks rows 1–8 and 12 at Gate 3, row 11 after Harvest, row 14 after the Tester's Log, rows
   9–10 once archive step 2 has updated the living docs and the Risk register, and records row 13 in `context.md` §15
-  after the merge; the Auditor verifies rows 2–7 and 12.
+  (the merge commit in the next cycle's start commit); the Auditor verifies rows 2–7 and 12.
 - *Applies when:* Modes F and S.
 - *Provenance:* LL-45, LL-46 (KatenatsioTipster, 2026-10); LL-55, LL-56 (ABSD v2 kit review, 2026-10)
 
@@ -48,7 +46,7 @@ RISK in `context.md`.
 | 2 | The first T-SHA (Plan & Bind evidence commit) is an ancestor of every production change; each approved amendment or re-bind is in the T-SHA chain; no cross-owner commit | ownership_check `--t-sha` per chain entry |
 | 3 | Every in-scope catalogue requirement verified at the Gate 3 product SHA: 0 failing, 0 untested, 0 unknown; plan conformance 0 missing (TRACE-12) | traceability_report |
 | 4 | Every push-lane suite and gate green at that product SHA, all device and zone/locale projects included; 0 skipped; 0 pass-on-retry | `test_report.md`, CI at the product SHA |
-| 5 | Coverage floor met and raised on headroom; 0 new untested units; mutation threshold met, 100% on money/time/access rules | coverage_gate, mutation report |
+| 5 | Coverage floor met, a raise on headroom recorded (GATE-3); 0 new untested units; mutation threshold met, 100% on money/time/access rules | coverage_gate, mutation report |
 | 6 | Design QA PASS for every profile with a visual or human-facing output surface, at the same product SHA | `design_review.md` |
 | 7 | Audit PASS (0 Critical, 0 Major open) at the same product SHA; every in-cycle F/DQ finding fixed through a failing TC, Builder Fix and Verify; every post-audit change re-verified and re-audited (XCA-9) | `audit.md` iterations |
 | 8 | Agent exploratory pass on every device or runtime class wherever `TESTING.md` requires it; each finding routed, out-of-scope ones as DEF rows in `context.md` §16 (EXPL-6) | `EXPLORATORY.md` |
@@ -61,15 +59,16 @@ RISK in `context.md`.
 
 **DOD-3** — Finish a work package only when it compiles with every test unit whose work package is done (units keyed
 to later work packages stay `pending WP-m`, test_plan §12) and nothing green at the work-package start turned red;
-warnings-as-errors, lint, format and type checks are clean; the fast suite is green, or each remaining failure is
-declared `TC-CONFLICT-n` (test, failing assertion, cited architecture or analysis section, why the code is right); no
+warnings-as-errors, lint, format and type checks are clean; the fast suite is green, or each remaining failure (or
+static-check finding on code the blueprint dictates verbatim) is declared `TC-CONFLICT-n` (test, failing assertion,
+cited section, why the code is right); no
 suppression marker outside the `architecture.md` list; no deviation from the blueprint (one would have been a halt);
 one commit with trailers.
 - *Why:* interrupted builders left half-written code that others finished (LL-26); deviations were "resolved inline"
   instead of halting (LL-42); one new symbol failed a whole compiled test project at WP-1 (LL-57).
 - *Check:* `build_log.md` WP row links commit and command outputs; the Auditor greps for markers and deviation notes.
 - *Applies when:* every Builder pass (Build and Fix).
-- *Provenance:* LL-26, LL-42 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-26, LL-42 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10); LL-66 (ENR-14, 2026-11)
 
 **DOD-4** — Close a defect (Mode D, one or a batch of DEF of one class) only when every row holds; the main rule is
 ESC-1.
@@ -108,7 +107,7 @@ ESC-1.
 | 5 | Every gate shown RED once by a negative control, then GREEN: untested unit, unexpected error signal, unknown requirement id, missing planned TC, foreign-owner commit to a test path; when operations have principals: unruled operation; when an external system exists: missing live credential; when the product has secrets: secret canary in a log |
 | 6 | Every suite has run locally or in CI at the product SHA; Execution Environment says where each runs |
 | 7 | Walking skeleton: one trivial slice through every declared interface; deployables: deployed by the pipeline with version-aware health, smoke and a rehearsed rollback, booting on empty infrastructure; cli, library: built once, published and installed with install smoke and withdraw or yank (OPS-1, OPS-3); fresh clone → running from the docs (OPS-6) |
-| 8 | Kit installed by the user on the default branch (`ABSD-Sync: install <version>` commit) and `absd_sync.py check` green; ownership hook installed; ownership_check and trace_check in CI; the settings allow list holds the `context.md` commands |
+| 8 | Kit installed by the user on the default branch (`ABSD-Sync: install <version>` commit) and `absd_sync.py check` green; ownership hook installed; ownership_check and trace_check in CI (no CI service: a local gate script at every hand-off, ADR + RISK); the settings allow list holds the `context.md` commands |
 
 **DOD-6** — Adopt an existing codebase with ratchets that only tighten: seed the untested-unit allowlist with every
 currently untested unit (reason "baseline pre-ABSD — DEBT-n"; entries only removed), start the coverage floor at the
@@ -126,8 +125,8 @@ conflicting guidance moved or deleted, `context.md` restructured to ≤ 25 KB, i
 - *Provenance:* LL-6, LL-27 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
 
 **DOD-7** — Run release readiness (Mode R) before users get a build and at every trigger: first use of real credentials
-for any external system; a flag turned on in a user-facing environment (re-enabling a feature contained in Mode D
-included: DOD-4 row 6); an external system's version or contract change; an infrastructure change (host, platform,
+for any external system; a flag turned on in a user-facing environment (incl. re-enabling a feature contained in Mode D,
+DOD-4 row 6); an external system's version or contract change; an infrastructure change (host, platform,
 region, store major version, deploy tooling). `cycle.md` records the trigger and the scope it puts under DOD-8.
 - *Why:* the escapes clustered on the first day the real feed credential was used (LL-1, LL-3); a platform's change to
   asynchronous deploys broke redeploy and rollback (LL-7); a flag turned on at runtime did not rewire (LL-23); a live
@@ -152,14 +151,13 @@ region, store major version, deploy tooling). `cycle.md` records the trigger and
 | 5 | Human-facing profiles: human sessions per affected principal × device or runtime class (EXPL-4) and the manual acceptance checklist ticked (EXPL-8); web-ui, native-app: real-device checks (EXPL-9) |
 | 6 | When the product owns persistent state (a cli's or library's local state and config included): migrations from empty and from the previous release with data; the previous release runs on the new schema |
 | 7 | When the product owns persistent state: backup → restore drill current; a backup is taken right before the deploy (OPS-5) |
-| 8 | Deployables: the tested digest (OPS-2), version-aware health, smoke, synthetic journey, error-rate watch, automatic rollback rehearsed (OPS-3), who watches and for how long; cli, library: the tested package published, install smoke, withdraw or yank rehearsed (OPS-3) |
+| 8 | Deployables: the tested digest (OPS-2), version-aware health, smoke, synthetic journey, error-rate watch, automatic rollback rehearsed (OPS-3), who watches and how long; cli, library: tested package published, install smoke, withdraw or yank rehearsed |
 | 9 | Production secrets only in the secret store; canary gate green; anything ever committed rotated |
 | 10 | Every operability default within its OPS *Applies when* verified or waived by the user (ELIC-14) |
 | 11 | Release notes generated from the catalogue report; the user's go recorded |
 
 **DOD-9** — Finish a kit upgrade (Mode U) only when every row holds.
-- *Why:* a project that adapts the kit in prose instead of upgrading it forks, and its lessons stop flowing back
-  (LL-28).
+- *Why:* a project adapting the kit in prose instead of upgrading forks it; its lessons stop flowing back (LL-28).
 - *Check:* `context.md` ABSD version equals `absd/VERSION`; `absd_sync.py check` is green; the gap list exists.
 - *Applies when:* Mode U.
 - *Provenance:* LL-28 (KatenatsioTipster, 2026-10)
@@ -173,16 +171,17 @@ region, store major version, deploy tooling). `cycle.md` records the trigger and
 | 5 | `context.md` ABSD version bumped; every suite and gate green at the product SHA with the new kit |
 
 **DOD-10** — Park or abandon a cycle (Mode P) only when every row holds; nothing else of it reaches the default branch.
+Steps: `absd/playbook/procedures/park.md`.
 - *Why:* interrupted runs without saved state were finished by the wrong agent or lost (LL-26).
 - *Check:* the archive folder name ends `_abandoned`; its `cycle.md` names the branch and resume point.
 - *Applies when:* Mode P; not to parking in-flight v1 work, a Foundation-delta step (DOD-6) with no `cycle.md`.
-- *Provenance:* LL-26 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-26 (KatenatsioTipster, 2026-10); LL-66 (ENR-14, 2026-11)
 
 | # | Done when |
 |---|---|
 | 1 | `cycle.md` records the user's decision and date, the last gate passed, the resume point and the branch, which is kept unmerged |
 | 2 | Archived as `absd-project/archive/NNN_YYYY-MM-DD_slug_abandoned/` with every artifact and `cycle.md` intact |
-| 3 | Only the archive folder and the Manager's living-doc updates reach the default branch; ids used stay consumed |
+| 3 | Only the archive folder and the Manager's living-doc updates reach the default branch, on a clean tree; ids used stay consumed, except a Foundation brief's `QC-n` and ADR numbers |
 | 4 | Risk register and DEBT updated with unresolved questions, UNVERIFIED facts and partial work |
 | 5 | Lessons harvested, including why the cycle stopped; `context.md` active cycle: none |
 

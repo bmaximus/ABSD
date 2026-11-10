@@ -226,8 +226,8 @@ Archive, in order (refused while a finding, escape or halt lacks a lessons row, 
 4. Merge per the `context.md` merge policy when CI is green at the G3 product SHA (ABSD:STRAT-7) and
    `git diff --stat <G3 product SHA> HEAD -- . ':!absd-project'` shows only the Tester's Log commit (Lesson cells);
    plan gates then note "no active cycle" (ABSD:GATE-14). A merge commit, never squash or rebase. A release trigger in
-   the change → Mode R before that action (ABSD:DOD-7); a Mode D merge never waits for Mode R. Then DOD-2 row 13
-   (archive folder, merge commit) goes into the §15 row.
+   the change → Mode R before that action (ABSD:DOD-7); a Mode D merge never waits for Mode R. DOD-2 row 13: the
+   archive folder goes into the §15 row now, the merge commit in your next cycle's start commit.
 
 ### 4.11 Mode U — kit upgrade
 
@@ -241,15 +241,14 @@ against new and changed rules → gaps → DEBT or a Foundation-delta. Bump the 
 
 ### 4.12 Mode P — park or abandon
 
-On the user's decision, meet ABSD:DOD-10: decision, date, last gate, resume point and branch in `cycle.md`; archive
-intact as `absd-project/archive/NNN_YYYY-MM-DD_slug_abandoned/`; only the archive and your living docs reach the
-default branch (the cycle branch stays unmerged); unresolved questions, UNVERIFIED facts and partial work go to RISK
-and DEBT; ids stay consumed; harvest why it stopped.
+On the user's decision, meet ABSD:DOD-10 by the steps in `absd/playbook/procedures/park.md`: the cycle branch stays
+unmerged; only the archive and your living docs reach the default branch; harvest why it stopped.
 
 ### 4.13 Counters and escalation
 
 Limits: 3 Builder passes per cycle (every Build or Fix pass, whoever found the defect); 3 rounds per gate (G1, GUX,
-G2/G2R, GT, Design QA); 3 halts per cycle (not Builder passes); 2 resumes per invocation. At a limit with
+G2/G2R, GT, Design QA; a round = a FAIL verdict, other re-passes logged only — RULES §2); 3 halts per cycle (not
+Builder passes; a resumed halted Build is the same pass); 2 resumes per invocation. At a limit with
 Critical/Major open, or on a dispute only the user can settle, stop and send `ABSD escalation — C### <slug> ·
 <counter> <n>/<limit>` with: history (one line per round or pass: failed ids → what changed); open findings with
 severity and owner; options A, B and C = park (Mode P), each with cost and risk; your recommendation in product terms;
@@ -334,7 +333,8 @@ to the owner, never fixed by you. You check presence and coverage, never quality
       user as a D-n (ABSD:ELIC-19).
 - [ ] Catalogue delta present; ids permanent; area codes not reserved (ABSD:ELIC-20).
 - [ ] The user saw the matrix, the role value check and the inventory (every Unknown and suspected bug) and signed
-      off; D-n rows and the sign-off line in brd §9 (ABSD:ELIC-21; LL-50). Your own reading never passes Gate 1.
+      off; D-n rows and the sign-off line in brd §9 (ABSD:ELIC-21; LL-50); Mode B: brd `Mode: B` lists the `QC-n`
+      set you proposed from the profile defaults, signed off as a D-n. Your own reading never passes Gate 1.
 - [ ] Approved → analyst · catalogue apply (own commit) → `gate1` all ✓ → ledger PASS at that SHA → tester · Facts
       for the ids in the Analyst's "Facts needed:" reply line; a Facts result that changes a requirement →
       analyst · Delta → G1.
@@ -426,7 +426,7 @@ for it (an amendment when an oracle changes).
 | Test-suite finding (L6, weak oracle, missing test, DQ a bound test missed) | tester (Verify; amendment if an oracle changes) → re-audit |
 | Flake in a test added or changed this cycle | tester reproduces it deterministically now: test at fault → harness fix (seeded reproduction red, then green); product race → TF → Fix (ABSD:ESC-11) |
 | Flake in an older test | §16 DEF; also a TF only if it leaves an in-scope requirement unverified; one that turns the acceptance job red blocks the merge → Mode D first |
-| Process finding (ownership, ordering, Mode S misclassified) | the violating agent repairs its own artifact; lessons row; Mode S misclassified: 4.3 |
+| Process finding (ownership, ordering, Mode S misclassified) | own paths: the violating agent repairs its artifact; a foreign-path commit: `absd/playbook/procedures/ownership-repair.md` (ABSD:GATE-18); lessons row; Mode S misclassified: 4.3 |
 | Finding outside the cycle's scope | §16 DEF (ABSD:EXPL-6); a Critical/Major one blocks G3 until the user accepts it (context §13) |
 | Secret exposed | user told at once (rotation is theirs); builder · Fix removes it |
 
@@ -460,7 +460,8 @@ for it (an amendment when an oracle changes).
 3. No production code before the route's gates passed for the revision (rule 2). Never override a verdict, downgrade
    a severity (ABSD:XCA-7) or accept a finding for the user (a Critical: written risk acceptance, §13); escalate at a
    4.13 limit (rule 7).
-4. A full brief per delegation; trailers and a clean tree at every hand-off (4.5).
+4. A full brief per delegation; trailers and a clean tree at every hand-off (4.5); you stage only your own paths by
+   name, never the whole tree, and check each commit (ABSD:GATE-18).
 5. No product-path change after the final audit without re-verify and re-audit (LL-46); after G3 only documentation
    (living docs, the Tester's Log, the archive).
 6. Nothing reaches the default branch outside a mode or a kit sync, before Gate 3 or without the merge policy's

@@ -68,7 +68,7 @@ Builder objections to a test reach you as `TC-CONFLICT-n` (`build_log.md`); you 
    it cites; Verify — `build_log.md`, `test_plan.md`, routed findings, the code; Baseline — existing suites and test
    documents (U: `absd/CHANGELOG.md`); Log — `absd-project/lessons.md`.
 5. Playbook — every file's Checklist in full, a rule's full text whenever its item applies: every file in
-   `absd/playbook/testing/` (VAR, EXT, E2E-11–15, GATE-9–15, PERF, COMPAT included);
+   `absd/playbook/testing/` (VAR, EXT, E2E-11–15, GATE-9–18, PERF, COMPAT included);
    `absd/playbook/process/requirements.md` (ELIC: spec defects); `absd/playbook/process/definition-of-done.md` (the
    DOD rows your evidence closes).
 6. The usage headers of the `absd/tooling/` tools (trace_check, traceability_report, coverage_gate, ownership_check).
@@ -90,7 +90,8 @@ Builder objections to a test reach you as `TC-CONFLICT-n` (`build_log.md`); you 
    SHA; (c) evidence + artifact (only `absd-project/`). Plan & Bind's and Reproduce's (c) is **T-SHA**; each applied
    amendment or re-bind repeats (a)–(c), its (c) joining the T-SHA chain. A path outside `absd-project/` changed after
    (b) moves the product SHA: rerun. Facts, Log: one commit. Message `absd(C###): <stage> — tester`, trailers
-   `ABSD-Agent: tester`, `ABSD-Cycle: C###` in one paragraph; clean tree; reply (§9).
+   `ABSD-Agent: tester`, `ABSD-Cycle: C###` in one paragraph; stage your paths by name, never the whole tree, and run
+   `ownership_check.py --range HEAD~1..HEAD` on each commit (GATE-18); clean tree; reply (§9).
 
 ### 4.1 Baseline — Mode B, Mode U
 
@@ -165,9 +166,9 @@ answer. A CR may first ask only for the tests it invalidates (TRACE-11): list th
      row (GATE-8).
 5. Self-check §6.2, §6.3; `python3 absd/tooling/trace_check.py gate gateT --external-facts <EXTERNAL-FACTS.md path>`,
    every ✗ fixed (CHAR resolves against any INH the source cites: confirm Keep).
-6. Commit tests and plan (a); run them at that commit (b), plan conformance with `traceability_report.py --plan …
-   --fail-on unknown,unplanned`: each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`), any
-   other is a plan defect (full conformance at Verify). Each new TC is RED for its stated reason — failed assertion,
+6. Commit tests, plan and any floor raise recorded at the last Verify (a); run them at that commit (b), plan
+   conformance with `traceability_report.py --plan … --inherited-plan <archived plans> --fail-on unknown,unplanned`
+   (TRACE-9): each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`), any other is a plan defect (full conformance at Verify). Each new TC is RED for its stated reason — failed assertion,
    unknown route, missing command, absent field; a compile or collection failure counts only in a unit keyed to the WP
    introducing the symbol (ORACLE-3); anything else is repaired, recommitted, rerun. Exception: gate-type `QC-n` rows
    (planted-failure fixture, TRACE-1), CHAR tests and TCs of existing behaviour may pass at T-SHA, shown able to fail by
@@ -226,8 +227,9 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
 5. White-box unit tests the no-untested-unit gate needs, spec oracles (`SPEC:architecture §x` only for internal units,
    ORACLE-1), in plan §17, each seen failing (ORACLE-13, GATE-2). Mode D: the fixed kind of test, sweep dispositions.
 6. Gates: coverage_gate (each language's `--reports` glob matching, `--fail-on-stale`, the `TESTING.md` §2 `--min-layer`
-   floors; floor met, raised on ≥ 1 point headroom — GATE-2, GATE-3); traceability_report catalogue run + plan
-   conformance (`--fail-on failing,unknown,missing`), each `--junit` glob matching (TRACE-6, TRACE-9); trace_check
+   floors; floor met, a raise on ≥ 1 point headroom recorded for the next Plan & Bind — GATE-2, GATE-3);
+   traceability_report catalogue run + plan conformance (`--fail-on failing,unknown,missing`, the archived plans as
+   `--inherited-plan`), each `--junit` glob matching (TRACE-6, TRACE-9); trace_check
    gateT; ownership_check `--base <default branch> --t-sha <each T-SHA, oldest first>` (GATE-14); mutation on changed
    code, survivors killed by spec-sourced TCs or justified (GATE-5, ORACLE-14); repeated and random-order runs for
    flakes (GATE-6); a11y scan, keyboard (A11Y-1–4); budgets, query counts, load (PERF-1–4); visual baselines (VIS-2);
@@ -241,7 +243,7 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
    foreign zone; web-ui, native-app also a dialog past the longest timer, keyboard only, slow network,
    back/refresh/second tab. In scope → TF; outside → proposed DEF; wanted otherwise → decision (EXPL-6); severity per
    EXPL-5; logged "tester agent".
-9. Living docs: `TESTING.md`; `EXTERNAL-FACTS.md` (EXT-4); `EXPLORATORY.md`; allowlist; Mode D: an `ESCAPED-DEFECTS.md`
+9. Living docs, written before the run and committed in (a) — a later edit moves the product SHA: `TESTING.md`; `EXTERNAL-FACTS.md` (EXT-4); `EXPLORATORY.md`; allowlist; Mode D: an `ESCAPED-DEFECTS.md`
    row per DEF, every column filled, Lesson `pending H` (ESC-8).
 10. Commits (§4.0): (a) tests, living docs; (b) every reported result and the gallery at that product SHA; (c)
     evidence + `test_report.md` (§5.2): TF-n in the unified schema, XCA-7 severity, fixed only with evidence at the
