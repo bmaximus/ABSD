@@ -10,6 +10,9 @@ Answers two questions after a test run:
      The plan is read the way trace_check.py reads it: a TC is planned when it is the first token of a table row's
      first cell or of a heading, outside code fences, and not marked removed/retired; test_plan.md also takes in the
      parts in a directory test_plan/ next to it (a split plan). A plan that plans no TC is an input error.
+     From the second cycle on, earlier cycles' tests stay in the suite: --inherited-plan (the archived cycles'
+     test_plan.md files) makes their TC ids "inherited" — not unplanned, not required to be present (missing applies
+     only to --plan), but still failing when one of their tests fails (ABSD playbook TRACE-9).
 
 How tests link (use any; all are read):
   - JUnit properties on the testcase: <property name="requirement" value="ACC-1"/> (repeatable or comma-separated),
@@ -28,6 +31,7 @@ usage:
   traceability_report.py --junit "test-results/**/*.xml" [--junit ...]
                          [--catalogue absd-project/catalogue.md]
                          [--plan absd-project/working/test_plan.md]
+                         [--inherited-plan "absd-project/archive/*/test_plan.md" ...]
                          [--fail-on failing,unknown,missing] [--json trace.json] [--summary-md trace.md]
 Every --junit glob must match at least one file holding at least one test case: a suite whose results are missing or
 empty did not run (ABSD:GATE-1), and is an input error, not a smaller report.
@@ -36,7 +40,7 @@ empty did not run (ABSD:GATE-1), and is an input error, not a smaller report.
                       unknown  (a test links to a requirement id not in the catalogue, or to a retired one)
                       missing  (a planned test case has no test, or only skipped ones)
                       untested (an active catalogue requirement has no test)
-                      unplanned (a test carries a TC id the plan does not list)
+                      unplanned (a test carries a TC id neither the plan nor an inherited plan lists)
 Exit code: 0 pass, 1 a --fail-on category is non-empty, 2 usage/input error. Python 3.9+, standard library only.
 """
 from __future__ import annotations
@@ -182,6 +186,23 @@ def read_plan(path: str) -> list[str]:
     return planned   # empty only for a Mode D plan whose every DEF binds at re-bind
 
 
+def read_inherited(patterns: list[str]) -> set[str]:
+    """TC ids planned in earlier cycles' plans. A glob matching nothing is a notice, not an error: the first cycle has no
+    archive, and a lost archive cannot hide anything — its tests then read as unplanned, which the red run fails on."""
+    inherited: set[str] = set()
+    for pattern in patterns:
+        matched = sorted(p for p in glob.glob(pattern, recursive=True) if os.path.isfile(p))
+        if not matched:
+            print(f"::notice::no inherited plan matches {pattern} (none archived yet)")
+        for path in matched:
+            try:
+                doc = trace_check.load([path], os.path.basename(path))
+            except trace_check.InputError as error:
+                raise ValueError(str(error)) from error
+            inherited |= set(doc.defined("tc"))
+    return inherited
+
+
 def verdict(statuses: list[str]) -> str:
     ran = [s for s in statuses if s != "skipped"]
     if not ran:
@@ -196,6 +217,9 @@ def main(argv: list[str] | None = None) -> int:
                                             "with a 'requirements' list")
     parser.add_argument("--plan", help="test_plan.md (plus its test_plan/ parts) whose planned TC-nnnn ids must all "
                                        "exist as tests and pass")
+    parser.add_argument("--inherited-plan", action="append", default=[],
+                        help="glob of earlier cycles' test_plan.md files (repeatable, ** allowed): their TC ids are "
+                             "inherited, not unplanned; needs --plan")
     parser.add_argument("--fail-on", default="failing,unknown,missing", help=f"comma list of: {', '.join(CATEGORIES)}")
     parser.add_argument("--json", dest="json_out")
     parser.add_argument("--summary-md")
@@ -208,11 +232,15 @@ def main(argv: list[str] | None = None) -> int:
     if not args.catalogue and not args.plan:
         print("::error::give --catalogue, --plan, or both")
         return 2
+    if args.inherited_plan and not args.plan:
+        print("::error::--inherited-plan needs --plan")
+        return 2
 
     try:
         cases, files = read_junit(args.junit)
         catalogue, retired = read_catalogue(args.catalogue) if args.catalogue else ([], set())
         planned = read_plan(args.plan) if args.plan else []
+        inherited_ids = read_inherited(args.inherited_plan) - set(planned)
     except (OSError, ValueError, KeyError, ET.ParseError, json.JSONDecodeError) as error:
         print(f"::error::{error}")
         return 2
@@ -271,16 +299,27 @@ def main(argv: list[str] | None = None) -> int:
                 problems["failing"].append(tc)
             else:
                 states[tc] = "passed"
-        unplanned = sorted(set(by_tc) - set(planned))
+        inherited = {}
+        for tc in sorted(inherited_ids & set(by_tc), key=trace_check.natural):
+            statuses = [c.status for c in by_tc[tc]]
+            inherited[tc] = "failed" if "failed" in statuses else ("passed" if "passed" in statuses else "skipped")
+            if inherited[tc] == "failed":
+                problems["failing"].append(f"{tc} (inherited)")
+        unplanned = sorted(set(by_tc) - set(planned) - inherited_ids)
         problems["unplanned"].extend(unplanned)
         passing = sum(1 for s in states.values() if s == "passed")
         not_passing = [f"| {tc} | {state} |" for tc, state in states.items() if state != "passed"]
         sections.append("\n".join([
             f"### Test plan conformance — {passing}/{len(planned)} planned test cases passing",
             f"plan: `{args.plan}` · unplanned TC ids in tests: {', '.join(unplanned) or 'none'}",
+            *([f"inherited from earlier cycles: {len(inherited)} in tests, "
+               f"{sum(1 for s in inherited.values() if s == 'passed')} passing, "
+               f"failing: {', '.join(tc for tc, s in inherited.items() if s == 'failed') or 'none'}"]
+              if args.inherited_plan else []),
             *(["", "| Test case | State |", "|---|---|", *not_passing] if not_passing else []),
         ]))
-        report["plan"] = {"planned": len(planned), "passing": passing, "states": states, "unplanned": unplanned}
+        report["plan"] = {"planned": len(planned), "passing": passing, "states": states, "unplanned": unplanned,
+                          "inherited": inherited}
 
     markdown = "\n\n".join(sections) + "\n"
     print(markdown)

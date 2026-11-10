@@ -28,7 +28,7 @@ Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's lett
 |---|---|---|---|
 
 ## Gate ledger
-| Gate | Round | Verdict | Product SHA | Date | trace_check invocation | Notes (spot checks, ownership_check invocation, D-n) |
+| Gate | Round (a FAIL verdict counts; a re-pass for an upstream gap, spec defect, halt or CLR is logged as "re-pass", not counted — RULES §2) | Verdict | Product SHA | Date | trace_check invocation | Notes (spot checks, ownership_check invocation, D-n) |
 |---|---|---|---|---|---|---|
 
 ## T-SHA chain (oldest first; ownership_check takes every link: `--t-sha <first> --t-sha <next> …`)
@@ -40,7 +40,10 @@ Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's lett
 |---|---|---|---|---|
 
 ## Counters
-- Builder passes 0/3 · gate rounds G1 0/3, GUX 0/3, G2·2R 0/3, GT 0/3, Design QA 0/3 · halts 0/3 · resumes 0/2
+- Builder passes 0/3 (a resumed halted Build is the same pass) · gate rounds G1 0/3, GUX 0/3, G2·2R 0/3, GT 0/3,
+  Design QA 0/3 (FAIL verdicts only; e.g. G2 FAIL → delta → G2 PASS, then a CLR re-pass → G2·2R 1/3) · halts 0/3 ·
+  resumes 0/2
+- Ownership repairs (GATE-18): <none | violating sha → repair sha, D-n>
 
 ## Invocation log (Design QA ∥ Audit: both rows logged and committed before either starts; their replies logged once both are in)
 | # | Time | Agent | Mode | Brief summary | Reply status | Commit |

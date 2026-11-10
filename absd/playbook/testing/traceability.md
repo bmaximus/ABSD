@@ -128,16 +128,19 @@ nothing: a requirement whose linked tests all skipped is untested, and the skip 
 **TRACE-9** — Check plan conformance with `--plan absd-project/working/test_plan.md` on every push of the cycle branch
 after Gate T and at Verify, once over the index and its `test_plan/` parts (a plan with no TC exits 2). Each planned TC
 exists as a test that ran and passed (`missing` = no test or only skipped ones; `failing`) — red by design until the
-work packages turn it green; each `unplanned` TC id is an earlier cycle's (archived plan) or a "Verify addition"
-appended to the plan with its source; any other is a finding. The Plan & Bind red run uses
-`--fail-on unknown,unplanned`; each TC it reports missing belongs to a unit keyed to a later WP (plan §12) and is
+work packages turn it green. Earlier cycles' TCs are inherited, not unplanned: every run adds
+`--inherited-plan 'absd-project/archive/*/test_plan.md' --inherited-plan 'absd-project/archive/*/test_plan/*.md'` (a
+glob that matches nothing yet is a notice); an inherited TC need not be present but still fails if it fails. An `unplanned` TC id is
+then only a "Verify addition" appended to the plan with its source; any other is a finding. The Plan & Bind red run
+uses `--fail-on unknown,unplanned`; each TC it reports missing belongs to a unit keyed to a later WP (plan §12) and is
 listed in §14 — else a plan defect. With no active cycle the step prints "no active cycle" (GATE-14).
 - *Why:* measurable criteria never became tests (LL-45); tests written after the code had no plan to conform to
   (LL-29); a split plan's index planned 0 TCs and passed, and plan gates re-run after the archive failed every push
   (LL-55, LL-57).
 - *Check:* the plan-conformance section of `test_report.md`: planned, passing, missing, failing, unplanned + reason.
 - *Applies when:* `absd-project/working/test_plan.md` exists (an active cycle).
-- *Provenance:* LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-55, LL-57 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-55, LL-57 (ABSD v2 kit review, 2026-10); LL-66 (ENR-14,
+  2026-11)
 
 **TRACE-10** — End every pipeline artifact with a Traceability section `trace_check.py` reads: a table whose first cell
 holds the upstream id (requirement, AC, UJ, SCR, EXT, TC) and whose other cells name the downstream ids, every id whole

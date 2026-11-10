@@ -168,7 +168,7 @@ Public names (cli, http-api, library: every name `design.md` gives, adopted verb
 ### 11.5 End-to-end environment — E2E form per profile · processes and ports · device / runtime projects · foreign zone/locale project · error-signal sources
 ### 11.6 Access matrix as data — table path in the test tree · registry the completeness test enumerates
 ### 11.7 Test hooks — | Hook (incl. flag toggles) | Purpose | Enabled only when | Unreachable in production because |
-### 11.8 Test tooling (GATE-7) — | Need (test dependency · runner · coverage · mutation · test-lint) | File: standalone Tester-owned path, or shared file + the sections the Tester may change | TSEAM (kind tooling) | WP |
+### 11.8 Test tooling (GATE-7) — | Need (test dependency · runner · coverage · mutation · test-lint) | File: standalone Tester-owned path, or shared file + the sections the Tester may change | TSEAM (kind tooling) | WP | — versions live only in these files (the Tester bumps them without a G2 round); lint scope per entry-point script whose dictated code a lint rule rejects (DOD-3)
 
 ## 12. Quality gates & CI
 Workflow files (GATE-7, GATE-9; a file mixing both is split by a WP):
@@ -181,10 +181,14 @@ Workflow files (GATE-7, GATE-9; a file mixing both is split by a WP):
 
 | Gate | Tool | Threshold | Configuration path (owner) |
 |---|---|---|---|
+| Secret scan, tree and full history (SEC-13) | <tool> | 0 findings; synthetic test secrets only from named constants (SEC-8) | <path> (tester) |
+| Static analysis (SEC-13) | <tool> | 0 open Critical/High | <path> |
+| Dependency scan (SEC-13) | <tool> | 0 open Critical/High, or a RISK with expiry | <path> |
+| Agent-configuration scan (SEC-16) | <tool or script> | clean | <path> (tester) |
 
 - Deploy per profile: version-aware health · smoke · automatic rollback (also while busy, after a migration) · run guide
 
-| Dependency | Exact version | Purpose | Licence | Layer |
+| Dependency (production; test tooling: §11.8) | Exact version | Purpose | Licence | Layer |
 |---|---|---|---|---|
 
 ## 13. Observability (ARCH-21)

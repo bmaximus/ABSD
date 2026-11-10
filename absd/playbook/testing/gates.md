@@ -3,7 +3,7 @@
 Code **GATE**. The mechanical checks that decide merge, Gate 3 and deploy: a check that did not run, untested units,
 coverage, static checks, mutation, flakes, ownership of gate configuration and test tooling, gates proven able to fail
 and the gate register. CI job graph, readable failures, hermetic CI, migration, secret-canary, pipeline-integrity and
-deploy gates (GATE-9..15): `absd/playbook/testing/ci-and-release-gates.md`. Lane contents: STRAT-7, STRAT-8
+deploy gates (GATE-9..18): `absd/playbook/testing/ci-and-release-gates.md`. Lane contents: STRAT-7, STRAT-8
 (`absd/playbook/testing/strategy.md`); post-deploy checks and rollback: OPS (`absd/playbook/testing/nonfunctional.md`);
 tools: `absd/tooling/`. Thresholds and invocations are indexed in the Tester's `TESTING.md` §2.
 
@@ -67,8 +67,8 @@ DEBT-n", burned down). Only unit, component (STRAT-13), integration and contract
 production language (a line is covered if any suite ran it; Cobertura XML or LCOV) against a floor that only rises:
 brownfield starts at the measured value, greenfield at the Foundation's value (80% recommended). Pass one `--reports`
 glob per production language, and give each layer holding money, time or access rules a `--layer NAME=regex` with its
-own `--min-layer NAME=pct` floor. When the gate reports ≥ 1 point of headroom, the Tester raises the floor in the same
-cycle. Exclusions are reviewed path patterns for generated code only, listed in `TESTING.md`.
+own `--min-layer NAME=pct` floor. When the gate reports ≥ 1 point of headroom at Verify, the Tester records the raise in
+`test_report.md` and commits it at the next Plan & Bind (a raise at Verify would move the product SHA). Exclusions are reviewed path patterns for generated code only, listed in `TESTING.md`.
 - *Why:* a static floor lets coverage slide unnoticed; a production language that emits no report is invisible; a
   mistyped glob silently left one language ungated, and a total floor lets a thin money layer hide behind well-covered
   plumbing (LL-57).
@@ -95,13 +95,17 @@ projects inherit them; production code carries a suppression marker only where `
 the cycle HEAD, the whole codebase nightly — with a score threshold in `TESTING.md` (default ≥ 80% on changed code), and
 require 100% of mutants on lines implementing money, time and access rules killed or, where no mutant can express the
 fault, an explicit negative control per rule (ORACLE-13); equivalent mutants are recorded with a reason (ORACLE-14).
+The gate asserts on the tool's survivor list, never on its exit status alone (some tools exit 0 with survivors): it
+fails on a survivor missing from the Tester-owned equivalents record (one row per mutant: id, location, reason,
+reviewer) and on a stale row whose mutant no longer exists or no longer survives.
 - *Why:* coverage proves lines ran, not that an assertion notices them being wrong; a test that runs a calculation
   without asserting its result satisfies every coverage gate.
 - *Check:* `test_report.md` shows the changed-code score and, per money/time/access rule, mutants, killed and controls;
+  the gate's negative controls include an unrecorded survivor and a stale equivalents row;
   the Auditor injects ≥ 1 fault per such rule in a throwaway worktree outside the project (ORACLE-13) and sees a test
   fail (XCA-2).
 - *Applies when:* always; the 100% clause wherever money, time or access rules exist.
-- *Provenance:* industry baseline
+- *Provenance:* industry baseline; LL-66 (ENR-14 acceptance of 2.2.0: tally, shelf, ledger fixtures, 2026-11-10)
 - Illustration: e.g. Stryker (C#, JavaScript), PIT (JVM), mutmut (Python), cargo-mutants (Rust).
 
 **GATE-6** — Set retries explicitly in every runner configuration: 0 for unit, component, integration and contract tests
@@ -156,7 +160,7 @@ and is deleted after the run; its run URL is the evidence, and it is never an an
 ## Gate register
 
 Foundation DoD: every row RED once by its negative control, then GREEN (GATE-8). Rows cite rules here, in
-`absd/playbook/testing/ci-and-release-gates.md` (GATE-9..15) and in the files of their codes.
+`absd/playbook/testing/ci-and-release-gates.md` (GATE-9..18) and in the files of their codes.
 
 | Gate | Mechanism | RED when | Negative control | Rule |
 |---|---|---|---|---|

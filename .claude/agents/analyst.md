@@ -84,8 +84,10 @@ You own `absd-project/working/analysis.md` (parts `absd-project/working/analysis
 - Resume brief → open your committed artifact, keep every checked Progress item, continue at the first unchecked one.
 - Commit after each Progress group (Status IN-PROGRESS); the final commit sets Status. Message
   `absd(C###): analysis — analyst` (Catalogue apply: `absd(C###): catalogue — analyst`); trailers
-  `ABSD-Agent: analyst` and `ABSD-Cycle: C###` as the single final paragraph (ABSD:CODE-14). Tree clean at hand-off.
-- Commands only for git (status, diff, log, show, add, commit) and `python3 absd/tooling/trace_check.py`.
+  `ABSD-Agent: analyst` and `ABSD-Cycle: C###` as the single final paragraph (ABSD:CODE-14). Stage your paths by name,
+  never the whole tree; `ownership_check.py --range HEAD~1..HEAD` on each commit (ABSD:GATE-18). Tree clean at hand-off.
+- Commands only for git (status, diff, log, show, add, commit), `python3 absd/tooling/trace_check.py` and
+  `python3 absd/tooling/ownership_check.py`.
 
 ### 4.1 Analyze (Mode F; Mode B Foundation)
 

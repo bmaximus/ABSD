@@ -57,7 +57,8 @@ scope become DEF rows in the `context.md` defect backlog, never growth of the cy
 (between cycles only) · **P** Park/abandon. Details: `.claude/agents/manager.md`.
 
 **Limits:** max 3 Builder passes per cycle, 3 revision rounds per gate, 3 halts per cycle — then escalate to the
-user. An interrupted agent is re-invoked with a Resume brief (max 2), never finished by someone else. A change request
+user. A round is a review whose verdict is FAIL; a re-pass caused by an upstream gap, a spec defect, a halt or a CLR is
+logged, not counted; a halted Builder invocation resumed after its CLR is the same pass. An interrupted agent is re-invoked with a Resume brief (max 2), never finished by someone else. A change request
 (Mode C) that re-enters at the analysis resets the gate-round counters downstream of its entry; Builder passes and halts
 count for the whole cycle.
 
@@ -116,7 +117,10 @@ count for the whole cycle.
   moves, and never sit between two commits of one cycle.
 - Enforced twice: at write time by the hook `absd/tooling/ownership_hook.py` (installed by the settings template; it
   refuses an ABSD agent's file write outside its own paths) and in history by `absd/tooling/ownership_check.py`
-  (ownership and ordering per commit); the Auditor reviews every test change after T-SHA.
+  (ownership and ordering per commit); the Auditor reviews every test change after T-SHA. The hook does not see what
+  `git add` stages: every agent stages only its own paths and checks its new commit; a foreign-path commit is
+  repaired by a Manager commit with `ABSD-Repair: <sha> D-<n>` and the user's decision, never by rewriting history
+  (`absd/playbook/procedures/ownership-repair.md`, GATE-18).
 - Only the Manager merges, only after Gate 3, per the merge policy in `context.md`, when CI is green at the Gate 3
   product SHA and every later commit changes only `absd-project/` (harvest, archive) — or, in the Tester's Log commit,
   only the Lesson cells of `ESCAPED-DEFECTS.md`. No change reaches the default branch outside a mode or a kit sync.

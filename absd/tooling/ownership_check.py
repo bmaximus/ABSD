@@ -35,6 +35,15 @@ product-owned seeds, complete .claude/settings.json and CLAUDE.md, write absd-pr
 the v1 migration's moves — nothing else — and only between cycles: a kit-sync commit between two commits of one cycle
 is an error (RULES §5: kit syncs land on the default branch between cycles). The kit paths are read-only for every agent.
 
+Repairing a committed violation (history is never rewritten): the Manager reverts the violating commit's changes in a
+commit of its own that carries, per repaired commit, the trailer `ABSD-Repair: <sha> D-<n>` (D-n: the user's recorded
+decision). The repaired commit must be in the range and earlier than the repair commit, and the repair commit must
+touch every file the repaired commit changed outside its agent's own paths (all its files when it was unattributed);
+then the repaired commit's attribution and ownership errors become notices ("repaired by <repair sha> under D-<n>"),
+and the repair commit may change those foreign files (only those) whoever owns them. A malformed trailer, a missing D-n, a commit outside the range or later than the repair, a repair not
+attributed to the manager, or a repair that leaves a file of the repaired commit untouched is an error on the repair
+commit. The owner re-commits the content it wants afterwards, in its own commit.
+
 A merge commit whose result equals one of its parents for every file is skipped with a notice. A merge that carries
 changes of its own (a conflict resolution, or an "evil merge" that edits a file neither side changed that way: the
 files its combined diff lists) is checked like any commit, with those files. --include-merges checks every merge
@@ -48,6 +57,7 @@ usage:
                      [--json ownership.json] [--summary-md ownership.md]
 
 --range defaults to <merge-base of HEAD and --base>..HEAD. A relative --context path is read from --repo.
+A range with no commits (the default branch right after a merge) passes with a notice: there is nothing to check.
 Exit code: 0 pass, 1 check failed, 2 usage/input error. Python 3.9+ and git 2.22+, standard library only.
 """
 from __future__ import annotations
@@ -89,10 +99,11 @@ ARTIFACTS = {
 }
 
 LOG_FIELDS = ("%H", "%P", "%an", "%s", "%(trailers:key=ABSD-Agent,valueonly)", "%(trailers:key=ABSD-Cycle,valueonly)",
-              "%(trailers:key=ABSD-Sync,valueonly)", "%b")
+              "%(trailers:key=ABSD-Sync,valueonly)", "%(trailers:key=ABSD-Repair,valueonly)", "%b")
 LOG_FORMAT = "%x1f".join(LOG_FIELDS) + "%x1e"
 AGENT_LINE = re.compile(r"^ABSD-Agent\s*:", re.IGNORECASE | re.MULTILINE)
 CYCLE_ID = re.compile(r"C\d{3,}")
+REPAIR_VALUE = re.compile(r"([0-9a-fA-F]{4,40})\s+(D-\d+)")
 HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
 SEPARATOR_CELL = re.compile(r":?-{3,}:?")
 GLOB_SEPARATORS = re.compile(r"<br\s*/?>|[,\s]+")
@@ -281,6 +292,7 @@ class Commit:
     files: list = field(default_factory=list)
     deleted: set = field(default_factory=set)   # the subset of files the commit deletes
     added: set = field(default_factory=set)     # the subset of files the commit adds
+    repairs: list = field(default_factory=list)  # raw ABSD-Repair trailer values
 
     @property
     def short(self) -> str:
@@ -334,12 +346,13 @@ def read_commits(repo: str, rev_range: str) -> list[Commit]:
         record = record.strip("\n")
         if not record:
             continue
-        sha, parents, author, subject, agents, cycles, sync, body = record.split("\x1f", len(LOG_FIELDS) - 1)
+        sha, parents, author, subject, agents, cycles, sync, repairs, body = record.split("\x1f", len(LOG_FIELDS) - 1)
         agent, problem = attribute(agents, body)
         if sync.strip():
             agent, problem = (SYNC, "") if agent == UNATTRIBUTED else (INVALID, "both ABSD-Agent and ABSD-Sync trailers")
         commits.append(Commit(sha=sha, parents=parents.split(), author=author, subject=subject, agent=agent,
-                              problem=problem, cycles=sorted({c.strip() for c in cycles.splitlines() if c.strip()})))
+                              problem=problem, cycles=sorted({c.strip() for c in cycles.splitlines() if c.strip()}),
+                              repairs=[r.strip() for r in repairs.splitlines() if r.strip()]))
     return commits
 
 
@@ -400,6 +413,17 @@ class Findings:
     errors: list = field(default_factory=list)      # (title, message)
     warnings: list = field(default_factory=list)    # (title, message)
     review: list = field(default_factory=list)      # (path, Commit)
+    notices: list = field(default_factory=list)     # (title, message): errors of repaired commits
+    repaired: dict = field(default_factory=dict)    # sha of a repaired commit -> (repair short sha, D-n)
+    repair_files: dict = field(default_factory=dict)  # sha of a repair commit -> files it may change whoever owns them
+
+    def error(self, commit: "Commit", title: str, message: str) -> None:
+        """An error of `commit`, or a notice when an ABSD-Repair commit repaired it."""
+        if commit.sha in self.repaired:
+            short, decision = self.repaired[commit.sha]
+            self.notices.append((title, f"{message} — repaired by {short} under {decision}"))
+        else:
+            self.errors.append((title, message))
 
 
 def describe(commit: Commit) -> str:
@@ -409,10 +433,12 @@ def describe(commit: Commit) -> str:
 def check_attribution(commits: list[Commit], allow_unattributed: bool, findings: Findings) -> None:
     for commit in commits:
         if commit.agent == UNATTRIBUTED:
-            target = findings.warnings if allow_unattributed else findings.errors
-            target.append(("unattributed", f"{describe(commit)}: {commit.problem}"))
+            if allow_unattributed:
+                findings.warnings.append(("unattributed", f"{describe(commit)}: {commit.problem}"))
+            else:
+                findings.error(commit, "unattributed", f"{describe(commit)}: {commit.problem}")
         elif commit.agent == INVALID:
-            findings.errors.append(("unattributed", f"{describe(commit)}: {commit.problem}"))
+            findings.error(commit, "unattributed", f"{describe(commit)}: {commit.problem}")
         elif commit.agent != SYNC and (len(commit.cycles) != 1 or not CYCLE_ID.fullmatch(commit.cycles[0])):
             found = ", ".join(commit.cycles) or "none"
             findings.warnings.append(("cycle trailer", f"{describe(commit)}: expected one `ABSD-Cycle: C###` trailer, found {found}"))
@@ -460,11 +486,52 @@ def check_ownership(commits: list[Commit], rules: list[Rule], strict: bool, find
             owner, rule = owner_of(path, rules)
             if owner == UNOWNED:
                 unowned[path].append(commit)
-            elif owner not in (commit.agent, SHARED) and not is_archive_move(commit, path):
-                findings.errors.append(("ownership", f"{describe(commit)} changed {path}, owned by {owner} ({rule.origin}: {rule.glob})"))
+            elif (owner not in (commit.agent, SHARED) and not is_archive_move(commit, path)
+                  and path not in findings.repair_files.get(commit.sha, ())):
+                findings.error(commit, "ownership", f"{describe(commit)} changed {path}, owned by {owner} ({rule.origin}: {rule.glob})")
     for path, touching in sorted(unowned.items()):
         message = f"{path} matches no Source Layout row (changed by {', '.join(f'{c.short} ({c.agent})' for c in touching)})"
         (findings.errors if strict else findings.warnings).append(("unowned", message))
+
+
+def foreign_files(commit: Commit, rules: list[Rule]) -> list[str]:
+    """The files of `commit` its own agent may not change: all of them when it is not attributed to an agent."""
+    if commit.agent not in AGENTS:
+        return list(commit.files)
+    return [path for path in commit.files
+            if owner_of(path, rules)[0] not in (commit.agent, SHARED, UNOWNED) and not is_archive_move(commit, path)]
+
+
+def check_repairs(repo: str, commits: list[Commit], rules: list[Rule], findings: Findings) -> None:
+    """Read the ABSD-Repair trailers: a valid one marks its commit repaired and lets the repair touch the files the
+    repaired commit changed outside its own paths (its own files stay as they are)."""
+    order = {commit.sha: index for index, commit in enumerate(commits)}
+    for index, commit in enumerate(commits):
+        for value in commit.repairs:
+            match = REPAIR_VALUE.fullmatch(value)
+            problem = ""
+            if commit.agent != "manager":
+                problem = "only the manager may repair a commit"
+            elif not match:
+                problem = f"malformed trailer 'ABSD-Repair: {value}' (expected `ABSD-Repair: <sha> D-<n>`)"
+            else:
+                result = run_git(repo, "rev-parse", "--verify", "--quiet", f"{match.group(1)}^{{commit}}")
+                target = result.stdout.strip() if result.returncode == 0 else ""
+                repaired = commits[order[target]] if target in order else None
+                if repaired is None:
+                    problem = f"ABSD-Repair names {match.group(1)}, which is not a commit in the checked range"
+                elif order[target] >= index:
+                    problem = f"ABSD-Repair names {repaired.short}, which is not earlier than the repair"
+                else:
+                    foreign = foreign_files(repaired, rules)
+                    untouched = sorted(set(foreign) - set(commit.files))
+                    if untouched:
+                        problem = f"the repair of {repaired.short} leaves its foreign files untouched: {', '.join(untouched)}"
+                    else:
+                        findings.repaired[repaired.sha] = (commit.short, match.group(2))
+                        findings.repair_files.setdefault(commit.sha, set()).update(foreign)
+            if problem:
+                findings.errors.append(("repair", f"{describe(commit)}: {problem}"))
 
 
 def check_chain(repo: str, t_shas: list[str]) -> None:
@@ -511,7 +578,7 @@ def markdown(rev_range: str, checked: list[Commit], merges: list[Commit], t_shas
         facts.append("T-SHA " + " → ".join(f"`{sha[:7]}`" for sha in t_shas))
     lines = [f"### Ownership check — {verdict}", " · ".join(facts), "", "| Agent | Commits | Files |", "|---|---|---|"]
     lines += [f"| {agent} | {s['commits']} | {s['files']} |" for agent, s in agent_stats(checked).items()]
-    for heading, items in (("Violations", findings.errors), ("Warnings", findings.warnings)):
+    for heading, items in (("Violations", findings.errors), ("Repaired", findings.notices), ("Warnings", findings.warnings)):
         if items:
             lines += ["", f"**{heading} ({len(items)})**", *[f"- {message}" for _, message in items]]
     if t_shas:
@@ -538,8 +605,26 @@ def json_report(rev_range: str, checked: list[Commit], merges: list[Commit], t_s
         "skippedMerges": [c.sha for c in merges],
         "errors": [message for _, message in findings.errors],
         "warnings": [message for _, message in findings.warnings],
+        "repaired": [message for _, message in findings.notices],
         "review": [{"file": path, "commit": c.sha, "agent": c.agent, "subject": c.subject} for path, c in findings.review],
     }
+
+
+def empty_range(rev_range: str, args: argparse.Namespace) -> int:
+    """No commits to check (the default branch right after a merge): pass with a notice, still writing the reports."""
+    message = f"no commits in range {rev_range} — nothing to check"
+    summary = f"### Ownership check — passed\nrange `{rev_range}` · 0 commits checked — {message}\n"
+    print(summary)
+    print(f"::notice title=empty range::{message}")
+    for target in filter(None, (args.summary_md, os.environ.get("GITHUB_STEP_SUMMARY"))):
+        with open(target, "a", encoding="utf-8") as out:
+            out.write(summary + "\n")
+    if args.json_out:
+        with open(args.json_out, "w", encoding="utf-8") as out:
+            json.dump({"range": rev_range, "tSha": None, "tShas": [], "passed": True, "agents": {}, "commits": [],
+                       "skippedMerges": [], "errors": [], "warnings": [], "repaired": [], "review": [],
+                       "notice": message}, out, ensure_ascii=False, indent=2)
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -569,7 +654,7 @@ def main(argv: list[str] | None = None) -> int:
         rev_range = args.range or default_range(args.repo, args.base)
         commits = read_commits(args.repo, rev_range)
         if not commits:
-            raise InputError(f"no commits in range {rev_range} — check --range or --base")
+            return empty_range(rev_range, args)
         t_shas = [resolve_commit(args.repo, sha) for sha in args.t_sha]
         check_chain(args.repo, t_shas)
         merges, checked = [], []
@@ -581,6 +666,7 @@ def main(argv: list[str] | None = None) -> int:
                 commit.files, commit.deleted, commit.added = changed_files(args.repo, commit.sha)
                 checked.append(commit)
         findings = Findings()
+        check_repairs(args.repo, checked, rules, findings)
         check_attribution(checked, args.allow_unattributed, findings)
         check_ownership(checked, rules, args.strict, findings)
         check_sync_placement(commits, findings)
@@ -596,6 +682,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"::error title={title}::{message}")
     for title, message in findings.warnings:
         print(f"::warning title={title}::{message}")
+    for title, message in findings.notices:
+        print(f"::notice title={title} repaired::{message}")
     if merges:
         print(f"::notice title=merges::{len(merges)} merge commits skipped ({', '.join(c.short for c in merges)}) — "
               "they change no file on their own; pass --include-merges to check them anyway")

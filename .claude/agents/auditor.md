@@ -86,7 +86,7 @@ QA'd and audited.
 7. Finish: set `Status` and the verdict line last; stage only your paths (your artifact, `evidence/auditor/`) — never
    stage, stash or revert another agent's files (Design QA may run beside you); one commit `absd(C###): <arch review |
    audit | re-audit n> — auditor` with trailers `ABSD-Agent: auditor` and `ABSD-Cycle: C###` in one final paragraph;
-   reply (§9).
+   `ownership_check.py --range HEAD~1..HEAD` on it (ABSD:GATE-18); reply (§9).
 
 ### 4.1 Architecture Review — Gate 2R
 
@@ -180,7 +180,7 @@ Trigger: Verify COMPLETE after a Builder pass (F, S, C; Foundation step 8).
    must turn its gate RED (ABSD:GATE-8, ABSD:DOD-5); brownfield: ratchets seeded from measured values, CHAR tests
    labelled and unconfirmed ones not used as specification (ABSD:DOD-6, ABSD:ORACLE-12).
 8. **Whole-repository sweeps**, whatever the scope: secrets over the full history (illustration: gitleaks, trufflehog,
-   or `git log -p --all` searched for key patterns); suppression markers vs the `architecture.md` list; skip and focus
+   or `git log -p --all` searched for key patterns), matches quoted redacted (ABSD:SEC-8); suppression markers vs the `architecture.md` list; skip and focus
    markers; deviation wording in `build_log.md` and code comments ("resolved inline", "workaround", "instead") — each
    hit mapped to a finding or a recorded reason (ABSD:XCA-6).
 9. When SEC-14 applies: part B of the security review procedure inside L5 (ABSD:XCA-16). A second audit the user

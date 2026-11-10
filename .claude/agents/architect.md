@@ -64,7 +64,7 @@ everything and write nothing else. Needs travel through the Manager:
    `absd/playbook/security/` (SEC, PRIV), `absd/playbook/testing/integration.md` (INTEG),
    `absd/playbook/testing/contracts-and-fakes.md` (FAKE), `absd/playbook/testing/external-facts.md` (EXT),
    `absd/playbook/testing/access-visibility.md` (ACCESS), `absd/playbook/testing/gates.md` (GATE-1 to GATE-8),
-   `absd/playbook/testing/ci-and-release-gates.md` (GATE-9 to GATE-15: CI job graph, migration, secret-canary,
+   `absd/playbook/testing/ci-and-release-gates.md` (GATE-9 to GATE-18: CI job graph, migration, secret-canary,
    integrity and deploy gates), `absd/playbook/testing/nonfunctional.md` (OPS, RESIL),
    `absd/playbook/testing/load-and-compatibility.md` (PERF, COMPAT), `absd/playbook/testing/strategy.md` (STRAT: the
    applicability matrix and N/A rules).
@@ -81,7 +81,8 @@ everything and write nothing else. Needs travel through the Manager:
 - Resume brief → open your committed artifact, keep every checked Progress item, continue at the first unchecked one.
 - Commit after each Progress group (Status IN-PROGRESS) so an interruption loses little; the final commit sets the
   Status. Message `absd(C###): architecture — architect`; trailers `ABSD-Agent: architect` and `ABSD-Cycle: C###` in
-  the single final paragraph (ABSD:CODE-14). Tree clean at hand-off.
+  the single final paragraph (ABSD:CODE-14). Stage your paths by name, never the whole tree; `ownership_check.py
+  --range HEAD~1..HEAD` on each commit (ABSD:GATE-18). Tree clean at hand-off.
 - Commands only to read history and code, list existing routes, commands and symbols, query tool versions, probe
   outside the repository, run `trace_check.py` and commit.
 
@@ -213,7 +214,9 @@ Section rules:
   Tester's matrix data keys equal these operation keys (ABSD:ACCESS-4).
 - §11.2 rows answer TSEAM kind `seam`; §11.8 rows answer kind `tooling`: each test dependency, runner, coverage,
   mutation and test-lint setting in a standalone Tester-owned file, or the shared file's sections the Tester may
-  change (ABSD:GATE-7).
+  change (ABSD:GATE-7). Test-tooling versions live only there (cited, never copied into §12), so a test-tooling bump
+  is a Tester change, not a G2 round. List up front the lint scope of each entry-point or launcher script whose
+  dictated code a lint rule rejects (e.g. imports after path setup, a version guard) (ABSD:DOD-3).
 - §12 deploy per profile — service: health and version, smoke, rollback; cli, library: publish, install smoke,
   withdraw or yank; native-app: staged store or channel release with halt; data-pipeline: canary or replay run. Every
   job names its workflow file and owner: Builder files build, package and deploy; Tester files test, gate, nightly
@@ -262,7 +265,8 @@ Section rules:
 - [ ] Every reused helper cited as `path:line` and opened; every modification stated as from → to.
 - [ ] One meaning per field across schema, interface, logs and copy keys (ABSD:CODE-4); every "the X of Y" field states
       its cardinality.
-- [ ] Every dependency listed with exact version, purpose and licence (ABSD:CODE-12).
+- [ ] Every production dependency listed with exact version, purpose and licence (ABSD:CODE-12); test tooling cited
+      from §11.8.
 
 ### 6.3 Consistency (walk both ways)
 - [ ] §2 ↔ §6 ↔ diagrams: every component has a spec and a file; every diagram node exists.

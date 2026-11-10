@@ -194,7 +194,7 @@ stays byte-identical), with the output attached.
 
 **ORACLE-14** — Measure oracle strength with mutation testing (e.g. Stryker, PIT, mutmut) on changed code and on every
 money, time and access rule: each surviving mutant is killed by a new TC whose expected value has a spec source — never
-the mutant's or the code's output — or recorded as equivalent with a reason. Typical survivors: `>=`→`>`, rounding mode,
+the mutant's or the code's output — or recorded as equivalent in the equivalents record GATE-5 defines. Typical survivors: `>=`→`>`, rounding mode,
 removed tie-break, removed branch, swapped precedence. Thresholds per GATE-5.
 - *Why:* coverage shows lines ran, not that any assertion would notice them being wrong.
 - *Check:* the mutation report in `test_report.md` lists survivors with their resolution; the Auditor samples them.

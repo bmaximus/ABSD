@@ -25,7 +25,8 @@ so they stay within budget (ENR-17). It lives in `absd/playbook/procedures/<name
 holds numbered steps with the evidence each records and the rule ids it checks, and defines no rule of its own: the
 rule that triggers it (e.g. XCA-16 for `absd/playbook/procedures/security-review.md`) lives in its topic file. A manual
 cites the triggering rule and the procedure's path in the step where it applies, never in "Read first"; the agent
-opens the procedure only when that step is reached.
+opens the procedure only when that step is reached. Procedures today: `security-review.md` (XCA-16),
+`ownership-repair.md` (GATE-18), `park.md` (DOD-10).
 
 ## Routing table — one home per topic
 
@@ -66,7 +67,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Trace tables in artifacts; retired requirements; reserved prefixes in tests | TRACE | `absd/playbook/testing/traceability.md` |
 | A check that did not run is RED; coverage floor ratchet; no-untested-unit gate and allowlist | GATE | `absd/playbook/testing/gates.md` |
 | Strict compilation, mutation and flake gates; gate configuration ownership; gates proven able to fail | GATE | `absd/playbook/testing/gates.md` |
-| CI job graph, readable failures, hermetic CI; migration, secret-canary, pipeline-integrity and deploy gates; exit status through pipes | GATE | `absd/playbook/testing/ci-and-release-gates.md` |
+| CI job graph, readable failures, hermetic CI; migration, secret-canary, pipeline-integrity and deploy gates; exit status through pipes; staging only your own paths and repairing a foreign-path commit | GATE | `absd/playbook/testing/ci-and-release-gates.md` |
 | Escaped defects: main rule, why-missed taxonomy, root-cause class, same-weakness sweep, log, recurrence, flakes | ESC | `absd/playbook/testing/escaped-defects.md` |
 | Exploratory charters and sessions (agent and human), finding routing, manual acceptance checklist, real devices | EXPL | `absd/playbook/testing/exploratory.md` |
 | Accessibility scans, keyboard paths, rendered contrast, CLI output without colour | A11Y | `absd/playbook/testing/nonfunctional.md` |

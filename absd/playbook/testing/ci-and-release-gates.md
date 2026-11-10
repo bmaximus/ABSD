@@ -21,6 +21,7 @@ its negative control (GATE-8), and its invocation and thresholds are indexed in 
 - [ ] Deploy only the exact commit of a green push-triggered run, one release at a time (GATE-15)
 - [ ] Shared default branch: tip diffed against the release tree; unintended removals → rebuild and re-verify (GATE-16)
 - [ ] Piped or filtered gate and test commands keep the command's exit status (GATE-17)
+- [ ] Every agent stages only its own paths and checks its new commit; a foreign-path commit is repaired, never rewritten (GATE-18)
 
 ## Rules
 
@@ -85,10 +86,11 @@ history for secrets on every push.
 
 **GATE-14** — Run the pipeline-integrity checks in a Tester-owned workflow. On every push of a cycle branch:
 `absd/tooling/ownership_check.py --base <default branch from context.md §1>` (on the default branch itself, `--range`
-instead), once Gate T passed every T-SHA of the `cycle.md` chain oldest first (`--t-sha <first> --t-sha <amendment> …`),
+instead; a range with no commits, as right after a merge, passes with a notice), once Gate T passed every T-SHA of the `cycle.md` chain oldest first (`--t-sha <first> --t-sha <amendment> …`),
 `--strict` once Source Layout covers the tree. On every push: the `absd/tooling/traceability_report.py` catalogue run
 (TRACE-6). Only while `absd-project/working/test_plan.md` exists (an active cycle): the plan-conformance run (TRACE-9)
-and `absd/tooling/trace_check.py` with the invocation recorded for each gate `cycle.md` lists as passed, so an edit
+and `absd/tooling/trace_check.py` with the invocation recorded for each gate whose latest `cycle.md` ledger row is a
+PASS (a gate not yet passed, Gate 3 included, is not run), so an edit
 reopening a passed gate turns CI red; without one the step prints the notice "no active cycle" — an *Applies when*
 condition, not a skip (GATE-1). The merge needs CI green at the Gate 3 product SHA, and every later commit changes only
 `absd-project/` (harvest, archive) or, in the Tester's Log commit, only the Lesson cells of `ESCAPED-DEFECTS.md`
@@ -134,3 +136,18 @@ fails the step when any command in the pipe fails (e.g. bash `set -o pipefail`, 
   each gate's negative control (GATE-8) is run through the same piping.
 - *Applies when:* always.
 - *Provenance:* LL-65 (ECC evaluation, 2026-11)
+
+**GATE-18** — Stage only your own paths: every agent, the Manager included, adds files by name or by its own globs —
+never the whole tree (e.g. `git add -A`, `git add .`, `git commit -a`) — and runs
+`absd/tooling/ownership_check.py --range HEAD~1..HEAD` on each new commit before it hands back; the write-time hook sees
+file writes, not what `git add` stages. A commit that touched another owner's path is repaired, never rewritten: the
+Manager records the user's decision `D-n`, reverts the foreign files in one repair commit with the trailer
+`ABSD-Repair: <violating sha> D-<n>` (ownership_check then reports that commit's errors as notices), the owner
+re-commits any content it wants, and a lessons row records the cause. Steps:
+`absd/playbook/procedures/ownership-repair.md`.
+- *Why:* a Manager's whole-tree add committed a worker's evidence files; history rewriting is forbidden, so the only
+  legal exit was parking the Foundation and starting over (LL-66).
+- *Check:* no hand-off commit lists a path outside its agent's globs; every `ABSD-Repair` trailer names a `D-n` in
+  `cycle.md` and a commit whose foreign files it touches; the Auditor's L8 run lists repairs separately.
+- *Applies when:* every commit of a cycle.
+- *Provenance:* LL-66 (ENR-14 acceptance of 2.2.0: tally, shelf, ledger fixtures, 2026-11-10)

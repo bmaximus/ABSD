@@ -636,11 +636,84 @@ class OwnershipCheckTests(unittest.TestCase):
         code, out = self.run_check("--range", f"{bad}..HEAD")
         self.assertEqual(code, 0, out)
 
-    def test_empty_range_is_an_input_error(self):
+    def test_empty_range_passes_with_a_notice(self):
+        # the default branch right after a merge: --base <default branch> gives an empty range
         self.commit("absd(C001): WP-01 — builder", "builder", ["src/cart.py"])
+        code, out, data = self.run_json("--base", self.BRANCH)
+        self.assertEqual(code, 0, out)
+        self.assertIn("::notice title=empty range::no commits in range", out)
+        self.assertTrue(data["passed"])
+        self.assertEqual(data["commits"], [])
+
+    # --- repair of a committed violation ----------------------------------------------------------------------
+
+    def repair(self, files, *values, agent="manager"):
+        trailers = "\n".join([f"ABSD-Agent: {agent}", "ABSD-Cycle: C001", *(f"ABSD-Repair: {v}" for v in values)])
+        return self.commit("absd(C001): repair — manager", agent, files, trailers=trailers)
+
+    def test_repair_turns_the_violation_into_a_notice(self):
+        bad = self.commit("absd(C001): verify — manager", "manager", ["absd-project/working/evidence/builder/run.log",
+                                                                      "absd-project/working/cycle.md"])
+        self.assertEqual(self.run_check()[0], 1)
+        self.repair(["absd-project/working/evidence/builder/run.log", "absd-project/working/cycle.md"], f"{bad[:9]} D-4")
+        code, out, data = self.run_json()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(data["errors"], [])
+        self.assertEqual(len(data["repaired"]), 1)
+        self.assertIn("under D-4", data["repaired"][0])
+        self.assertIn("repaired by", out)
+        self.assertIn("**Repaired (1)**", out)
+        # the owner re-commits the content afterwards, normally
+        self.commit("absd(C001): evidence — builder", "builder", ["absd-project/working/evidence/builder/run.log"])
+        self.assertEqual(self.run_check()[0], 0)
+
+    def test_repair_covers_only_the_foreign_files(self):
+        # the tester's commit also changed its own test: the repair reverts only the builder's file and keeps the test
+        bad = self.commit("absd(C001): plan — tester", "tester", ["tests/test_cart.py", "src/cart.py"])
+        self.repair(["src/cart.py"], f"{bad[:9]} D-3")
+        code, out = self.run_check()
+        self.assertEqual(code, 0, out)
+        self.git("checkout", "-q", "-B", "too-wide", bad)
+        self.repair(["src/cart.py", "tests/test_cart.py"], f"{bad[:9]} D-3")
+        code, out = self.run_check("--base", "main")
+        self.assertEqual(code, 1, out)
+        self.assertIn("changed tests/test_cart.py, owned by tester", out)
+
+    def test_repair_of_unattributed_commit(self):
+        bad = self.commit("stray", None, ["src/cart.py"])
+        self.repair(["src/cart.py"], f"{bad} D-2")
+        code, out = self.run_check()
+        self.assertEqual(code, 0, out)
+
+    def test_invalid_repairs_are_errors(self):
+        bad = self.commit("absd(C001): oops — tester", "tester", ["src/cart.py", "src/util.py"])
+        cases = {
+            "missing decision": ([f"{bad[:9]}"], ["src/cart.py", "src/util.py"], "manager", "malformed trailer"),
+            "malformed": ([f"zz{bad[:5]} D-1"], ["src/cart.py", "src/util.py"], "manager", "malformed trailer"),
+            "not all files": ([f"{bad[:9]} D-1"], ["src/cart.py"], "manager", "foreign files untouched: src/util.py"),
+            "not the manager": ([f"{bad[:9]} D-1"], ["src/cart.py", "src/util.py"], "builder", "only the manager"),
+        }
+        for name, (values, files, agent, expected) in cases.items():
+            with self.subTest(name):
+                self.git("checkout", "-q", "-B", f"case-{name.replace(' ', '-')}", bad)
+                self.repair(files, *values, agent=agent)
+                code, out = self.run_check("--base", "main")
+                self.assertEqual(code, 1, out)
+                self.assertIn(expected, out)
+                self.assertIn(f"{bad[:7]} (tester) 'absd(C001): oops — tester' changed src/cart.py", out)
+
+    def test_repair_naming_a_commit_outside_the_range_or_later_is_an_error(self):
+        main_sha = self.git("rev-parse", "main")
+        self.repair(["README.md"], f"{main_sha} D-1")
+        code, out = self.run_check()
+        self.assertEqual(code, 1)
+        self.assertIn("not a commit in the checked range", out)
+        self.git("checkout", "-q", "-B", "unknown", "main")
+        self.repair([], "abcdef0 D-1")
         code, out = self.run_check("--base", self.BRANCH)
-        self.assertEqual(code, 2)
-        self.assertIn("no commits in range", out)
+        self.assertEqual(code, 1)
+        self.assertIn("abcdef0, which is not a commit in the checked range", out)
+
 
     def test_bad_revisions_are_input_errors(self):
         self.commit("absd(C001): WP-01 — builder", "builder", ["src/cart.py"])
