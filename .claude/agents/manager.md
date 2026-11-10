@@ -193,7 +193,9 @@ an infrastructure change. Record trigger and scope in `cycle.md`; delegate teste
 evidence. The user runs the human part (sessions per affected principal × device class, real-device checks, the
 `EXPLORATORY.md` acceptance checklist — ABSD:EXPL-4, ABSD:EXPL-8, ABSD:EXPL-9); you record results, the Tester logs
 them. Open DEF, RISK and accepted findings reviewed with the user block until decided; record the user's go with
-date and candidate SHA.
+date and candidate SHA. Before pushing to a default branch others can write, diff its tip against the release tree;
+a moved tip means rebuild and re-verify (ABSD:GATE-16). Every status answer to the user names the level reached
+(specified, built, reachable, verified, live) with evidence and gaps — never a bare yes (ABSD:DOD-11).
 
 ### 4.10 Mode H — harvest, then archive
 

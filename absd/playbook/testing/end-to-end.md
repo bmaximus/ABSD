@@ -20,6 +20,7 @@ every profile; never counted by coverage gates (GATE-2). Related: VAR, ORACLE, F
 - [ ] Each profile's harness per `absd/playbook/testing/end-to-end-profiles.md` (E2E-11–E2E-15)
 - [ ] Smoke: read-only (pipeline: canary into an isolated namespace, then dropped), version-aware, every tier, negative canary, least-privilege, exit 0/1/2 (E2E-16)
 - [ ] A surface-level regression test per escaped defect, where it slipped (E2E-17)
+- [ ] Every user-facing capability reached by a journey from the role's real navigation (E2E-18)
 
 ## Rules
 
@@ -198,3 +199,14 @@ link the requirement it protects, and show it RED on the pre-fix build (Mode D R
 - *Check:* each `ESCAPED-DEFECTS.md` row that reached a surface names an existing e2e TC; red evidence at the pre-fix product SHA.
 - *Applies when:* every escaped defect, from the first.
 - *Provenance:* LL-4, LL-12, LL-20 (KatenatsioTipster, 2026-10)
+
+**E2E-18** — Prove reachability: every user-facing capability in the catalogue has at least one journey that starts at
+the role's real entry point (signed in as that role, from the navigation, menu or link a user has) and reaches the
+capability without a direct route, test-only flag or mounted fragment; a capability only a test can open is not built.
+The Auditor lists capabilities with no such journey as findings.
+- *Why:* a purchase screen existed and its tests passed, but nothing in the member navigation opened it, so no member
+  could pay (LL-60).
+- *Check:* traceability shows a journey test per capability whose first step is the role's landing page; the Auditor
+  greps new user-facing components for a navigation path that mounts them.
+- *Applies when:* profiles with a user interface (web-ui, mobile, desktop, cli menus).
+- *Provenance:* LL-60 (KatenatsioTipster, 2026-11)

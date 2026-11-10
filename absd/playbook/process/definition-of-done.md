@@ -17,6 +17,7 @@ the evidence (STRAT-4; the Auditor verifies).
 - [ ] Release checklist complete; any open row blocks the release (DOD-8)
 - [ ] Upgrade (U): between cycles, CHANGELOG read, baseline against new rules, gaps as DEBT, version recorded (DOD-9)
 - [ ] Park (P): archived `_abandoned` with `cycle.md` intact, nothing merged, risks and lessons recorded (DOD-10)
+- [ ] A status answer names its level (specified, built, reachable, verified, live) with evidence and known gaps (DOD-11)
 
 ## Rules
 
@@ -184,3 +185,13 @@ region, store major version, deploy tooling). `cycle.md` records the trigger and
 | 3 | Only the archive folder and the Manager's living-doc updates reach the default branch; ids used stay consumed |
 | 4 | Risk register and DEBT updated with unresolved questions, UNVERIFIED facts and partial work |
 | 5 | Lessons harvested, including why the cycle stopped; `context.md` active cycle: none |
+
+**DOD-11** — Answer every "is it implemented / working / ready?" with the level reached and its evidence, never a bare
+yes: **specified** (requirement, oracle) · **built** (code and tests green, maybe flag-off) · **reachable** (journey from
+the role's navigation, E2E-18) · **verified** (against the real external system, EXT-6) · **live** (released, enabled,
+seen working). Name the next level missing and known gaps (unhandled events, operator steps, flags off).
+- *Why:* an owner asked repeatedly whether card payments were implemented and heard yes from code and green tests; the
+  screen was unreachable, half the provider's events unhandled, the account unconfigured (LL-59).
+- *Check:* every status message names a level per capability; the Auditor samples them against evidence at Gate 3.
+- *Applies when:* always.
+- *Provenance:* LL-59 (KatenatsioTipster, 2026-11)

@@ -221,7 +221,9 @@ catalogue — not every archive. Execute, never only read: 4.2 steps 2–8 at th
 exists: your runs are the evidence); the product started with each environment's default configuration; recorded
 contracts, chain tests, device projects. Then every lens of the ABSD:XCA-13 table, each with commands, outputs and a
 verdict. Re-raise every `context.md` §13 accepted finding as open (ABSD:XCA-8). Mode R adds the release rows you can
-evidence (ABSD:DOD-8): last nightly and live checks green, no UNVERIFIED fact behind an enabled flag (ABSD:EXT-1).
+evidence (ABSD:DOD-8): last nightly and live checks green, no UNVERIFIED fact behind an enabled flag (ABSD:EXT-1),
+every provider lifecycle event mapped and the provider-side configuration checked read-only (ABSD:EXT-6), every
+user-facing capability reached by a journey from the role's navigation (ABSD:E2E-18).
 
 ### 4.6 Levels L1–L8 — execute, then read (ABSD:XCA-3)
 
