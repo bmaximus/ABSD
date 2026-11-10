@@ -20,6 +20,7 @@ its negative control (GATE-8), and its invocation and thresholds are indexed in 
 - [ ] Ownership hook installed from the settings template (GATE-14)
 - [ ] Deploy only the exact commit of a green push-triggered run, one release at a time (GATE-15)
 - [ ] Shared default branch: tip diffed against the release tree; unintended removals → rebuild and re-verify (GATE-16)
+- [ ] Piped or filtered gate and test commands keep the command's exit status (GATE-17)
 
 ## Rules
 
@@ -124,3 +125,12 @@ before claiming it green.
 - *Check:* the release record shows the diff check at the pushed tip; no release pushes onto a tip it was not built on.
 - *Applies when:* more than one writer to the default branch, or an integration branch merged from several packages.
 - *Provenance:* LL-63, LL-64 (KatenatsioTipster, 2026-11)
+
+**GATE-17** — Keep the exit status of every gate, build or test command whose output is piped or filtered: the shell
+fails the step when any command in the pipe fails (e.g. bash `set -o pipefail`, PowerShell `$LASTEXITCODE` or
+`$PSNativeCommandUseErrorActionPreference`), in CI steps, scripts and the commands `context.md` §4 lists.
+- *Why:* `test | tail` returns the filter's status, so a red suite reads green.
+- *Check:* a CI lint over workflow and script lines with a pipe after a gate or test command without the setting;
+  each gate's negative control (GATE-8) is run through the same piping.
+- *Applies when:* always.
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)

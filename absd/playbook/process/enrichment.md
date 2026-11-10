@@ -24,6 +24,7 @@ ABSD repository follows this file as maintainer (its `CLAUDE.md`), never as the 
 - [ ] MINOR or MAJOR: kit acceptance run on a fixture product per profile, results in the CHANGELOG (ENR-14)
 - [ ] Provenance pseudonymous; no client data in kit text (ENR-15)
 - [ ] Products update proposal outcomes from the CHANGELOG in Mode U (ENR-16)
+- [ ] A long situation-triggered sequence is a procedure file cited by its triggering rule, not manual text (ENR-17)
 
 ## Rules
 
@@ -191,6 +192,16 @@ convention), and the Tester baselines the product against the new and changed ru
 - *Check:* after Mode U no `sent` row that the CHANGELOG answers is still `sent`.
 - *Applies when:* every Mode U.
 - *Provenance:* industry baseline
+
+**ENR-17** — Put a long, situation-triggered sequence of steps (a review, an adoption, a triage) in
+`absd/playbook/procedures/<name>.md` in the procedure format of `absd/playbook/README.md`: when it is loaded, numbered
+steps, the evidence each records, the rule ids it checks, no rule of its own. A rule in a topic file triggers it; a
+manual cites that rule and the procedure path in the step where it applies, and the agent opens it only then.
+- *Why:* manuals near their 9k-token budget load every procedure on every run, whether the situation arises or not.
+- *Check:* kit_lint: no `**CODE-n**` rule in `absd/playbook/procedures/`; every procedure path a manual cites exists;
+  manual budgets hold.
+- *Applies when:* a kit change adds a procedure longer than about 15 lines to a manual.
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)
 
 ## Proposal file format
 

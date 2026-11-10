@@ -24,6 +24,7 @@ and the user's sign-off; the Tester turns each lens into test cases (VAR, ACCESS
 - [ ] Notifications: trigger, recipient, channel, content, locale, retries, channel failure (ELIC-15)
 - [ ] Audit trail: actions, fields, real actor, readers, retention; reads record nothing (ELIC-16)
 - [ ] Concurrency: each multi-writer record and exactly-once action has an outcome (ELIC-17)
+- [ ] Abuse cases for features touching sign-in, money, personal data, uploads or external input (ELIC-23)
 - [ ] ACs with values; inclusive thresholds; worked numbers; NF = dataset + environment + threshold (ELIC-18)
 - [ ] A/OQ owned; contradictions with decisions and invariants listed (ELIC-19)
 - [ ] Catalogue delta with permanent ids; area codes not reserved (ELIC-20)
@@ -208,6 +209,14 @@ approval, re-run); for fast successive inputs, that the latest intent wins.
 - *Check:* each multi-writer entity and exactly-once action has an AC with its outcome (VAR-12, VAR-13).
 - *Applies when:* shared records, jobs, retries, approvals, debounced inputs.
 - *Provenance:* LL-20 (KatenatsioTipster, 2026-10)
+
+**ELIC-23** — Write abuse cases for every feature touching sign-in, money, personal data, uploads, model calls or
+external input: per actor × capability, what a hostile or careless actor tries (another's data, a forged or repeated
+request, oversized or crafted input, instructions hidden in content) and the required outcome.
+- *Why:* threats nobody named at requirements reach the blueprint as gaps (SEC-14).
+- *Check:* each abuse case has an AC; the threat table maps each to a row (XCA-16).
+- *Applies when:* those features.
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)
 
 ### Specification quality
 

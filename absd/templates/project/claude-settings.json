@@ -40,7 +40,26 @@
       "Bash(git reset --hard:*)",
       "Bash(git clean -fdx:*)",
       "Bash(git commit --no-verify:*)",
-      "Bash(git commit -n:*)"
+      "Bash(git commit -n:*)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.azure/**)",
+      "Read(~/.config/gcloud/**)",
+      "Read(~/.kube/**)",
+      "Read(~/.docker/config.json)",
+      "Read(~/.netrc)",
+      "Read(~/.git-credentials)",
+      "Read(**/.env)",
+      "Read(**/.env.local)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Bash(curl * | sh*)",
+      "Bash(curl * | bash*)",
+      "Bash(wget * | sh*)",
+      "Bash(wget * | bash*)",
+      "Bash(scp:*)",
+      "Bash(sftp:*)",
+      "Bash(rsync * *@*:*)"
     ]
   },
   "hooks": {

@@ -18,6 +18,15 @@ and how to prove it was done. Vendored and read-only in products; changed only t
 - Products never edit the playbook (hash-checked by `absd/tooling/absd_sync.py check`). Project conventions go to
   `absd-project/context.md` §14; improvements go through enrichment (ENR-4).
 
+## Procedures — loaded on demand
+
+A procedure is a long, situation-triggered sequence of steps (a review, an adoption, a triage) kept out of the manuals
+so they stay within budget (ENR-17). It lives in `absd/playbook/procedures/<name>.md`, opens with when it is loaded,
+holds numbered steps with the evidence each records and the rule ids it checks, and defines no rule of its own: the
+rule that triggers it (e.g. XCA-16 for `absd/playbook/procedures/security-review.md`) lives in its topic file. A manual
+cites the triggering rule and the procedure's path in the step where it applies, never in "Read first"; the agent
+opens the procedure only when that step is reached.
+
 ## Routing table — one home per topic
 
 Find the topic, then its code and file. Every topic has exactly one home; other files link to it. A new topic gets its
@@ -82,13 +91,17 @@ row here in the same change that adds its first rule (ENR-6).
 | Architecture review checklist (Gate 2R) | ARCH | `absd/playbook/engineering/architecture-review.md` |
 | Static analysis, warnings as errors, formatting, complexity, naming, dead code, dependency hygiene, suppression markers in code | CODE | `absd/playbook/engineering/code-quality.md` |
 | Authentication, authorization (deny by default, object level), input validation, secret handling, headers, logging hygiene, dependency scanning, threat model | SEC | `absd/playbook/security/baseline.md` |
-| Personal data inventory, retention, deletion and export, consent, personal data in logs | PRIV | `absd/playbook/security/baseline.md` |
+| Server-side fetch and file-path hostile-input sets; concurrent duplicate requests; products calling a model; agent configuration as supply chain | SEC | `absd/playbook/security/baseline.md` |
+| Personal data inventory, retention, deletion and export, consent, personal data in logs | PRIV | `absd/playbook/security/privacy.md` |
 | Elicitation lenses: actor × capability, visibility, role value, inherited behaviour, CRUD, states, time, money and money movements, external facts, devices, volume, privacy, operability, notifications, audit trail, concurrency | ELIC | `absd/playbook/process/requirements.md` |
 | Specification by example, assumptions and contradictions, catalogue delta, Gate 1 sign-off, Mode S intake questions | ELIC | `absd/playbook/process/requirements.md` |
 | Definition of done: feature cycle, work package, defect, Foundation, brownfield ratchet, release readiness, upgrade, park | DOD | `absd/playbook/process/definition-of-done.md` |
 | Audit scope and independence, evidence rule, levels L1–L8, test changes since T-SHA, adversarial probes | XCA | `absd/playbook/process/audits.md` |
 | Severity calibration, finding acceptance and expiry, re-audit and iteration history | XCA | `absd/playbook/process/audits.md` |
-| Architecture review procedure (Gate 2R), Mode S eligibility audit, cross-cycle audit and its lenses | XCA | `absd/playbook/process/audits.md` |
+| Finding proof (location, trigger, outcome, guards, reachability); planned vs actual diff per work package | XCA | `absd/playbook/process/audits.md` |
+| Architecture review procedure (Gate 2R), Mode S eligibility audit, cross-cycle audit and its lenses | XCA | `absd/playbook/process/audit-modes.md` |
+| Security review procedure at 2R and L5; optional second independent audit on money or permission paths | XCA | `absd/playbook/process/audit-modes.md` |
+| Procedures: on-demand step files, their format and how manuals cite them | ENR | `absd/playbook/process/enrichment.md` |
 | Harvest, lessons ledger, proposals, local kit edits (product side) | ENR | `absd/playbook/process/enrichment.md` |
 | Kit change procedure: inbox, dedupe, generalize, decide, LEDGER, rule text, CHANGELOG, semver, checks, kit acceptance, provenance | ENR | `absd/playbook/process/enrichment.md` |
 

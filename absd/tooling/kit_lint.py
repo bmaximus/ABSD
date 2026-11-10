@@ -12,7 +12,8 @@ Checks (numbers for --only):
                      it — except a tombstone, whose rule text starts with "Retired" or says "retired in <version>"
                      (the README format "**CODE-n** — Retired in x.y.z: superseded by …"). Every code is in the
                      routing table of absd/playbook/README.md (the table with a "Code"/"Codes" column; a cell may hold
-                     several codes, comma-separated). Gaps in a code's numbering are warnings.
+                     several codes, comma-separated). Gaps in a code's numbering are warnings. A procedure file
+                     (absd/playbook/procedures/**) defines no rule: a "**CODE-n**" line there is an error.
   2 citations        Every "ABSD:CODE-n", and every bare "CODE-n" whose CODE is a playbook code (has a rule or a
                      routing row), is defined in the playbook. A tombstoned id may be cited only on its own tombstone
                      line, in absd/CHANGELOG.md and in absd/lessons/LEDGER.md. A range "STRAT-1..12" / "VAR-1–20"
@@ -35,6 +36,10 @@ Checks (numbers for --only):
                      <= 20000 (absd/RULES.md §9; about 4 characters per token). absd/RULES.md must exist.
   9 version          absd/VERSION is semver x.y.z and the first "## " heading of absd/CHANGELOG.md names it; both files
                      are required.
+ 10 hidden chars     Agent configuration is code (SEC-16): kit Markdown (code fences included; the verbatim inbox is
+                     data, not checked) and the settings and text seeds in absd/templates/project/ hold no invisible
+                     or bidirectional control character (HIDDEN_CHARS: U+200B-U+200D, U+2060, U+FEFF, U+202A-U+202E, U+2066-U+2069); a UTF-8
+                     byte-order mark at the start of a file is allowed.
 
 usage:
   kit_lint.py [--root .] [--only 1,2,...] [--json OUT] [--summary-md OUT]
@@ -65,6 +70,7 @@ CHECKS = {          # number -> (name, what "checked" counts)
     7: ("stack words", "blocks"),
     8: ("budgets", "files"),
     9: ("version", "files"),
+    10: ("hidden chars", "files"),
 }
 
 PLAYBOOK = "absd/playbook"
@@ -78,6 +84,12 @@ MIRRORS = ".github/agents"
 MIRROR_SUFFIX = ".agent.md"
 ROOT_FILES = ("README.md", "CLAUDE.md", ".github/copilot-instructions.md")
 INBOX = "absd/lessons/inbox/"
+PROCEDURES = "absd/playbook/procedures/"
+SEEDS = "absd/templates/project"
+SEED_SUFFIXES = (".json", ".txt", ".md")
+# Invisible and bidirectional control characters that can hide instructions in agent configuration (SEC-16).
+HIDDEN_CHARS = {chr(c): f"U+{c:04X}" for c in (*range(0x200B, 0x200E), 0x2060, 0xFEFF, *range(0x202A, 0x202F),
+                                                 *range(0x2066, 0x206A))}
 RESERVED_LABEL = "Reserved codes"
 # Tools that must know the reserved codes: `PLAYBOOK_CODES = {...}` and `RESERVED = PLAYBOOK_CODES | {...}` literals.
 CODE_TOOLS = ("absd/tooling/trace_check.py", "absd/tooling/traceability_report.py")
@@ -398,6 +410,10 @@ def check_rules(kit: Kit, book: Playbook) -> tuple:
         if first is not rule:
             findings.append(Finding(1, "error", rule.file, rule.line,
                                     f"{rule.id} is already defined at {first.file}:{first.line} — ids are unique"))
+        if rule.file.startswith(PROCEDURES):
+            findings.append(Finding(1, "error", rule.file, rule.line,
+                                    f"{rule.id}: a procedure defines no rule — put it in its topic file and cite it "
+                                    "(ENR-17)"))
         if rule.tombstone:
             continue
         if rule.provenance is None:
@@ -640,6 +656,22 @@ def check_version(kit: Kit) -> tuple:
     return findings, 2
 
 
+def check_hidden(kit: Kit) -> tuple:
+    files = kit.markdown()
+    files += [f for f in kit.listing(SEEDS, "") if f.endswith(SEED_SUFFIXES) and f not in files]
+    findings = []
+    for rel in files:
+        if not kit.is_file(rel):
+            continue
+        for number, line in enumerate(kit.lines(rel), start=1):
+            found = sorted({HIDDEN_CHARS[ch] for ch in line if ch in HIDDEN_CHARS})
+            if found:
+                findings.append(Finding(10, "error", rel, number,
+                                        f"hidden character {', '.join(found)} — agent configuration is code (SEC-16); "
+                                        "remove it"))
+    return findings, len(files)
+
+
 def lint(kit: Kit, only: set) -> dict:
     """check number -> (findings, checked) for the chosen checks."""
     files = kit.markdown()
@@ -654,6 +686,7 @@ def lint(kit: Kit, only: set) -> dict:
         7: lambda: check_stack_words(kit, files),
         8: lambda: check_budgets(kit),
         9: lambda: check_version(kit),
+        10: lambda: check_hidden(kit),
     }
     return {number: runners[number]() for number in sorted(only)}
 

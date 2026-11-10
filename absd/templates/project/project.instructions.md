@@ -10,7 +10,7 @@ Follow, in this order:
 2. The approved blueprint for the active cycle: `absd-project/working/architecture.md` — exact names, signatures,
    files and behaviour; any deviation is a halt, never an improvisation.
 3. The ABSD playbook rules the blueprint cites (`absd/playbook/engineering/code-quality.md`,
-   `absd/playbook/security/baseline.md`, and for tests `absd/playbook/testing/test-code.md`).
+   `absd/playbook/security/` (SEC, PRIV), and for tests `absd/playbook/testing/test-code.md`).
 
 Never: suppression markers not listed in the architecture, secrets in source, expected values computed by calling
 production code, skipped or weakened tests.

@@ -3,6 +3,53 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.2.0 — 2026-11-10
+
+Harvest from a read-only evaluation of an external agent-pipeline kit (proposal ecc-evaluation-2026-11-10, accepted:
+the shortlist and the structural ideas). Ledger: LL-65.
+
+- **Deduped first.** Already covered, no change: per-WP checkpoint for resume (WP rows, Progress line, Resume steps
+  of the Builder, ARCH-24 check); `model:` already set in every manual's frontmatter (now documented, below);
+  `git commit --no-verify` / `-n` already denied in the settings template, so no kit tool was added (a hook would mix
+  a command check into the file-ownership hook). Gaps confirmed: RULES §6 had no proof standard for findings;
+  plan-versus-diff ran only in Mode S (XCA-11); nothing on piped exit status.
+- **XCA-14** (new): a finding names location, trigger, outcome and why guards miss it; security findings carry
+  reachability (unreachable sink → Minor, a condition on **XCA-7**, amended); zero findings is valid, never padded.
+  RULES §6 states the Evidence content.
+- **XCA-15** (new): every cycle reconciles each WP's planned files, symbols, keys and dependencies with its commit.
+- **XCA-16** (new): the security review procedure (`absd/playbook/procedures/security-review.md`): part A at Gate 2R
+  (threat coverage, walk list incl. race, fetch, paths, model input; matrix and deny by default; sinks and secrets;
+  declared CI scanners; WP security sections), part B at L5 (scanner results, threat and abuse-case TCs, parallel
+  duplicate-request TCs, access completeness, reachability-graded manual pass, canaries).
+- **XCA-17** (new): optional second independent audit on money or permission paths, on the user's choice.
+- **SEC-7** (amended): server-side fetch and file-path rules with hostile-input sets. **SEC-14** (amended): walk list
+  adds concurrent duplicate request, fetch, path and model input; a parallel-request TC per money, entitlement or
+  permission change asserts one effect. **SEC-15** (new): products calling a model. **SEC-16** (new): agent
+  configuration as supply chain, kit and products.
+- **ELIC-23** (new): abuse cases for features touching sign-in, money, personal data, uploads, model calls or external
+  input. **ARCH-24** (amended): each WP carries a security section. **CODE-15** (new): one state per lifecycle,
+  invalid combinations unconstructible (Architect, 2R, L4). **CODE-16** (new): callers and data shapes found by search
+  before editing an existing file. **GATE-17** (new): piped gate and test commands keep their exit status.
+- **ENR-17** (new) and README "Procedures": on-demand procedure files in `absd/playbook/procedures/`, cited by their
+  triggering rule at the step that needs them; RULES §9 points to them.
+- RULES §8: a worker's final reply is the deliverable (nothing left pending in background work); model tier per role —
+  strongest tier for judgement roles and every security review, the Builder optionally on a faster tier for mechanical
+  WPs when the user records it (never money, permission or security WPs); kit default unchanged (strongest everywhere).
+- Splits (ids unchanged): PRIV-1 … PRIV-8 moved to `absd/playbook/security/privacy.md`; XCA-10 … XCA-13 moved to
+  `absd/playbook/process/audit-modes.md` with XCA-16 and XCA-17.
+- Settings template: deny reads of secret paths (SSH, cloud and cluster credentials, `.env`, keys), pipe-to-shell and
+  remote copy.
+- `kit_lint`: check 10 refuses invisible and bidirectional control characters in kit Markdown and the project seeds
+  (SEC-16 on the kit itself); check 1 refuses a rule defined in a procedure file (ENR-17); tests added.
+- Manuals: Auditor (procedure parts A/B, XCA-14, XCA-15, XCA-17, reads `audit-modes.md`), Manager (Gate 3 finding
+  proof, second audit), Architect (CODE-15, SEC-7/14/15, WP security section), Analyst (ELIC-23), Builder (CODE-16).
+  Copilot mirrors unchanged (they point to the manuals).
+- Kit acceptance run (ENR-14): not yet run for this version — required before tagging 2.2.0.
+- **Next (planned, not in this release):** move other long situation-triggered sequences out of the manuals into
+  procedures, one per release, each cited by a rule: brownfield adoption and v1 migration (Manager, Tester Baseline),
+  Mode X lenses (Auditor 4.5), Gate 2R probes (Auditor 4.1 step 3), flake triage (Tester), kit upgrade (Manager Mode
+  U). Target: every manual below 30 000 characters, budgets unchanged.
+
 ## 2.1.0 — 2026-11-07
 
 Payments reported "implemented" while members could not pay (KatenatsioTipster, proposal

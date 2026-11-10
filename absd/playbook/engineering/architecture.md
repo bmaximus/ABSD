@@ -160,11 +160,11 @@ SEC, PRIV, INTEG, FAKE, EXT, ACCESS, VAR.
 - *Applies when:* always.
 - *Provenance:* industry baseline
 
-**ARCH-24** — Cut the build into ordered work packages `WP-n` of ≤ ~15 files, each compiling and running its fast suite alone (no later-WP reference), listing files, generated migrations, new public symbols (their test units keyed to it, ORACLE-3) and TCs it turns green; first the public surface the red tests compile against.
+**ARCH-24** — Cut the build into ordered work packages `WP-n` of ≤ ~15 files, each compiling and running its fast suite alone (no later-WP reference), listing files, generated migrations, new public symbols (their test units keyed to it, ORACLE-3), TCs it turns green and a security section (threat rows, sinks, secrets, model calls it touches; or "none"); first the public surface the red tests compile against.
 - *Why:* monolithic builds hit session limits; the orchestrator coded (LL-26).
 - *Check:* trace_check gate2 finds ≥ 1 WP; each file in exactly one WP; no forward reference; the Builder commits per WP, resumes at the first uncommitted one.
 - *Applies when:* always.
-- *Provenance:* LL-26 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-26 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10); LL-65 (ECC evaluation, 2026-11)
 
 **ARCH-25** — Add a module per declared profile (table); none is N/A while its interface exists. For cli, http-api and library adopt `design.md`'s public names (commands, flags; resources, fields, error body, named examples; public symbols, error types) verbatim, each bound in the §5.0 table; an unbindable one returns to the Designer.
 - *Why:* web-only assumptions left CLI grammar and exit codes unspecified (LL-41); nobody could name the public surface, so examples had nothing to bind to (LL-55, LL-56).

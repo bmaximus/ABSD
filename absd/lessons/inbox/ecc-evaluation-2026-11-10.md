@@ -347,3 +347,14 @@ Auditor, **final (Gate 3, L5)** — thin checklist, evidence over opinion:
    each finding record entry point → sink reachability and required principal; severity by reachability (N7).
 10. Canary checks: secret and personal-data canaries absent from logs, errors, CI output (SEC-9, PRIV-6).
 11. Report in `audit.md` with rule ids; never fix (Auditor contract).
+
+---
+
+## Outcome (ABSD 2.2.0, 2026-11-10)
+
+Accepted → LL-65: XCA-14 (NEW-1, N7), XCA-15 (NEW-3), XCA-16 (security report §4), XCA-17 (second auditor), GATE-17
+(NEW-5), CODE-15 (NEW-2), CODE-16 (NEW-4), SEC-15 (N1), SEC-16 (N5), SEC-7 amended (N2, N3), SEC-14 amended (N4),
+ELIC-23 (abuse cases), ARCH-24 amended (WP security section), ENR-17 (NEW-8), RULES §8 (NEW-6, NEW-9), settings
+template deny-list (N6). Already covered: NEW-7 (Builder WP rows, Progress line, Resume), `model:` frontmatter (present;
+now documented), `--no-verify` (already denied in the settings template; no kit tool). Not taken: pass^k wording
+(PATCH, left for a later release).

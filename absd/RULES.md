@@ -128,7 +128,9 @@ count for the whole cycle.
   `git diff --quiet S HEAD -- . ':!absd-project'` holds — pipeline commits (artifacts, evidence, reports) never
   invalidate it, and neither does the Tester's Log commit (only the Lesson cells of `ESCAPED-DEFECTS.md`). The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
   if it cannot, the verdict is **BLOCKED**. An environment limitation is a RISK, never a design decision.
-- Findings everywhere use one row: `ID | Severity | Category | Rule cited | Evidence | Proposed route`.
+- Findings everywhere use one row: `ID | Severity | Category | Rule cited | Evidence | Proposed route`. Evidence
+  names location (`file:line`), trigger, outcome and why existing guards miss it — security findings also their
+  reachability; zero findings is a valid result, never padded (XCA-14).
   **Critical**: core function, security/privacy, data or money corruption. **Major**: wrong behaviour, missing
   requirement or test, significant drift, a Q-law broken. **Minor**: cosmetic. Clean = 0 Critical and 0 Major.
 - Accepted findings expire and are re-raised at Mode X and R; a Critical is accepted only by the user's written risk
@@ -153,11 +155,19 @@ Tests carry their ids in the name or as properties: `TC-0042` and `[AREA-n]` (se
 | Run commands | Bash | the terminal tools |
 | Gate records | `absd-project/working/cycle.md` | the same file |
 
+| Model tier | `model:` in each manual's frontmatter | the model picker |
+
 Workers are invoked only by the Manager with a brief (`absd/templates/briefs/invocation-brief.md`) and answer in ≤ 15
-lines: status, artifact paths, finding counts by severity, blockers — never artifact contents.
+lines: status, artifact paths, finding counts by severity, blockers — never artifact contents. The final reply is the
+deliverable: a worker never ends with work pending in background tasks or sub-runs — it collects or cancels them first;
+the Manager rejects a reply that references unfinished work. **Model tier:** the strongest tier for judgement roles
+(Manager, Analyst, Designer, Architect, Tester, Auditor, every security review); the Builder may run on a faster tier
+for mechanical work packages when the user records it in `context.md` §14 — never for a money, permission or security
+work package. Kit default: the strongest tier everywhere.
 
 ## 9. Playbook and size
 
-Every agent reads the playbook files its manual lists before working and cites rules as `ABSD:CODE-n`. Budgets: this
+Every agent reads the playbook files its manual lists before working and cites rules as `ABSD:CODE-n`; it opens a
+procedure (`absd/playbook/procedures/`) only at the step that cites it (ENR-17). Budgets: this
 file ≤ 4k tokens; agent manuals ≤ 9k; playbook files ≤ 5k (each opens with its checklist); artifacts ≤ 20k (split
 larger ones into an index plus parts); `context.md` ≤ 25 KB, current state only.

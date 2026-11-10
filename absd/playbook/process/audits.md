@@ -1,9 +1,10 @@
-# Audits — evidence, levels, probes, severity, cross-cycle
+# Audits — evidence, levels, probes, severity
 
-Code **XCA**. How the Auditor reaches independent technical verdicts: the architecture review at Gate 2R
-(`arch_review.md`), the cycle audit and the defect-scoped audit (`audit.md`, levels L1–L8), and the cross-cycle audit
-(Mode X). The Auditor runs everything itself, sets scope and severity, and fixes nothing; the Manager routes findings
-and never overrides them (`absd/RULES.md` §3 rule 10; finding rows: §6).
+Code **XCA**. How the Auditor reaches independent technical verdicts in the cycle audit and the defect-scoped audit
+(`audit.md`, levels L1–L8): independence, evidence, probes, finding proof, plan-versus-diff reconciliation and
+severity. Reviews by mode (Gate 2R, Mode S, cross-cycle, security review, second auditor):
+`absd/playbook/process/audit-modes.md`. The Auditor runs everything itself, sets scope and severity, and fixes nothing;
+the Manager routes findings and never overrides them (`absd/RULES.md` §3 rule 10; finding rows: §6).
 
 ## Checklist
 
@@ -15,12 +16,10 @@ and never overrides them (`absd/RULES.md` §3 rule 10; finding rows: §6).
 - [ ] Fault injected per money/time/access rule, each caught; 3 fresh cases per money/time rule; sweeps rerun (XCA-5)
 - [ ] No rule violation rationalized; improvised deviations and "resolved inline" notes raised as findings (XCA-6)
 - [ ] Severity per the calibration table; same class, same severity across cycles (XCA-7)
+- [ ] Every finding proven: `file:line`, trigger, outcome, why guards miss it; security: reachability; none padded (XCA-14)
+- [ ] Each WP's planned files, symbols, keys and dependencies reconciled with its commit's diff (XCA-15)
 - [ ] Accepted findings: user-accepted, dated, expiring; re-raised at Mode X and R (XCA-8)
 - [ ] Every product change after the audit re-verified and re-audited; iteration history appended in `audit.md` (XCA-9)
-- [ ] Gate 2R run on `absd/playbook/engineering/architecture-review.md`; the cycle audit reads only the resolution table (XCA-10)
-- [ ] Mode S eligibility checked against the real diff, incl. added or removed public surface (XCA-11)
-- [ ] Mode X held every 3 archived cycles and before every release, executed on the running system (XCA-12)
-- [ ] Every cross-cycle lens applied with execution evidence (XCA-13)
 
 ## Rules
 
@@ -110,11 +109,11 @@ Major process finding plus the defect it hides.
 
 **XCA-7** — Grade every finding by the table: by its worst effect on any principal or data, not by likelihood; when two
 rows fit, the higher wins; the same class gets the same severity in every cycle; only the finder sets it and the
-Manager never downgrades it.
+Manager never downgrades it. A security finding's sink no shipped entry point reaches is graded per XCA-14.
 - *Why:* a missing test for a money rule was Major in one cycle, Minor in another (LL-47).
 - *Check:* each finding cites its table row; the Auditor compares classes with earlier audits.
 - *Applies when:* every finding (AR, TF, DQ, F).
-- *Provenance:* LL-47 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-47 (KatenatsioTipster, 2026-10); LL-65 (ECC evaluation, 2026-11)
 
 | Severity | Finding classes | Examples |
 |---|---|---|
@@ -147,56 +146,25 @@ cells of `ESCAPED-DEFECTS.md`), needs no re-audit.
 - *Applies when:* every iteration ≥ 2 and any post-audit product change.
 - *Provenance:* LL-46 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
 
-### Reviews by mode
+### Finding proof and scope drift
 
-**XCA-10** — At Gate 2R judge the blueprint against every row of the review checklist in
-`absd/playbook/engineering/architecture-review.md` (technical excellence, security, testability, operability,
-consistency with `analysis.md` and every recorded decision) and write AR findings with a resolution table. The post-build audit reads only that resolution table, not the 2R reasoning, and may raise new
-architecture findings. The Architect may contest one AR with an ADR; if still disputed, the user decides.
-- *Why:* nobody judged architecture quality, so a missing read, a dependency cycle and a reversed decision reached the
-  Builder (LL-42, LL-44).
-- *Check:* `arch_review.md` cites checklist items per AR; `audit.md` L1 cites the resolution table.
-- *Applies when:* every Gate 2R (Mode S: on the delta).
-- *Provenance:* LL-42, LL-44 (KatenatsioTipster, 2026-10)
+**XCA-14** — Raise a finding only with its proof: `file:line` (or artifact section), the trigger (input, state or
+sequence), the bad outcome, and why the existing guards — types, validation, framework, caller — do not stop it; a
+Critical or Major missing any of the four is demoted or dropped. Label each security finding with its reachability:
+entry point → sink and the principal needed; a sink no shipped entry point reaches is Minor (hardening), a reachable
+one is graded by XCA-7. A level with no finding reports PASS with its evidence; never pad a report.
+- *Why:* speculative or manufactured findings spend fix rounds against the 3-iteration cap and bury the real ones.
+- *Check:* at Gate 2R and Gate 3 the Manager returns any finding row whose Evidence cell lacks location, trigger,
+  outcome or guard analysis (security: reachability) to the Auditor.
+- *Applies when:* every finding (AR, TF, DQ, F).
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)
 
-**XCA-11** — In every Mode S audit compare the change with each eligibility criterion (ELIC-1) using the real diff — files
-touched, schema, operations, config keys, flags, jobs, time and money code, and every screen, endpoint, command or
-public symbol added or removed or interface contract changed — not the brief; copy and layout on an existing screen
-stay eligible. Misclassification is a Major process finding and a LEDGER
-candidate, and the cycle re-enters Mode F at the earliest affected artifact.
-- *Why:* a light route without a mechanical check invites bypass by relabelling (LL-27); "touches a screen" made
-  every honest visible Mode S a finding (LL-55).
-- *Check:* `audit.md` L8 holds the criterion × diff evidence table.
-- *Applies when:* Mode S.
-- *Provenance:* LL-27 (KatenatsioTipster, 2026-10); LL-55 (ABSD v2 kit review, 2026-10)
-
-**XCA-12** — Hold a cross-cycle audit (Mode X, `Scope: cross-cycle (C00a–C00b)`) every 3 archived cycles, before every
-release (DOD-8) and on request. Inputs: the integration seams list, `context.md`, the code at HEAD and the catalogue —
-not every archive. Execute, do not only read: run the product with each environment's default configuration, the
-recorded contracts, the chain tests and the device projects; apply every lens of XCA-13.
-- *Why:* a snapshot missing ~60% of the columns passed four per-cycle audits (LL-21); a static cross-cycle audit
-  missed every defect needing real data, devices or responses (LL-1, LL-4).
-- *Check:* `cycle.md` and `context.md` §15 show a Mode X within every 3 archived cycles and before each release.
-- *Applies when:* ≥ 3 archived cycles since the last Mode X; before any release; after brownfield adoption (a v1
-  project: once its Foundation-delta has closed).
-- *Provenance:* LL-1, LL-4, LL-21 (KatenatsioTipster, 2026-10)
-
-**XCA-13** — Apply each lens below with execution evidence and record a verdict per lens. Per-cycle audits compare code
-with one cycle's spec, so a defect built from many correct-looking steps — a deferral repeated every cycle, a file no
-agent owns, a default nobody runs, a binding made at start-up — only shows across the whole.
-- *Why:* deferred migrations (LL-21), drifted docs and defaults (LL-22), a flag bound at start-up (LL-23), a
-  half-implemented step (LL-51) and a stale context file (LL-54) were visible only across cycles.
-- *Check:* `audit.md` has one section per lens with commands, outputs and findings.
-- *Applies when:* every Mode X.
-- *Provenance:* LL-21, LL-22, LL-23, LL-51, LL-54 (KatenatsioTipster, 2026-10)
-
-| Lens | Execute | Accumulation it catches |
-|---|---|---|
-| Business chain trace | Each end-to-end chain (input → stored → derived → shown) run with a fresh case on the running system | steps specified once and lost later (LL-51) |
-| Permissions sweep | Operations enumerated from the running system; matrix complete and run, incl. admin-as-member, impersonation, service identities | operations added cycle by cycle, checked by reading |
-| Flags | Every flag at shipped defaults (off = inert) and in both states; toggles match the register's hot or restart | provider bound at start-up (LL-23) |
-| Security & secrets | Whole repo + history scan, dependency audit, rotation of anything ever committed | a key outside a narrowed scope (LL-43) |
-| Data invariants & migrations | Migrate from empty and from the previous release; model ↔ migration drift; constraints and invariant tests per catalogue BR | schema not reproducible (LL-21); derived value trusted (LL-48) |
-| Runtime wiring | Boot the shipped artifact per environment's defaults; registrations, lifetimes, error handling, jobs scheduled once | broken default sign-in key (LL-22) |
-| Interface cohesion | Gallery and outputs from different cycles side by side; one design system, formatter and convention set | mixed number formats (LL-19) |
-| Docs, config & context drift | Fresh clone → running from the docs; config agreement; `context.md` vs repo (commands, stack, debt, cycles) | contradicting docs (LL-22); stale context (LL-54) |
+**XCA-15** — Reconcile every work package with its commit in every cycle: the files, public symbols, operations,
+config keys, migrations and dependencies `architecture.md` lists for the WP against `git diff --stat` and the code of
+that commit; each unplanned item is a Major finding (scope drift, XCA-6), each planned item missing is a Major L1
+finding.
+- *Why:* scope drift outside the blueprint evades the coverage-only Gate 2; Mode S compared the real diff, full cycles
+  did not.
+- *Check:* `audit.md` L1 holds a WP → planned vs actual table with the commit of each WP.
+- *Applies when:* every audit with Builder commits (Mode S: XCA-11 as well).
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)

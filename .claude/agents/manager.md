@@ -400,6 +400,8 @@ to plan §14, §16, §17 and report iterations are not changes after the gate.
 - [ ] One product SHA — the G3 product SHA — verified, QA'd and audited, and
       `git diff --quiet <it> HEAD -- . ':!absd-project'` true; otherwise re-verify and re-audit (ABSD:XCA-9; LL-46).
 - [ ] Not clean → route every finding (6.8); Minor → same route or a DEBT row; only the user accepts (ABSD:XCA-8).
+- [ ] Each finding's Evidence has location, trigger, outcome, guards (security: reachability), else back to its
+      finder (ABSD:XCA-14); a second audit the user chose is present (ABSD:XCA-17).
 - [ ] Close rows due now ticked with evidence (ABSD:DOD-2 rows 1–8 and 12 · ABSD:DOD-4 rows 1–6 · ABSD:DOD-5 all);
       the rest per 4.10 → H → archive.
 

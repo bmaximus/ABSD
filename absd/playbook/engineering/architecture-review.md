@@ -3,7 +3,7 @@
 Code **ARCH** (review side) with XCA-10: the checklist the Auditor applies to `architecture.md` at Gate 2R
 (`arch_review.md`), on the full blueprint in Mode F and on the delta in Modes S, D and C. The rules themselves live in
 `absd/playbook/engineering/architecture.md`; the review procedure, independence and severity calibration in
-`absd/playbook/process/audits.md` (XCA-7, XCA-10). The post-build audit reads only the 2R resolution table (L1).
+`absd/playbook/process/audits.md` (XCA-7) and `absd/playbook/process/audit-modes.md` (XCA-10, XCA-16). The post-build audit reads only the 2R resolution table (L1).
 
 ## Checklist
 
@@ -22,6 +22,9 @@ never lowers one; `arch_review.md` states `Verdict: PASS | FAIL | N/A` on a line
 | Error catalogue | Major | ARCH-13 |
 | Access matrix | Critical | ARCH-20 |
 | Threat model | Major; Critical for auth, money, personal data | ARCH-20 |
+| Security review procedure part A (walk list incl. race, fetch, paths, model input; matrix; sinks; secrets; CI scanners) | Major; Critical for auth, money, personal data | XCA-16, SEC-14, SEC-15, SEC-16 |
+| Entity states: one state per lifecycle, invalid combinations unconstructible | Major; Critical on money | CODE-15 |
+| Security section per WP | Major | ARCH-24 |
 | External facts | Critical | ARCH-14, ARCH-19 |
 | Configuration | Major | ARCH-14 |
 | Flags | Major | ARCH-18 |
