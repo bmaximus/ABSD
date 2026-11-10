@@ -66,7 +66,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Trace tables in artifacts; retired requirements; reserved prefixes in tests | TRACE | `absd/playbook/testing/traceability.md` |
 | A check that did not run is RED; coverage floor ratchet; no-untested-unit gate and allowlist | GATE | `absd/playbook/testing/gates.md` |
 | Strict compilation, mutation and flake gates; gate configuration ownership; gates proven able to fail | GATE | `absd/playbook/testing/gates.md` |
-| CI job graph, readable failures, hermetic CI; migration, secret-canary, pipeline-integrity and deploy gates | GATE | `absd/playbook/testing/ci-and-release-gates.md` |
+| CI job graph, readable failures, hermetic CI; migration, secret-canary, pipeline-integrity and deploy gates; exit status through pipes | GATE | `absd/playbook/testing/ci-and-release-gates.md` |
 | Escaped defects: main rule, why-missed taxonomy, root-cause class, same-weakness sweep, log, recurrence, flakes | ESC | `absd/playbook/testing/escaped-defects.md` |
 | Exploratory charters and sessions (agent and human), finding routing, manual acceptance checklist, real devices | EXPL | `absd/playbook/testing/exploratory.md` |
 | Accessibility scans, keyboard paths, rendered contrast, CLI output without colour | A11Y | `absd/playbook/testing/nonfunctional.md` |
@@ -89,7 +89,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Concurrency register, background job specification, flag register, external ports | ARCH | `absd/playbook/engineering/architecture.md` |
 | Security design and observability in the blueprint, ADRs, suppression-marker list, work packages, profile modules | ARCH | `absd/playbook/engineering/architecture.md` |
 | Architecture review checklist (Gate 2R) | ARCH | `absd/playbook/engineering/architecture-review.md` |
-| Static analysis, warnings as errors, formatting, complexity, naming, dead code, dependency hygiene, suppression markers in code | CODE | `absd/playbook/engineering/code-quality.md` |
+| Static analysis, warnings as errors, formatting, complexity, naming, dead code, dependency hygiene, suppression markers in code; lifecycle as one state type; callers searched before editing an existing file | CODE | `absd/playbook/engineering/code-quality.md` |
 | Authentication, authorization (deny by default, object level), input validation, secret handling, headers, logging hygiene, dependency scanning, threat model | SEC | `absd/playbook/security/baseline.md` |
 | Server-side fetch and file-path hostile-input sets; concurrent duplicate requests; products calling a model; agent configuration as supply chain | SEC | `absd/playbook/security/baseline.md` |
 | Personal data inventory, retention, deletion and export, consent, personal data in logs | PRIV | `absd/playbook/security/privacy.md` |

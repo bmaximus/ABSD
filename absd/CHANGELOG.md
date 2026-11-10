@@ -43,6 +43,13 @@ the shortlist and the structural ideas). Ledger: LL-65.
   (SEC-16 on the kit itself); check 1 refuses a rule defined in a procedure file (ENR-17); tests added.
 - Manuals: Auditor (procedure parts A/B, XCA-14, XCA-15, XCA-17, reads `audit-modes.md`), Manager (Gate 3 finding
   proof, second audit), Architect (CODE-15, SEC-7/14/15, WP security section), Analyst (ELIC-23), Builder (CODE-16).
+- Review follow-up (same version; additions these rules already required): templates — `audit.md` L1 planned-vs-actual
+  table (XCA-15), L5 part B rows (XCA-16), Second audit section (XCA-17); `analysis.md` abuse-case table (ELIC-23);
+  `architecture.md` §8.7 model calls (SEC-15), §8.4 SEC-15/16, §20 WP security column (ARCH-24); `arch_review.md`
+  part A rows (XCA-16); `build_log.md` §1 caller table (CODE-16); `context.md` §14 Builder model tier and second-audit
+  choice. Manuals cite GATE-17 and SEC-16; Auditor L4/L5 ranges reach CODE-16 and SEC-16; Tester row 21 adds ELIC-23
+  and SEC-15; Manager offers XCA-17, passes the Builder tier per invocation (RULES §8 Model tier row joined to its
+  table). Procedure inputs and playbook routing rows completed; README corrections.
   Copilot mirrors unchanged (they point to the manuals).
 - Kit acceptance run (ENR-14): not yet run for this version — required before tagging 2.2.0.
 - **Next (planned, not in this release):** move other long situation-triggered sequences out of the manuals into

@@ -5,8 +5,8 @@ steps, never rules: each step cites the rules it checks. Part A runs on `archite
 built product at the audited product SHA, inside L5. Record one row per step — step, verdict (OK, AR-n or F-n, N/A with
 its reason), evidence — in `arch_review.md` §3 or `audit.md` L5. A step you could not run is BLOCKED, never PASS.
 
-Inputs the Analyst and Architect provide: abuse cases per feature touching sign-in, money, personal data, uploads or
-external input (ELIC-23); the threat table (SEC-14); the model-call table (SEC-15); the security section of each work
+Inputs the Analyst and Architect provide: abuse cases per feature touching sign-in, money, personal data, uploads, model
+calls or external input (ELIC-23); the threat table (SEC-14); the model-call table (SEC-15); the security section of each work
 package (ARCH-24).
 
 ## Part A — design review at Gate 2R

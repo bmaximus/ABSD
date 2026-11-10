@@ -315,7 +315,7 @@ Not halts: a test you believe wrong → TC-CONFLICT (§7.2); an environment limi
 | Persistence | tool-generated migrations; expand/contract as §4; no schema auto-create on any path | ABSD:ARCH-15, ABSD:INTEG-2 |
 | Jobs, concurrency | §14 tokens, locks, idempotency keys; no overlap; run-one-cycle seam; flag checked in scheduler and body | ABSD:ARCH-16, ABSD:ARCH-17 |
 | Observability | §13 fields, levels, correlation id, health and version; audit rows in the same transaction, never on reads | ABSD:ARCH-21, ABSD:ARCH-9 |
-| Pipelines | build once, deploy the tested digest from a green run at that commit; version-aware health, smoke, rollback; exact tool versions | ABSD:OPS-2, ABSD:OPS-3, ABSD:GATE-15, ABSD:GATE-11 |
+| Pipelines | build once, deploy the tested digest from a green run at that commit; version-aware health, smoke, rollback; exact tool versions; piped commands keep the exit status | ABSD:OPS-2, ABSD:OPS-3, ABSD:GATE-15, ABSD:GATE-11, ABSD:GATE-17 |
 | Shape | size and complexity limits; domain names; no dead code | ABSD:CODE-3, ABSD:CODE-4, ABSD:CODE-5 |
 
 ### 6.5 Before replying

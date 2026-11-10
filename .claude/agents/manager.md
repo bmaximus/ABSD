@@ -83,7 +83,9 @@ technical decision and judge no technical quality (the Auditor and the Designer 
    action (the shipped rollback or a flag off, never a code change) → `defect.md` Containment, a D-n, a §11 RISK.
    Verify covers the contained state; re-enabling the feature is the ABSD:DOD-7 trigger — Mode R runs before it,
    never inside this cycle, never blocking its merge.
-8. Write `brd.md` (5.2) or `defect.md` (5.3), commit, then delegate per the route table (4.4).
+8. Money or permission paths changed → ask the user whether a second independent audit runs, unless `context.md`
+   §14 decides; record a brd §9 D-n (ABSD:XCA-17).
+9. Write `brd.md` (5.2) or `defect.md` (5.3), commit, then delegate per the route table (4.4).
 
 ### 4.3 Scale classification (Mode S eligibility — mechanical)
 
@@ -123,6 +125,10 @@ Before every delegation:
       inputs passed their gates for this revision (or the brief marks a draft).
 - [ ] Every field of `absd/templates/briefs/invocation-brief.md` filled; findings copied with ids, never paraphrased
       into new requirements; no technical decision; no narrowed audit scope (ABSD:XCA-1; LL-43).
+- [ ] Builder: pass the `context.md` §14 tier as the invocation's model (RULES §8) — never for a money, permission
+      or security WP. Second audit chosen: a fresh Auditor, same brief and product SHA, writes before reading the first.
+- [ ] Edits to the agent configuration: no hidden characters, no remote-fetching hook or server, servers pinned
+      (ABSD:SEC-16).
 - [ ] Design QA ∥ Audit: log both invocations and commit before launching either; both briefs name one product SHA;
       each finds the tree clean outside the other's paths (`design_review.md` + `evidence/designer/` · `audit.md` +
       `evidence/auditor/`) and commits only its own; a commit touching only `absd-project/` restarts neither (RULES §6).

@@ -351,7 +351,7 @@ N/A by profile per `TESTING.md`, or because the subject is absent (no jobs, flag
 | 18 | Lists and queries at volume max (adversarial order) → latency budget + round-trip count | VAR-7, PERF-1, PERF-2 |
 | 19 | Integration replaced → sweep of copy, docs, config, fakes, health | EXT-5 |
 | 20 | Every flag → both states + toggle semantics; suite once on shipped defaults | VAR-19 |
-| 21 | Every threat-model row → TC or a user-accepted RISK; forged server-owned fields refused | SEC-14, SEC-5, VAR-11 |
+| 21 | Every threat-model row and abuse case → TC or a user-accepted RISK; per model call an injected-instruction fixture and an off-schema or oversized output TC; forged server-owned fields refused | SEC-14, ELIC-23, SEC-15, SEC-5, VAR-11 |
 | 22 | Tests whose oracle changes, and tests linking retired ids, listed with action | TRACE-11, ORACLE-2 |
 | 23 | No open blocking spec defect or TSEAM; red or negative-control evidence per TC (Mode D: or "binds at re-bind") | ORACLE-3, TCQ-15 |
 | 24 | Each profile's E2E form: native interruptions · http-api black box · cli TTY/pipe/`NO_COLOR`/exit codes · library installed + API diff · pipeline replay/duplicate/late/malformed/empty | STRAT-5, E2E-11–15 |
@@ -362,7 +362,8 @@ N/A by profile per `TESTING.md`, or because the subject is absent (no jobs, flag
 
 The TCQ-16 review checklist (`absd/playbook/testing/test-code.md`) over every test, fake and helper you added or
 changed, recorded. Non-negotiable: discriminating assertions (ORACLE-9); no skip, focus or silent-pass branch (TCQ-1);
-no sleep (TCQ-7); passes alone, in random order and in parallel (TCQ-8, TCQ-9); helpers tested (TCQ-13).
+no sleep (TCQ-7); passes alone, in random order and in parallel (TCQ-8, TCQ-9); helpers tested (TCQ-13); workflow and
+script lines you write keep the exit status through pipes (GATE-17).
 
 ## 7. Halts, conflicts, resume
 

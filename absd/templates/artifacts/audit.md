@@ -37,6 +37,14 @@ Plan: planned <n> · executed <n> · first-attempt pass <n> · missing <TC ids> 
 
 ### L1 … ### L8 — one subsection each: executed, read, observations, finding ids
 
+### L1 Planned vs actual per WP (XCA-15)
+| WP | Commit | Planned (files · symbols · ops · keys · migrations · deps) | Actual (diff --stat, code) | Unplanned → F-n | Missing → F-n |
+|---|---|---|---|---|---|
+
+### L5 Security review part B (XCA-16; `absd/playbook/procedures/security-review.md`) — or "N/A: SEC-14 not triggered"
+| Step B1–B6 (one row each) | Verdict (OK · F-n · N/A reason · BLOCKED) | Evidence # |
+|---|---|---|
+
 ### L7 Operability defaults (RULES rule 8)
 | Default (rule id) | Its *Applies when* covers a declared profile: yes / no (N/A, no waiver) — condition quoted | Evidence # or the user's waiver D-n | Verdict |
 |---|---|---|---|
@@ -91,6 +99,9 @@ Containment of a live Critical: <D-n + RISK-n | none>
 ## 10. Proposed register rows (the Manager records them)
 | Kind: RISK / DEBT / DEF (`context.md` §16 backlog) / LEDGER candidate | Statement | Source (finding, limitation) | Blocks |
 |---|---|---|---|
+
+## Second audit (XCA-17; only when the user chose it — brd §9 D-n or `context.md` §14) — or "not chosen"
+Written before reading §9 of the first audit; independent findings with evidence # and timestamps.
 
 ## Iteration <n> — audited product SHA <sha> · trigger: fix pass <n> / close-out edit / merge · product diff <sha>..<sha>   (append-only)
 Runs (§2 format) · levels (§4 format) · fix-diff review · probes on touched rules

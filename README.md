@@ -27,7 +27,7 @@ flowchart LR
 
 Security is designed in, not bolted on at the end: abuse cases in the analysis, a security section per work package
 in the architecture, a security design review at Gate 2R, abuse cases as failing tests at Plan & Bind, scanners in
-CI, and a short evidence checklist at Gate 3 ([procedure](absd/playbook/procedures/security-review.md)).
+CI, and a short evidence checklist in the audit's L5, ticked at Gate 3 ([procedure](absd/playbook/procedures/security-review.md)).
 
 ```mermaid
 flowchart LR
@@ -38,7 +38,7 @@ flowchart LR
     PB[Tester @ Plan & Bind<br/>abuse cases → RED tests] --> CI[CI on every push<br/>dependency, secret, static scans]
   end
   subgraph Release
-    G3S[Auditor @ Gate 3<br/>evidence checklist, findings<br/>graded by reachability] --> XR[Mode X / R<br/>periodic deep review]
+    G3S[Auditor @ L5 audit<br/>evidence checklist, findings<br/>graded by reachability] --> G3[Gate 3] --> XR[Mode X / R<br/>periodic deep review]
   end
   R2 --> PB
   CI --> G3S
@@ -85,8 +85,8 @@ playbook rules with ids (`ABSD:CODE-n`).
 | **2.2** | Security by design (abuse cases → design review → tests → evidence checklist; model-output and agent-configuration rules); evidenced, reachability-graded findings; planned-vs-actual diff per work package; gate pipes that cannot hide a failure; on-demand **procedures** to keep manuals short; a model tier per role; an optional second auditor on money and permission paths; `kit_lint` refuses hidden Unicode in the kit. |
 
 Still open (honestly): the backlog in [`absd/lessons/inbox/`](absd/lessons/inbox/), a scored benchmark of the
-agents themselves, risk-based routing to make small work lighter, and splitting the long manuals into a core plus
-procedures.
+agents themselves, risk-based routing to make small work lighter, and moving more of the long manuals into
+procedures (one so far: the security review).
 
 ## Modes
 
@@ -110,9 +110,13 @@ absd/                      THE KIT — vendored into products, read-only there, 
   RULES.md                 canonical rules (product CLAUDE.md imports it)
   playbook/                knowledge base: testing, design, engineering, security, process
     procedures/            step-by-step procedures an agent loads only at the step that needs them
-  templates/               seeds for product-owned files, artifact skeletons, the invocation brief
+  templates/
+    project/               seeds for product-owned files, copied at install
+    artifacts/             artifact skeletons, read in place
+    briefs/                the invocation brief
   tooling/                 stack-neutral tools (standard library only, each with tests)
   lessons/LEDGER.md        where every rule comes from + the escape scoreboard
+  lessons/inbox/           enrichment proposals from products, verbatim
   VERSION  CHANGELOG.md  MANIFEST
 .claude/agents/            the seven agent manuals (Claude Code)
 .github/agents/            thin GitHub Copilot mirrors

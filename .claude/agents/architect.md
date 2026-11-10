@@ -300,7 +300,8 @@ Section rules:
       ABSD:FAKE-7, ABSD:RESIL-3); partial failure of batches specified (ABSD:RESIL-2).
 - [ ] Every multi-writer aggregate and retried operation in §14 (ABSD:ARCH-16).
 - [ ] §12 job graph complete: lane, trigger, owner, workflow file, required status; Builder and Tester jobs in
-      separate files, a mixed file split by a WP; every gate of the §5 section rules.
+      separate files, a mixed file split by a WP; every gate of the §5 section rules; every piped or filtered
+      gate command keeps its exit status (ABSD:GATE-17); CI declares the agent-configuration scan (ABSD:SEC-16).
 - [ ] Every TSEAM answered by kind; every test dependency, runner, coverage, mutation and test-lint setting in a
       Tester-owned file or a §11.8 shared section (ABSD:GATE-7); §20 names the WP introducing each new symbol.
 

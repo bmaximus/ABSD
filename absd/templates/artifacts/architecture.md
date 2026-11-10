@@ -132,13 +132,17 @@ Public names (cli, http-api, library: every name `design.md` gives, adopted verb
 |---|---|---|---|---|---|---|---|---|---|
 
 ### 8.3 Visibility per read model — viewer × state × time; lists, counts, exports, caches obey it (ACCESS-10)
-### 8.4 Controls — validation per boundary (SEC-6) · sinks (SEC-7) · secrets and printing (SEC-8, SEC-9) · transport and headers (SEC-10) · error bodies (SEC-11) · security events (SEC-12) · supply chain (SEC-13) · service identities and grants as code (ACCESS-13)
+### 8.4 Controls — validation per boundary (SEC-6) · sinks (SEC-7) · secrets and printing (SEC-8, SEC-9) · transport and headers (SEC-10) · error bodies (SEC-11) · security events (SEC-12) · supply chain (SEC-13) · service identities and grants as code (ACCESS-13) · model output (SEC-15) · agent configuration and CI scanners (SEC-16)
 ### 8.5 Personal data (PRIV-1 to PRIV-8)
 | Field / dataset | Purpose · basis | Requirement | Locations | Retention | Deletion mechanism | Export | Access log |
 |---|---|---|---|---|---|---|---|
 
 ### 8.6 Threat model (SEC-14)
 | # | Asset | Entry point | STRIDE | Threat | Mitigation (§) | TC hint or RISK-n |
+|---|---|---|---|---|---|---|
+
+### 8.7 Model calls (SEC-15) — or "none"
+| Call | Input sources (trusted · untrusted) | Output schema and size | Allowed side effects | Server-side approval / allow-list step | Credentials held (≤ calling principal) | TC hint |
 |---|---|---|---|---|---|---|
 
 ## 9. Configuration (ARCH-14)
@@ -236,8 +240,8 @@ The context.md §3 format; first match wins; specific globs first; owners builde
 ## 19. Suppression markers (ARCH-23) — | File | Symbol | Rule | Reason | Expiry | — or "none"
 
 ## 20. Work packages (ARCH-24)
-| WP | Purpose | Files (create / modify) | Generated migrations | Introduces (new symbols) | Depends on | Delivers (requirement / AC / operation ids) |
-|---|---|---|---|---|---|---|
+| WP | Purpose | Files (create / modify) | Generated migrations | Introduces (new symbols) | Depends on | Delivers (requirement / AC / operation ids) | Security (threat rows · sinks · secrets · model calls touched, or "none") |
+|---|---|---|---|---|---|---|---|
 
 ## Self-verification
 | Checklist item (architect manual §6) | Result | Evidence (§, grep, trace_check line) |

@@ -21,6 +21,10 @@ brd Decisions D-1…D-n · `analysis.md` <sha> · `design.md` <sha> · profiles 
 | Item | Rules | Evidence (section, quote, path:line) | Verdict: OK / AR-n / N/A — profile or absent-subject reason |
 |---|---|---|---|
 
+Security review part A (XCA-16): one row per step A1–A8, or "N/A: SEC-14 not triggered"
+| Step | Rules | Evidence (section, quote, path:line) | Verdict: OK / AR-n / N/A — reason |
+|---|---|---|---|
+
 ## 4. Probes (one row per probe of the auditor manual §4.1 step 3, in its order)
 | Probe | Method | Result (evidence #) |
 |---|---|---|

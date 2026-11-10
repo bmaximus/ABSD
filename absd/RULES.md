@@ -154,8 +154,7 @@ Tests carry their ids in the name or as properties: `TC-0042` and `[AREA-n]` (se
 | Delegate to a worker | the Agent tool with the worker's name and an invocation brief | a handoff the user confirms |
 | Run commands | Bash | the terminal tools |
 | Gate records | `absd-project/working/cycle.md` | the same file |
-
-| Model tier | `model:` in each manual's frontmatter | the model picker |
+| Model tier | `model:` in each manual's frontmatter; per invocation, the Agent tool's `model` | the model picker |
 
 Workers are invoked only by the Manager with a brief (`absd/templates/briefs/invocation-brief.md`) and answer in ≤ 15
 lines: status, artifact paths, finding counts by severity, blockers — never artifact contents. The final reply is the
