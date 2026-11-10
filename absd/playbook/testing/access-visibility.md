@@ -116,7 +116,7 @@ rules in `absd/playbook/security/baseline.md`; variation techniques are VAR rule
 
 **ACCESS-13** — Give every service identity (scheduled job, worker, integration, pipeline stage, deploy or CI token) its own least-privilege principal and test both what it may do and that it is refused everything else; pipeline outputs carry only the rows and columns each consumer may see.
 - *Why:* jobs running as a superuser hide authorization defects and turn any job bug into a cross-tenant write.
-- *Check:* data-pipeline matrix service identity × dataset × mode (read, write, delete); writing an undeclared dataset fails; downstream exports asserted free of forbidden columns (personal data per PRIV rules in `absd/playbook/security/baseline.md`).
+- *Check:* data-pipeline matrix service identity × dataset × mode (read, write, delete); writing an undeclared dataset fails; downstream exports asserted free of forbidden columns (personal data per PRIV rules in `absd/playbook/security/privacy.md`).
 - *Applies when:* data-pipeline (M), or any product with background work or machine credentials.
 - *Provenance:* industry baseline
 

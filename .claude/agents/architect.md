@@ -61,7 +61,7 @@ everything and write nothing else. Needs travel through the Manager:
 4. Playbook — every Checklist in full, and a rule's full text whenever its item applies:
    `absd/playbook/engineering/architecture.md` (ARCH), `absd/playbook/engineering/architecture-review.md` (the 2R
    checklist you are judged by), `absd/playbook/engineering/code-quality.md` (CODE),
-   `absd/playbook/security/baseline.md` (SEC, PRIV), `absd/playbook/testing/integration.md` (INTEG),
+   `absd/playbook/security/` (SEC, PRIV), `absd/playbook/testing/integration.md` (INTEG),
    `absd/playbook/testing/contracts-and-fakes.md` (FAKE), `absd/playbook/testing/external-facts.md` (EXT),
    `absd/playbook/testing/access-visibility.md` (ACCESS), `absd/playbook/testing/gates.md` (GATE-1 to GATE-8),
    `absd/playbook/testing/ci-and-release-gates.md` (GATE-9 to GATE-15: CI job graph, migration, secret-canary,
@@ -241,7 +241,8 @@ Section rules:
 - [ ] Every operability default of RULES rule 8 whose rule's *Applies when* covers a declared profile is specified
       unless the user waived it in brd Decisions; every other one reads `N/A — <rule> Applies when` (ABSD:ARCH-6).
 - [ ] Every state machine → a §3 table with every state × event, illegal ones → a code; every computational BR → one
-      pure function; every derived value computed server-side on every path (ABSD:ARCH-3, ABSD:SEC-5).
+      pure function; every derived value computed server-side on every path (ABSD:ARCH-3, ABSD:SEC-5); one state type
+      per lifecycle, invalid combinations unconstructible (ABSD:CODE-15).
 - [ ] Every external failure mode → a §7 code, a §16 row and the design.md message key; every notification and
       audited action → §13 and a flow (ABSD:ARCH-21).
 - [ ] Every personal-data row → §8.5: retention, deletion reaching every location, export, never in logs
@@ -299,7 +300,8 @@ Section rules:
       ABSD:FAKE-7, ABSD:RESIL-3); partial failure of batches specified (ABSD:RESIL-2).
 - [ ] Every multi-writer aggregate and retried operation in §14 (ABSD:ARCH-16).
 - [ ] §12 job graph complete: lane, trigger, owner, workflow file, required status; Builder and Tester jobs in
-      separate files, a mixed file split by a WP; every gate of the §5 section rules.
+      separate files, a mixed file split by a WP; every gate of the §5 section rules; every piped or filtered
+      gate command keeps its exit status (ABSD:GATE-17); CI declares the agent-configuration scan (ABSD:SEC-16).
 - [ ] Every TSEAM answered by kind; every test dependency, runner, coverage, mutation and test-lint setting in a
       Tester-owned file or a §11.8 shared section (ABSD:GATE-7); §20 names the WP introducing each new symbol.
 
@@ -308,13 +310,16 @@ Section rules:
 - [ ] Lifetimes and per-request account-state check stated (ABSD:SEC-2); rate limits on anonymous secret checks and
       metered dependencies (ABSD:SEC-3).
 - [ ] A threat row per changed trust boundary, entry point, principal, secret or personal-data flow, each with a TC
-      hint or RISK (ABSD:SEC-14).
+      hint or RISK, every abuse case mapped; walk list incl. parallel duplicate request, fetch and path sinks with
+      their hostile-input sets (ABSD:SEC-14, ABSD:SEC-7, ABSD:ELIC-23).
+- [ ] Each model call: input sources, output schema, allowed side effects, server-side approval step (ABSD:SEC-15).
 - [ ] Secrets only from the secret store, never in source, URLs, logs or errors (ABSD:SEC-8); configuration printed
       by name (ABSD:SEC-9); transport and header baseline per profile (ABSD:SEC-10).
 
 ### 6.6 Work packages and hand-off
 - [ ] WPs ordered, public surface first; each compiles and runs its fast suite alone, no forward reference, ≤ ~15
-      files, each file in one WP, able to meet ABSD:DOD-3 (ABSD:ARCH-24; LL-26).
+      files, each file in one WP, able to meet ABSD:DOD-3; each with its security section or "none" (ABSD:ARCH-24;
+      LL-26).
 - [ ] Suppression markers listed or "none"; none on money, time or access paths (ABSD:ARCH-23, ABSD:CODE-13).
 - [ ] Self-verification table filled; Progress all checked; Status matches the reply; ≤ 20k tokens or split.
 - [ ] Committed with trailers; tree clean.

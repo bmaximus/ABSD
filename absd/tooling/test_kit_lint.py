@@ -171,7 +171,7 @@ class BaseKitTests(KitLintTestCase):
     def test_the_base_kit_passes_every_check(self):
         code, out, data = self.run_lint()
         self.assertEqual(code, 0, out)
-        self.assertEqual([c["check"] for c in data["checks"]], list(range(1, 10)))
+        self.assertEqual([c["check"] for c in data["checks"]], list(range(1, 11)))
         self.assertTrue(data["passed"])
         self.assertEqual(data["errors"] + data["warnings"], 0)
         self.assertIn("kit_lint: PASS — 0 errors, 0 warnings", out)
@@ -301,6 +301,13 @@ class PlaybookRuleTests(KitLintTestCase):
         self.append("absd/playbook/testing/gates.md", "\nSee **GATE-7** — not a definition.\n GATE-8 neither.\n")
         code, found, _ = self.findings(1, "warning")
         self.assertEqual((code, found), (0, []))
+
+    def test_a_rule_in_a_procedure_file_is_an_error(self):
+        self.write("absd/playbook/procedures/review.md",
+                   "# Procedure\n\n| # | Step | Rules |\n|---|---|---|\n| 1 | Run the gates | GATE-1 |\n")
+        self.assertClean(1)
+        self.append("absd/playbook/procedures/review.md", "\n**GATE-3** — A rule.\n- *Provenance:* industry baseline\n")
+        self.assertFlags(1, "absd/playbook/procedures/review.md:7: GATE-3: a procedure defines no rule", count=1)
 
     def test_an_empty_playbook_is_an_error(self):
         self.write("absd/playbook/testing/gates.md", "# Gates\n")
@@ -676,6 +683,28 @@ class VersionTests(KitLintTestCase):
         self.assertFlags(9, "absd/VERSION:0", "absd/CHANGELOG.md:0: the changelog is missing", count=2)
 
 
+class HiddenCharacterTests(KitLintTestCase):
+    def test_invisible_and_bidi_characters_in_kit_files_are_errors(self):
+        self.append(".claude/agents/tester.md", "Apply the rule.\u200b\n")
+        self.append("absd/playbook/testing/gates.md", "Text \u202e reversed \u2066 isolate.\n")
+        found = self.assertFlags(10, ".claude/agents/tester.md:", "U+200B", "U+202E, U+2066", count=2)
+        self.assertEqual({f["file"] for f in found}, {".claude/agents/tester.md", "absd/playbook/testing/gates.md"})
+
+    def test_fenced_code_is_checked_too(self):
+        self.append("absd/RULES.md", "```text\nzero\u2060width\n```\n")
+        self.assertFlags(10, "absd/RULES.md:5: hidden character U+2060", count=1)
+
+    def test_settings_seeds_are_checked_and_other_files_are_not(self):
+        self.write("absd/templates/project/claude-settings.json", '{"agent": "manager\ufeff"}\n')
+        self.write("absd/templates/project/notes.bin", "x\u200d\n")
+        self.assertFlags(10, "absd/templates/project/claude-settings.json:1: hidden character U+FEFF", count=1)
+
+    def test_a_leading_byte_order_mark_and_the_inbox_are_allowed(self):
+        self.write("absd/playbook/testing/gates.md", "\ufeff" + GATES)
+        self.write("absd/lessons/inbox/proposal-2026-10-01.md", "# Proposal\n\nverbatim \u200b text\n")
+        self.assertClean(10)
+
+
 class CommandLineTests(KitLintTestCase):
     def test_a_root_without_absd_is_a_usage_error(self):
         empty = tempfile.TemporaryDirectory()
@@ -687,7 +716,7 @@ class CommandLineTests(KitLintTestCase):
         self.assertIn("has no absd/ directory", out.getvalue())
 
     def test_bad_only_values_are_usage_errors(self):
-        for value in ("x", "10", "0", "1,,2", ""):
+        for value in ("x", "11", "0", "1,,2", ""):
             code, out, _ = self.run_lint("--only", value)
             self.assertEqual(code, 2, value)
             self.assertIn("--only", out)

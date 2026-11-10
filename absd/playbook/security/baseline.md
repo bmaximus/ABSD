@@ -1,8 +1,10 @@
-# Security and Privacy Baseline
+# Security Baseline
 
-Codes **SEC** (security) and **PRIV** (privacy): production-side controls per interface profile. The Architect
-designs them (ARCH-20, ARCH-21), the Builder implements, the Tester proves each triggered rule with a TC, the Auditor judges at 2R and L5 (XCA-3). Access
-tests: ACCESS rules, linked, not repeated; canary gate: GATE-13; requirement lens: ELIC-13.
+Code **SEC**: production-side security controls per interface profile, plus products that call a model and the agent
+configuration that builds them. The Architect designs them (ARCH-20, ARCH-21), the Builder implements, the Tester
+proves each triggered rule with a TC, the Auditor judges at 2R and L5 (XCA-3, XCA-16). Privacy: PRIV
+(`absd/playbook/security/privacy.md`); access tests: ACCESS rules, linked, not repeated; canary gate: GATE-13;
+requirement lenses: ELIC-13, ELIC-23.
 
 ## Checklist
 
@@ -12,22 +14,16 @@ tests: ACCESS rules, linked, not repeated; canary gate: GATE-13; requirement len
 - [ ] Deny by default; owner/tenant scoped in the query; no mass assignment (SEC-4)
 - [ ] Derived and server-owned values never from a client (SEC-5)
 - [ ] Allow-list validation at every boundary, canonicalised; sizes capped (SEC-6)
-- [ ] Parameterised queries, argument arrays, context encoding, confined paths (SEC-7)
+- [ ] Parameterised queries, argument arrays, context encoding; fetches and paths per the hostile-input sets (SEC-7)
 - [ ] Secrets only in a secret store, never in source, history, URLs, logs; leaks rotated (SEC-8)
 - [ ] Settings printed by name; redaction tested; canary in every secret input (SEC-9)
 - [ ] Transport and header baseline per profile, tested and scanned (SEC-10)
 - [ ] Error bodies without internals; debug off in production (SEC-11)
 - [ ] Security events logged with actor, correlation id, nothing secret (SEC-12)
 - [ ] SCA, SAST, image scans; digests and commit hashes pinned; SBOM (SEC-13)
-- [ ] Threat model per changed boundary: threat → mitigation → TC or RISK (SEC-14)
-- [ ] Personal-data inventory: purpose, basis, retention, locations, viewers (PRIV-1)
-- [ ] Deletion reaches logs, processors, backups; restore re-applies it (PRIV-2)
-- [ ] Complete, own-data-only export via a short-lived link (PRIV-3)
-- [ ] Consent per purpose recorded, off until given, withdrawal immediate (PRIV-4)
-- [ ] Only needed fields collected and returned; outbound ids opaque (PRIV-5)
-- [ ] No personal data in logs, analytics, URLs, CI output; canary person (PRIV-6)
-- [ ] Synthetic test data; snapshots only anonymised, user-approved (PRIV-7)
-- [ ] Privileged reads of others' data in a declared access log (PRIV-8)
+- [ ] Threat model per changed boundary: threat → mitigation → TC or RISK; parallel duplicate request (SEC-14)
+- [ ] Model output untrusted: schema-checked, no own privilege, server-side approval before side effects (SEC-15)
+- [ ] Agent configuration treated as code: no hidden characters, no remote fetch, pinned servers (SEC-16)
 
 ## Rules
 
@@ -71,11 +67,21 @@ tests: ACCESS rules, linked, not repeated; canary gate: GATE-13; requirement len
 - *Applies when:* always.
 - *Provenance:* LL-44 (KatenatsioTipster, 2026-10)
 
-**SEC-7** — Keep data out of code at every sink: parameterised queries only (SQL, document, search, directory; raw ORM queries too); processes started with argument arrays, never shell strings; CI and script inputs passed as environment data, never interpolated; template encoding per context (HTML, attribute, script, URL, CSS), raw-markup sinks only behind a sanitiser `architecture.md` lists; CR/LF stripped from header and mail fields; paths confined to a base directory; redirects and server-side fetches allow-listed; exported cells neutralise formulas.
-- *Why:* one concatenated query or interpolated input turns data into action.
-- *Check:* CODE-2 banned APIs, SAST at 0 (SEC-13); a hostile-payload TC per sink type (VAR-11).
-- *Applies when:* always.
-- *Provenance:* industry baseline
+**SEC-7** — Keep data out of code at every sink: parameterised queries only (SQL, document, search, directory; raw ORM queries too); processes started with argument arrays, never shell strings; CI and script inputs passed as environment data, never interpolated; template encoding per context (HTML, attribute, script, URL, CSS), raw-markup sinks only behind a sanitiser `architecture.md` lists; CR/LF stripped from header and mail fields; exported cells neutralise formulas; redirects allow-listed. A server-side fetch of an input URL parses it, allows only
+listed schemes and hosts, refuses embedded credentials, checks every resolved address against private, loopback,
+link-local and metadata ranges after resolution and again on each redirect (redirects off by default). A path from input
+is canonicalised, then must stay under its base directory: absolute paths, `..`, NUL, links leaving the base and
+reserved device names are refused.
+- *Why:* one concatenated query or interpolated input turns data into action; an unchecked fetch reaches internal
+  services and cloud metadata.
+- *Check:* CODE-2 banned APIs, SAST at 0 (SEC-13); a hostile-payload TC per sink type (VAR-11), with the sets below.
+- *Applies when:* always; the fetch and path sets when a sink takes a URL or path from input.
+- *Provenance:* industry baseline; LL-65 (ECC evaluation, 2026-11)
+
+| Sink | Hostile-input set (one TC each, all refused) |
+|---|---|
+| Server-side fetch | loopback name and address; `169.254.169.254`; private ranges; IPv6, decimal and octal forms of an internal address; `user:pass@host`; an unlisted scheme; a redirect to a private address; a host that resolves public, then private (fake resolver) |
+| File path | `../` and encoded `..%2f`; absolute path; NUL byte; a link pointing outside the base; reserved device names; mixed separators |
 
 ### Secrets
 
@@ -130,58 +136,38 @@ tests: ACCESS rules, linked, not repeated; canary gate: GATE-13; requirement len
 - *Provenance:* industry baseline
 - Illustration: e.g. CodeQL or Semgrep, Trivy or Grype, Dependabot or Renovate, CycloneDX or SPDX.
 
-**SEC-14** — Threat-model every cycle that adds or changes a trust boundary, entry point, principal, secret or personal-data flow: one `architecture.md` row per threat (asset, entry point, STRIDE category, mitigation, TC or user-accepted RISK-n); per new operation walk at least: enumeration, brute force, other owner or tenant, forged fields, replay, token reuse, injection, cost exhaustion, oversized input, disclosure via exports, counts, caches or errors, impersonation misuse, a compromised dependency.
-- *Why:* per-endpoint role checks missed a disclosure in an allowed response (LL-10).
-- *Check:* Gate T maps each threat and triggered SEC rule to a TC or RISK; at 2R a missing row is Major (Critical: auth, money, personal data).
+**SEC-14** — Threat-model every cycle that adds or changes a trust boundary, entry point, principal, secret or personal-data flow: one `architecture.md` row per threat (asset, entry point, STRIDE category, mitigation, TC or user-accepted RISK-n); per new operation walk at least: enumeration, brute force, other owner or tenant, forged fields, replay, token reuse, injection, cost exhaustion, oversized input, disclosure via exports, counts, caches or errors, impersonation misuse, a compromised dependency, a concurrent duplicate request (race, double spend, check-then-act),
+server-side fetch and file path (SEC-7), injected model input (SEC-15). The Auditor runs the security review procedure
+on it (XCA-16).
+- *Why:* per-endpoint role checks missed a disclosure in an allowed response (LL-10); a balance checked without a lock
+  pays twice under parallel requests (LL-65).
+- *Check:* Gate T maps each threat and triggered SEC rule to a TC or RISK; at 2R a missing row is Major (Critical: auth, money, personal data); each money, entitlement or permission change has a TC that sends the same request in parallel and asserts exactly one effect (VAR-12).
 - *Applies when:* every Mode F; Mode D when a defect crosses a boundary.
-- *Provenance:* LL-10 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-10 (KatenatsioTipster, 2026-10); LL-65 (ECC evaluation, 2026-11)
 
-### Privacy
+### Models and agents
 
-**PRIV-1** — Keep a personal-data inventory, one row per personal field or dataset: purpose, legal basis (consent, contract, legal obligation, legitimate interest), requirement id, retention, every location (column, cache, index, file, log, analytics, backup, processor, region), viewers (matrix rows), class (personal, special, credential, payment); `analysis.md` holds the delta (ELIC-13), `architecture.md` the locations, `context.md` the whole table.
-- *Why:* deletion, export and breach response start from "where is it?"; unlisted copies survive.
-- *Check:* every personal schema field has a row; the Auditor samples columns, logs for unlisted data.
-- *Applies when:* any data about an identifiable person.
-- *Provenance:* industry baseline
+**SEC-15** — Treat a model's output as untrusted input: validate every returned value against a declared schema and
+size (SEC-6) before it reaches a sink, a state change or a user; the model and its tools hold no credential or
+permission beyond the calling principal's; where untrusted content, private data and an outbound channel meet, a
+server-side allow-list or approval step stands between model and side effect — never a prompt instruction; money,
+access and destructive actions never depend on model output alone.
+- *Why:* instructions hidden in documents, mail, pages, images or tool results turn read access into actions.
+- *Check:* `architecture.md` lists each model call with input sources, output schema and allowed side effects; TCs: an
+  injected-instruction fixture (hidden text, invisible characters, inside an image or document) causes no out-of-schema
+  output and no side effect; oversized or off-schema output is refused; eval sets per FAKE-13.
+- *Applies when:* the product calls a model or exposes tools to one.
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)
 
-**PRIV-2** — Give every inventory row a retention period and a deletion mechanism (purge, cascade or irreversible anonymisation) reaching every location incl. replicas, caches, logs, processors; backups expire within a stated window; a restore re-applies later deletions from an id-only ledger; account deletion finishes in the stated time; its audit row holds no personal data.
-- *Why:* data deleted from the main store lives on in backups, logs, processors.
-- *Check:* TC per row: create → delete or age out → absent everywhere; the restore drill re-applies the ledger (OPS-5).
-- *Applies when:* personal data is stored.
-- *Provenance:* industry baseline
-
-**PRIV-3** — Let a person obtain all their personal data, machine-readable, in the stated time: every inventory row for them, nothing of anyone else, via a short-lived `no-store` link; the export is a matrix row (ACCESS-5).
-- *Why:* hand-built exports miss or leak fields.
-- *Check:* a TC seeds every field plus another person's linked data: all present, none of theirs; the link expires.
-- *Applies when:* people can ask for their stored data.
-- *Provenance:* industry baseline
-
-**PRIV-4** — Where consent is the basis, record it per purpose with text version, time and principal; off until given; withdrawal as easy as giving, effective next request; non-essential trackers and third-party calls only after consent.
-- *Why:* unprovable consent, or processing before it, is void.
-- *Check:* TCs in both states per purpose (VAR-19); e2e sees no non-essential third-party call before consent or after withdrawal.
-- *Applies when:* processing based on consent.
-- *Provenance:* industry baseline
-
-**PRIV-5** — Collect, keep and return only what a requirement needs: each personal field cites a requirement id; responses, exports, events and pipeline outputs carry only matrix-allowed fields (ACCESS-3, ACCESS-13); outbound identifiers are opaque, never emails, phones or names.
-- *Why:* uncollected data cannot leak; each extra field adds deletion and export work.
-- *Check:* inventory fields map to requirement ids; ACCESS-3 absence asserts cover personal fields, processor payloads.
-- *Applies when:* any personal data.
-- *Provenance:* industry baseline
-
-**PRIV-6** — Keep personal data out of logs, traces, metric labels, error reports, analytics, URLs and CI output (log a pseudonymous id), proven by a canary person: a seeded principal whose distinctive name, email, phone and free text appear in no captured log, trace, analytics payload, error report or run artifact.
-- *Why:* logs and URLs are the widest-read, longest-kept copies.
-- *Check:* the canary-person scan runs with GATE-13; no route or query holds a personal field.
-- *Applies when:* any personal data.
-- *Provenance:* industry baseline
-
-**PRIV-7** — Never use real personal data in tests, fixtures, recordings, demos or lower environments: synthetic builders (TCQ-4) at production volume (VAR-7); a production snapshot needs the user's written approval in `context.md`, irreversible anonymisation inside the production boundary (identifying and free-text fields replaced, dates shifted, rare combinations generalised), a scan proving no original survives, restricted access, a deletion date; recordings scrubbed (FAKE-6); legacy-data migrations reconciled (counts, sums, samples) on such a copy.
-- *Why:* test copies are least protected; masking keeping rare combinations re-identifies people.
-- *Check:* the Auditor scans test trees for real-looking contact data; snapshots match approvals.
-- *Applies when:* always.
-- *Provenance:* industry baseline
-
-**PRIV-8** — Record privileged reads of another person's personal data (admin and support views, exports, cross-person search, impersonation per ACCESS-12) in a declared append-only access log (who, whose, what, when, reason), own retention and matrix row; the one exception to "reads write nothing" (ARCH-9), which still bars business and audit-trail writes.
-- *Why:* unrecorded privileged reads hide misuse.
-- *Check:* TC: each privileged read writes one entry with the real actor; self-reads none.
-- *Applies when:* privileged principals read others' personal data.
-- *Provenance:* industry baseline
+**SEC-16** — Treat agent instructions and configuration (agent manuals, instruction files, procedures, hook and
+permission settings, tool-server configuration, prompt templates) as code under SEC-13: no invisible or bidirectional
+control characters and no hidden comment payloads; no hook or tool-server command that fetches or runs remote content;
+tool servers, packages and images pinned by exact version or digest (a tag or bare name is High, a range Medium); no
+setting that auto-approves project tool servers or redirects the model endpoint; the settings deny-list covers secret
+paths, pipe-to-shell and remote copy.
+- *Why:* agent configuration runs with the developer's rights; a hidden instruction or an unpinned server changes
+  behaviour under a green commit.
+- *Check:* a scan in CI and at L5 over those files for U+200B–U+200D, U+2060, U+FEFF, U+202A–U+202E, U+2066–U+2069,
+  for fetch-and-run commands and for unpinned selectors; the kit runs the same scan on itself (`kit_lint`).
+- *Applies when:* always — products and the kit.
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)

@@ -58,9 +58,9 @@ QA'd and audited.
    and history. Defect scope: `defect.md`. Cross-cycle: the integration seams (`context.md` §9) and earlier `audit.md`
    files in `absd-project/archive/` (severity consistency, ABSD:XCA-7).
 5. Playbook — every Checklist in full, and a rule's full text whenever its item applies:
-   `absd/playbook/process/audits.md` (XCA, in full: your procedure); in `absd/playbook/engineering/` `architecture.md`
+   `absd/playbook/process/audits.md` and `audit-modes.md` (XCA, in full); in `absd/playbook/engineering/` `architecture.md`
    (ARCH), `architecture-review.md` (the Gate 2R checklist) and `code-quality.md` (CODE);
-   `absd/playbook/security/baseline.md` (SEC, PRIV); for L2 in `absd/playbook/design/` `excellence.md`,
+   `absd/playbook/security/` (SEC, PRIV); for L2 in `absd/playbook/design/` `excellence.md`,
    `rubric-and-qa.md` (DSN) and `content-and-locale.md` (LOC); every file in `absd/playbook/testing/` to judge the suite
    (STRAT … TCQ, COMPAT); `absd/playbook/process/requirements.md` (ELIC-1);
    `absd/playbook/process/definition-of-done.md` (the DOD rows you verify).
@@ -111,7 +111,8 @@ everything they touch; an unchanged section counts only if an earlier round pass
      cites a force (ABSD:ARCH-5); each derived value computed server-side by one pure function (ABSD:ARCH-3).
    - *Security and privacy*: matrix rows = operations × every entitlement state (ABSD:ARCH-20, ABSD:ACCESS-1,
      ABSD:ACCESS-2); deny by default (ABSD:SEC-4); threat → mitigation → TC or user-accepted RISK (ABSD:SEC-14);
-     personal-data inventory and retention (ABSD:PRIV-1, ABSD:PRIV-2).
+     personal-data inventory and retention (ABSD:PRIV-1, ABSD:PRIV-2); then part A of
+     `absd/playbook/procedures/security-review.md` (ABSD:XCA-16).
    - *Testability*: seams for clock, ids, randomness, externals, flags, config (ABSD:ARCH-11); harness = real
      composition root, stores built only by shipped migrations, faithful fakes, public-operation seeding
      (ABSD:ARCH-12, ABSD:INTEG-2).
@@ -182,7 +183,9 @@ Trigger: Verify COMPLETE after a Builder pass (F, S, C; Foundation step 8).
    or `git log -p --all` searched for key patterns); suppression markers vs the `architecture.md` list; skip and focus
    markers; deviation wording in `build_log.md` and code comments ("resolved inline", "workaround", "instead") — each
    hit mapped to a finding or a recorded reason (ABSD:XCA-6).
-9. Grade (§6.1), route (§6.3), Overall (§6.2), register rows; write; commit; reply.
+9. When SEC-14 applies: part B of the security review procedure inside L5 (ABSD:XCA-16). A second audit the user
+   chose (ABSD:XCA-17): write yours before reading the first.
+10. Grade (§6.1), route (§6.3), Overall (§6.2), register rows; write; commit; reply.
 
 ### 4.3 Audit — defect scope (Mode D)
 
@@ -232,14 +235,14 @@ subject is absent (no jobs, flags, secrets), stated with the evidence.
 
 | Level | Execute and check | Rules |
 |---|---|---|
-| L1 Architecture | Every component, signature, layer, operation, wiring entry with lifetime and config key of `architecture.md` exists as specified, and nothing unspecified exists; the layer test runs; each numbered data-flow step walked to code and to a test asserting its persisted effect; migrations tool-generated in the WP that changed the model; every 2R resolution present; `build_log.md` free of improvisation | ARCH-1, ARCH-8, ARCH-10, ARCH-15, XCA-6, XCA-10 |
+| L1 Architecture | Every component, signature, layer, operation, wiring entry with lifetime and config key of `architecture.md` exists as specified, and nothing unspecified exists; the layer test runs; each numbered data-flow step walked to code and to a test asserting its persisted effect; migrations tool-generated in the WP that changed the model; every 2R resolution present; `build_log.md` free of improvisation; each WP's plan = its commit's diff | ARCH-1, ARCH-8, ARCH-10, ARCH-15, XCA-6, XCA-10, XCA-15 |
 | L2 Design | From code and rendered outputs vs `design.md` and `design-system.md`: exact copy, accessible names, a formatter per value, label maps (no raw enum); web-ui, native-app: every component–state cell reachable, device behaviour (no hover-only control, overscroll, safe areas); cli help, exit codes and `--json` schema; http-api error body and pagination; library public surface — names as `design.md` gives them; data contracts. `design_review.md` DQ findings are the Designer's — never duplicate one as an F; raise what code shows and the gallery cannot | DSN-9, DSN-14, DSN-17, DSN-18, DSN-20, LOC-1, LOC-2 |
 | L3 Requirements | Catalogue report at the audited product SHA: every in-scope requirement verified on first attempt, 0 failing, untested or unknown; every AC, BR boundary and NF criterion has an executed TC asserting that clause — open the linked tests of every money, time and access rule and a sample of the rest; NF measured with its dataset, environment and threshold; "logic exists" never counts | TRACE-1, TRACE-7, TRACE-12, STRAT-10 |
-| L4 Code | Strict compile, warnings as errors, analysers, formatter and linter at 0; complexity limits; no dead code; TODO only with an open DEBT/RISK id; named literals; no swallowed error; cancellation passed; resources released; dependencies listed, pinned, scanned; suppression markers only as `architecture.md` lists them (search, e.g. `pragma: no cover`, `istanbul ignore`, `eslint-disable`, `@SuppressWarnings`) | CODE-1 … CODE-14, ARCH-23 |
-| L5 Security & privacy | Whole-repo and history secret scan; canary gate; settings and dry runs printed by name; access completeness test with operations enumerated from the running system; each cell asserts status AND visible fields, forbidden fields absent, a suspended principal's live token refused; deny by default; forged server-owned values refused; parameterised sinks; error bodies without internals; security events logged; dependency and static scans with 0 open Critical/High; each threat → passing TC or user-accepted RISK; stored and returned personal fields = the inventory; none in logs (canary person); synthetic test data | SEC-1 … SEC-14, PRIV-1 … PRIV-8, ACCESS-3, ACCESS-6, ACCESS-11, GATE-13 |
+| L4 Code | Strict compile, warnings as errors, analysers, formatter and linter at 0; complexity limits; no dead code; TODO only with an open DEBT/RISK id; named literals; no swallowed error; cancellation passed; resources released; dependencies listed, pinned, scanned; suppression markers only as `architecture.md` lists them (search, e.g. `pragma: no cover`, `istanbul ignore`, `eslint-disable`, `@SuppressWarnings`); one state type per lifecycle, no parallel status flags; one build_log §1 caller row sampled against a search | CODE-1 … CODE-16, ARCH-23 |
+| L5 Security & privacy | Whole-repo and history secret scan; canary gate; settings and dry runs printed by name; access completeness test with operations enumerated from the running system; each cell asserts status AND visible fields, forbidden fields absent, a suspended principal's live token refused; deny by default; forged server-owned values refused; parameterised sinks; error bodies without internals; security events logged; dependency and static scans with 0 open Critical/High; each threat → passing TC or user-accepted RISK; stored and returned personal fields = the inventory; none in logs (canary person); synthetic test data; model output schema-validated, approval step present; agent-configuration scan clean | SEC-1 … SEC-16, PRIV-1 … PRIV-8, ACCESS-3, ACCESS-6, ACCESS-11, GATE-13 |
 | L6 Test suite | Oracle independence: expected sides, fakes and helpers import no production logic; 3 expected values per money/time rule recomputed from `analysis.md` examples; the T-SHA chain review (4.2 step 6); mutation threshold met, 100% on money/time/access; 0 skipped, focused or disabled; error-signal fixture on every e2e test; user-like selectors; retries 0 (≤ 1 e2e); one extra random-order run of integration and e2e (a difference = flake, Major; §6.3); allowlist additions reasoned and user-approved; floor not lowered; fakes reproduce `EXTERNAL-FACTS.md`; shipped settings only; volume max with adversarial ordering; device, zone and time-boundary projects; every N/A matches the matrix or an evidenced absent subject; TCQ checklist on every money/time/access test and a sample; TF severities per §6.1 | ORACLE-1, ORACLE-4, ORACLE-12, GATE-2, GATE-3, GATE-5, GATE-6, E2E-1, E2E-2, FAKE-1, FAKE-4, VAR-6, VAR-7, VAR-8, STRAT-4, TCQ-1, TCQ-16 |
 | L7 Operability | RULES rule 8 defaults where their *Applies when* covers a declared profile (N/A quotes the condition, no waiver; any other gap needs the user's waiver D-n): migrate from empty and from the previous release with data; model ↔ migration drift; boot the shipped artifact on empty infrastructure with production configuration; start with each environment's default configuration (development included) and run one journey; config agreement and fail-fast start-up; an expected client error leaves no error-level log; health + version; deploy and rollback tests; restore drill per its lane; fresh clone → running by following the docs literally; docs, env examples and `context.md` vs the repository | GATE-12, OPS-1, OPS-3, OPS-5, OPS-6, OPS-7, FAKE-3, FAKE-12 |
-| L8 Process | `ownership_check.py` over start..HEAD with the `--t-sha` chain: every commit attributed (kit syncs `ABSD-Sync`) and touching only its owner's paths; the first T-SHA an ancestor of every builder commit; each T-SHA an evidence-only commit after the tests commit it ran at; each artifact's history shows only its owner; a commit at every hand-off; gate ledger complete with trace_check output per gate; an artifact changed after its gate without re-passing is a finding, except appends to the append-only sections (plan §14, §16, §17, iteration rows; `test_report.md` iteration rows) each followed by a gateT re-run in `cycle.md`; counters within limits or escalated; no brief narrowed an audit; Mode S eligibility (4.4); Mode C: every invalidated test relinked or retired | GATE-14, TRACE-10, TRACE-11, XCA-1, XCA-11 |
+| L8 Process | `ownership_check.py` over start..HEAD with the `--t-sha` chain: every commit attributed (kit syncs `ABSD-Sync`) and touching only its owner's paths; the first T-SHA an ancestor of every builder commit; each T-SHA an evidence-only commit after the tests commit it ran at; each artifact's history shows only its owner; a commit at every hand-off; gate ledger complete with trace_check output per gate; an artifact changed after its gate without re-passing is a finding, except appends to the append-only sections (plan §14, §16, §17, iteration rows; `test_report.md` iteration rows) each followed by a gateT re-run in `cycle.md`; counters within limits or escalated; no brief narrowed an audit; Mode S eligibility (4.4); Mode C: every invalidated test relinked or retired ; piped gate commands keep their exit status | GATE-14, GATE-17, TRACE-10, TRACE-11, XCA-1, XCA-11 |
 
 ### 4.7 Re-audit — Iteration n (ABSD:XCA-9; LL-46)
 
@@ -372,8 +375,8 @@ one so the cycle can close — the user may accept it (`context.md` §13) while 
 4. Severity by the table; nobody lowers it and you never soften it to let a cycle close (ABSD:XCA-7; RULES rule 10).
 5. Only the user accepts a finding; write `accepted-by-user` only against a `context.md` §13 row or a user Decision
    (ABSD:XCA-8).
-6. Every finding cites a rule id and evidence anyone can rerun: `file:line`, command with output path, TC id,
-   screenshot.
+6. Every finding cites a rule id and evidence anyone can rerun — `file:line`, trigger, outcome, why guards miss it;
+   security: reachability (ABSD:XCA-14). Zero findings is valid; never pad.
 7. Judge oracles against the specification, never the code; never propose changing an expected value to match the
    code (Q1; ABSD:ORACLE-1).
 8. Judge architecture quality; never redesign: an AR names the defect, the rule and the evidence — the solution is the

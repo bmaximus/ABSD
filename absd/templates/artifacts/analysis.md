@@ -60,6 +60,9 @@ Audit trail (ELIC-16)
 Concurrency (ELIC-17)
 | # | Record or action | Competing actors | Winner; what the other sees | Exactly-once? | Ids |
 |---|---|---|---|---|---|
+Abuse cases (ELIC-23) — features touching sign-in, money, personal data, uploads, model calls or external input
+| # | Actor (hostile · careless) | Capability | Attempt (another's data · forged or repeated request · crafted or oversized input · hidden instructions) | Required outcome | AC id |
+|---|---|---|---|---|---|
 
 ## 2. Actor × Capability matrix (whole product; ELIC-2)
 Rows: every `context.md` §1 principal × entitlement state, anonymous, each privileged role acting as a member, jobs,

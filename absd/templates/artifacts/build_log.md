@@ -10,6 +10,10 @@ Progress: [ ] read [ ] scan [ ] baseline run [ ] WP-1 … WP-n [ ] close   (Fix:
 | Check | Items checked (n) | Result: ✓ / CLR-n / TC-CONFLICT-n |
 |---|---|---|
 
+Modified existing files (CODE-16)
+| File | Callers / importers (search used) | Data shapes read / written | Effect covered by arch § or CLR-n |
+|---|---|---|---|
+
 ## 2. Baseline run at <sha>
 | Suite · test unit | Keyed to (test_plan.md §12: WP-n · none) | Green (must stay green) | Red (cycle TCs) | Not compiling: pending WP-m | Evidence # |
 |---|---|---|---|---|---|

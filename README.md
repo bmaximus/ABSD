@@ -25,6 +25,25 @@ flowchart LR
   G3 --> H[Harvest lessons → Tester: Log → archive → merge]
 ```
 
+Security is designed in, not bolted on at the end: abuse cases in the analysis, a security section per work package
+in the architecture, a security design review at Gate 2R, abuse cases as failing tests at Plan & Bind, scanners in
+CI, and a short evidence checklist in the audit's L5, ticked at Gate 3 ([procedure](absd/playbook/procedures/security-review.md)).
+
+```mermaid
+flowchart LR
+  subgraph Design time
+    AN[Analyst<br/>abuse cases] --> ARC[Architect<br/>security section per WP<br/>model calls, threats] --> R2[Auditor @ Gate 2R<br/>security design review]
+  end
+  subgraph Build time
+    PB[Tester @ Plan & Bind<br/>abuse cases → RED tests] --> CI[CI on every push<br/>dependency, secret, static scans]
+  end
+  subgraph Release
+    G3S[Auditor @ L5 audit<br/>evidence checklist, findings<br/>graded by reachability] --> G3[Gate 3] --> XR[Mode X / R<br/>periodic deep review]
+  end
+  R2 --> PB
+  CI --> G3S
+```
+
 | Agent | Owns | Does |
 |---|---|---|
 | **Manager** | the cycle, the BRD, the project memory | The only one you talk to. Challenges requirements, routes work, runs the coverage gates, archives, harvests lessons. Makes no technical decision. |
@@ -49,9 +68,25 @@ flowchart LR
 | **Escaped-defect rule** | The same kind of bug slipping through twice. |
 | **Design QA on the rendered product** | Beautiful specs, broken screens (raw enum names, hover-only controls, 12-hour ambiguity). |
 | **Small-change (Mode S) and defect (Mode D) routes** | Bypassing the pipeline because it is too heavy for small work. |
+| **Security by design** (SEC, PRIV, ACCESS; the security-review procedure) | Hardening as an end-of-cycle chore; injection through model output (SEC-15); poisoned agent configuration (SEC-16). |
+| **Evidenced findings, planned-vs-actual diffs** (XCA-14, XCA-15) | Padded audits; work packages that quietly change files nobody planned. |
+| **Status levels** (DOD-11) and **reachability** (E2E-18) | "Yes, it's implemented" when users cannot reach or use it. |
 
 The full set: ten immutable rules and twelve quality laws in [`absd/RULES.md`](absd/RULES.md), each law tied to
 playbook rules with ids (`ABSD:CODE-n`).
+
+## What improved (v1 → 2.2)
+
+| Version | In short |
+|---|---|
+| **1.x** | Six agents in sequence; tests written by the code author after the code; checks by good intentions. |
+| **2.0** | Kit vendored into `absd/`, product state in `absd-project/`. New **Tester**: specification-sourced tests committed red *before* code. Gate 2R, Gate T, Design QA; modes S/D/C/X/R/H/U/P; interface profiles; ownership enforced by a write-time hook and git history; stack-neutral gate tools with tests; every rule with provenance from a real product. |
+| **2.1** | From a launch-night payments failure: a status answer names its level (built ≠ reachable ≠ live), every capability is reachable from real navigation, payment/identity/messaging providers get their whole event lifecycle, releases are diffed against a moving default branch. |
+| **2.2** | Security by design (abuse cases → design review → tests → evidence checklist; model-output and agent-configuration rules); evidenced, reachability-graded findings; planned-vs-actual diff per work package; gate pipes that cannot hide a failure; on-demand **procedures** to keep manuals short; a model tier per role; an optional second auditor on money and permission paths; `kit_lint` refuses hidden Unicode in the kit. |
+
+Still open (honestly): the backlog in [`absd/lessons/inbox/`](absd/lessons/inbox/), a scored benchmark of the
+agents themselves, risk-based routing to make small work lighter, and moving more of the long manuals into
+procedures (one so far: the security review).
 
 ## Modes
 
@@ -74,9 +109,14 @@ playbook rules with ids (`ABSD:CODE-n`).
 absd/                      THE KIT — vendored into products, read-only there, replaced on upgrade
   RULES.md                 canonical rules (product CLAUDE.md imports it)
   playbook/                knowledge base: testing, design, engineering, security, process
-  templates/               seeds for product-owned files, artifact skeletons, the invocation brief
+    procedures/            step-by-step procedures an agent loads only at the step that needs them
+  templates/
+    project/               seeds for product-owned files, copied at install
+    artifacts/             artifact skeletons, read in place
+    briefs/                the invocation brief
   tooling/                 stack-neutral tools (standard library only, each with tests)
   lessons/LEDGER.md        where every rule comes from + the escape scoreboard
+  lessons/inbox/           enrichment proposals from products, verbatim
   VERSION  CHANGELOG.md  MANIFEST
 .claude/agents/            the seven agent manuals (Claude Code)
 .github/agents/            thin GitHub Copilot mirrors
@@ -127,7 +167,7 @@ handoffs to workers are confirmed by you ("assisted mode").
 | `absd/tooling/ownership_check.py` | Git history: who changed what, tests committed before code (the T-SHA chain), kit-sync commits |
 | `absd/tooling/ownership_hook.py` | Write-time hook: an agent cannot write paths it does not own, the kit, or the agent configuration |
 | `absd/tooling/absd_sync.py` | Install, verify, upgrade the kit; migrate v1 projects |
-| `absd/tooling/kit_lint.py` | The kit's own CI: rule ids, citations, provenance, paths, mirrors, reserved codes, budgets, stack neutrality |
+| `absd/tooling/kit_lint.py` | The kit's own CI: rule ids, citations, provenance, paths, mirrors, reserved codes, budgets, stack neutrality, hidden Unicode characters |
 
 ## Making ABSD better
 

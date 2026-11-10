@@ -6,7 +6,7 @@ constants, error handling, async and cancellation, resource release, immutabilit
 markers and commit hygiene — plus the Auditor's L4 review checklist. The Architect fixes tools, rule sets and
 thresholds in `architecture.md` "Quality gates & CI" and lists every suppression marker (ARCH-23); the Builder writes
 code that passes them and halts rather than bypass one; GATE-4 runs them on every push; the Auditor judges them at L4
-(XCA-3). Test code: TCQ (`absd/playbook/testing/test-code.md`); security: SEC, PRIV (`absd/playbook/security/baseline.md`).
+(XCA-3). Test code: TCQ (`absd/playbook/testing/test-code.md`); security: SEC, PRIV (`absd/playbook/security/`).
 
 ## Checklist
 
@@ -24,6 +24,8 @@ code that passes them and halts rather than bypass one; GATE-4 runs them on ever
 - [ ] Dependencies listed in architecture, pinned, lockfile committed, licence allowed, none unused, scanned (CODE-12)
 - [ ] Suppression markers only as listed in `architecture.md`, with rule and reason inline (CODE-13)
 - [ ] One work package per commit; ABSD trailers in the single final paragraph (CODE-14)
+- [ ] One state per lifecycle; invalid field combinations cannot be constructed (CODE-15)
+- [ ] Callers and data shapes of an existing file found by search before its first edit (CODE-16)
 
 ## Rules
 
@@ -130,6 +132,20 @@ code that passes them and halts rather than bypass one; GATE-4 runs them on ever
 - *Check:* `git interpret-trailers --parse` shows both ABSD trailers on every cycle commit; ownership_check (GATE-14) fails a commit without them; the Auditor builds a sampled commit in isolation.
 - *Applies when:* every commit on a cycle branch.
 - *Provenance:* LL-26 (KatenatsioTipster, 2026-10)
+
+### States, existing code
+
+**CODE-15** — Encode each lifecycle as one state field or tagged variant whose state-specific data belongs to that state, so invalid combinations (settled and open, paid without amount) cannot be constructed; transitions only through methods that check the source state; the Architect specifies it per entity, the Auditor checks it at 2R and L4.
+- *Why:* parallel flags and nullable pairs admit rows no validator catches.
+- *Check:* every lifecycle in `analysis.md` maps to one state type; L4 searches for parallel status flags on one entity; VAR state-transition TCs reject invalid events.
+- *Applies when:* stateful entities.
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)
+
+**CODE-16** — Before the first edit of an existing file in a work package, find its callers and importers and the data shapes it reads or writes by searching the repository, not from memory, and record them in `build_log.md` §1; an effect on a caller the blueprint does not cover is a halt.
+- *Why:* edits based on guessed call relationships break untouched callers.
+- *Check:* one §1 row per modified existing file; the Auditor samples one against a search.
+- *Applies when:* a WP modifies an existing file.
+- *Provenance:* LL-65 (ECC evaluation, 2026-11)
 
 ## Suppression marker patterns (Auditor grep; extend per stack in `architecture.md`)
 

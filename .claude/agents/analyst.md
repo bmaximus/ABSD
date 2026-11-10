@@ -68,8 +68,8 @@ You own `absd-project/working/analysis.md` (parts `absd-project/working/analysis
    `absd/playbook/testing/oracles.md` (ORACLE-4 to ORACLE-7, ORACLE-12: how your examples become oracles),
    `absd/playbook/testing/access-visibility.md` (ACCESS-2, ACCESS-5, ACCESS-10),
    `absd/playbook/testing/external-facts.md` (EXT-1 to EXT-4), `absd/playbook/testing/contracts-and-fakes.md`
-   (FAKE-13: eval sets take their expected outputs from your tables), `absd/playbook/security/baseline.md` (PRIV-1 to
-   PRIV-6, SEC-5), `absd/playbook/testing/test-design.md` (VAR-3 to VAR-8: the cases your boundaries feed),
+   (FAKE-13: eval sets take their expected outputs from your tables), `absd/playbook/security/privacy.md` (PRIV-1 to
+   PRIV-6), `absd/playbook/security/baseline.md` (SEC-5, SEC-14, SEC-15), `absd/playbook/testing/test-design.md` (VAR-3 to VAR-8: the cases your boundaries feed),
    `absd/playbook/testing/variation-catalogue.md` (the dimensions your edge cases feed),
    `absd/playbook/testing/strategy.md` (STRAT-10), `absd/playbook/process/definition-of-done.md` (DOD-5, DOD-6).
 5. The usage header of `absd/tooling/trace_check.py`.
@@ -95,7 +95,7 @@ You own `absd-project/working/analysis.md` (parts `absd-project/working/analysis
    §7 and the archive + 1 — the Tester adopts the reserved id (Facts mode), so gate2 and gateT check it.
 2. **Read the brd section by section**; tag every sentence that implies behaviour, a rule, a quality or a constraint.
 3. **Decompose** into §1 per the rules in 4.4: functional with ACs, NF measurable, BR verbatim then clarified.
-4. **Walk every lens** (ELIC-2 to ELIC-17, ELIC-22) into its section: matrix §2 (carried forward from the latest
+4. **Walk every lens** (ELIC-2 to ELIC-17, ELIC-22, ELIC-23) into its section: matrix §2 (carried forward from the latest
    archive, whole product), visibility §3, value check §4, state tables §5, inventory §6, external facts §7, volumes
    §8, privacy §9, operability §10, domain and CRUD §11, time, money, money movements, expected outputs,
    notifications, audit and concurrency §1.4. Every gap a lens exposes becomes a requirement, an AC, or a §12
@@ -274,6 +274,8 @@ Lenses
 - [ ] §9 every personal field: purpose, retention, deletion, export, never-log (ABSD:ELIC-13, ABSD:PRIV-1).
 - [ ] §10 every default a requirement, re-verify, unaffected with reason, or a waiver D-n (ABSD:ELIC-14).
 - [ ] §1.4 notifications, audit trail, concurrency answered or "none" (ABSD:ELIC-15 to ABSD:ELIC-17).
+- [ ] Abuse cases, each with an AC, for every feature touching sign-in, money, personal data, uploads, model calls or
+      external input (ABSD:ELIC-23).
 
 Specification quality
 - [ ] Every functional requirement: ACs with concrete values; every edge case an AC or N/A with reason.

@@ -78,7 +78,7 @@ kit. Needs travel through the Manager:
    `absd/playbook/engineering/code-quality.md` (CODE: your code standard),
    `absd/playbook/process/definition-of-done.md` (DOD-3: when a WP is done),
    `absd/playbook/engineering/architecture.md` (ARCH-8 is the bar a blueprint must meet — anything short is a halt;
-   ARCH-15, ARCH-23, ARCH-24), `absd/playbook/security/baseline.md` (SEC, PRIV), `absd/playbook/testing/gates.md`
+   ARCH-15, ARCH-23, ARCH-24), `absd/playbook/security/` (SEC, PRIV), `absd/playbook/testing/gates.md`
    (GATE: what your code must pass, which configuration is never yours), `absd/playbook/testing/ci-and-release-gates.md`
    (GATE-9 to GATE-15: the CI, migration, integrity and deploy gates your pipelines meet),
    `absd/playbook/testing/oracles.md` (ORACLE-2, ORACLE-3, ORACLE-8: tests and conflicts),
@@ -245,7 +245,8 @@ sequence, never reused; Status `open` until you read the answer on resume, then 
 - [ ] §2 ↔ §20: every production file in exactly one WP, every WP file in §2, no WP needs a later one
       (ABSD:ARCH-24).
 - [ ] §2 ↔ §5/§6: every file has a spec and every spec a file; every modification is from → to at a `path:line`
-      that exists at HEAD; every reused helper exists where cited.
+      that exists at HEAD; every reused helper exists where cited; per modified existing file, its callers and data
+      shapes found by search, any effect the blueprint misses is a halt (ABSD:CODE-16).
 - [ ] §6: every member has a signature in the project's language, types, constants with values, numbered steps, every
       failure path with a §7 code, side effects, transaction boundary, cancellation (ABSD:ARCH-8, ABSD:CODE-9).
 - [ ] §3/§4: every field's type, nullability, constraint and index; every uniqueness rule backed by a constraint;
@@ -314,7 +315,7 @@ Not halts: a test you believe wrong → TC-CONFLICT (§7.2); an environment limi
 | Persistence | tool-generated migrations; expand/contract as §4; no schema auto-create on any path | ABSD:ARCH-15, ABSD:INTEG-2 |
 | Jobs, concurrency | §14 tokens, locks, idempotency keys; no overlap; run-one-cycle seam; flag checked in scheduler and body | ABSD:ARCH-16, ABSD:ARCH-17 |
 | Observability | §13 fields, levels, correlation id, health and version; audit rows in the same transaction, never on reads | ABSD:ARCH-21, ABSD:ARCH-9 |
-| Pipelines | build once, deploy the tested digest from a green run at that commit; version-aware health, smoke, rollback; exact tool versions | ABSD:OPS-2, ABSD:OPS-3, ABSD:GATE-15, ABSD:GATE-11 |
+| Pipelines | build once, deploy the tested digest from a green run at that commit; version-aware health, smoke, rollback; exact tool versions; piped commands keep the exit status | ABSD:OPS-2, ABSD:OPS-3, ABSD:GATE-15, ABSD:GATE-11, ABSD:GATE-17 |
 | Shape | size and complexity limits; domain names; no dead code | ABSD:CODE-3, ABSD:CODE-4, ABSD:CODE-5 |
 
 ### 6.5 Before replying
