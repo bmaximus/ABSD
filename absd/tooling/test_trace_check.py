@@ -579,6 +579,20 @@ class TraceCheckTests(unittest.TestCase):
         self.assertIn("in arch_review.md: 1 open — AR-1 (Major)", out)
         self.assertNotIn("F-2", out)
 
+    def test_gate3_reads_the_audit_iterations_result_column(self):
+        self.edit("working/audit.md", "resolved — fixed in WP-1 @abc1234", "see iteration 2")   # Status no longer closes F-1
+        self.edit("working/audit.md", "accepted-by-user (context.md, 2026-10-12)", "open")      # nor F-3
+        iteration = ("\n## Iteration 2\n\n| Finding | Severity | Result: RESOLVED / ACCEPTED / CARRIED | Status |\n"
+                     "|---|---|---|---|\n| F-1 | Major | RESOLVED | fix verified at #12 |\n| F-3 | Critical | CARRIED | open |\n")
+        with open(os.path.join(self.root, "working", "audit.md"), "a", encoding="utf-8") as f:
+            f.write(iteration)
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 1)
+        self.assertIn("in audit.md: 1 open — F-3 (Critical)", out)
+        self.edit("working/audit.md", "| F-3 | Critical | CARRIED |", "| F-3 | Critical | ACCEPTED |")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 0, out)
+
     def test_gate3_verdict_word_belongs_to_the_report(self):
         self.edit("working/audit.md", "Overall: PASS", "Verdict: PASS")   # the audit's verdict line is "Overall:"
         code, out = self.run_gate("gate3")
@@ -782,6 +796,16 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(checks["every oracle source resolves (ABSD:ORACLE-1)"]["missing"], [
             "TC-0003 → SPEC:ZZZ-9 (unknown requirement)", "TC-0004 → FACT:mail-limit (not an EXT id)",
             "TC-0005 → CHAR:legacy-grid (not an INH id)"])
+
+    def test_gate_t_earlier_cycle_acs_resolve_through_the_catalogue(self):
+        self.edit("catalogue.md", "| ACC-3 | Accounts |", "| SHP-9 | Shelf | Books are listed. | active |\n| ACC-3 | Accounts |")
+        self.write("working/test_plan.md", "| TC | Covers | Source |\n|---|---|---|\n"
+                   "| TC-0001 | SHP-9.AC3 | SPEC:SHP-9.AC3 |\n"     # an earlier cycle's TC, re-verified
+                   "| TC-0002 | ACC-1.AC9 | SPEC:ACC-1.AC9 |\n"     # this cycle's requirement: the AC must exist
+                   "| TC-0003 | ZZZ-9.AC1 | SPEC:ZZZ-9.AC1 |\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(checks["every oracle source resolves (ABSD:ORACLE-1)"]["missing"], [
+            "TC-0002 → SPEC:ACC-1.AC9 (unknown AC)", "TC-0003 → SPEC:ZZZ-9.AC1 (unknown AC)"])
 
     def test_gate_t_brief_mode_checks_cited_nf_and_br_requirements(self):
         self.remove("working/analysis.md")

@@ -38,7 +38,8 @@ Gates (artifacts read from --working):
            in scope, every NF and BR requirement in scope, every DEF defined in defect.md (whenever it is in --working — or its "### DEF-n" Reproduce section says
            "binds at re-bind: <TCs>"), every UJ/SCR defined in design.md and every EXT referenced in architecture.md is referenced in a TC row; every TC has an oracle source (SPEC:… FACT:… CHAR:…) on its row
            or in its heading's section, and every source resolves (ABSD:ORACLE-1): SPEC:<AC|requirement> exists in
-           the source or catalogue, SPEC:<UJ|SCR>[.state] exists in design.md, SPEC:architecture only on a TC that
+           the source or catalogue (an AC of a catalogue requirement outside this cycle's source — an earlier cycle's
+           re-verified TC — resolves through its requirement), SPEC:<UJ|SCR>[.state] exists in design.md, SPEC:architecture only on a TC that
            cites no requirement (ids whose area code no requirement uses, like UTC-5, do not count), FACT:<EXT> is
            VERIFIED in --external-facts (a FACT: source without the register fails the gate),
            CHAR:<INH> is cited in the requirement source; no TSEAM is open (the word "open" in its status); no
@@ -116,6 +117,7 @@ OPEN = re.compile(r"\bopen\b", re.IGNORECASE)
 ORACLE_SOURCE = re.compile(r"\b(?:SPEC|FACT|CHAR):[ \t]*[^\s|]")
 FINDING_ID = re.compile(r"\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*-\d+\b")
 CLOSED = re.compile(r"^[\W_]*(?:fixed|resolved|accepted-by-user)\b", re.IGNORECASE)   # the cell must START with it
+RESULT_CLOSED = re.compile(r"^[\W_]*(?:fixed|resolved|accepted)\b", re.IGNORECASE)   # an audit iteration's Result cell
 DEFECT_CLOSED = re.compile(r"^[\W_]*(?:answered|resolved|closed|withdrawn|fixed)\b", re.IGNORECASE)
 YES = re.compile(r"^[\W_]*(?:yes|y|blocking|true)\b", re.IGNORECASE)
 VERDICT = re.compile(r"^[\s*_>#-]*(Overall|Verdict)\s*:[\s*_]*(PASS|FAIL|BLOCKED|N/A)\b", re.IGNORECASE)
@@ -575,6 +577,10 @@ def unresolved_sources(plan: Doc, tcs: set, source: Doc, catalogue: Doc | None, 
         known_requirements |= catalogue.defined("requirement")
     areas = {r.split("-")[0] for r in known_requirements}   # UTC-5 or SHA-256 in a row is not a requirement
     known_acs = source.referenced("ac")
+    current = source.defined("requirement") | source.referenced("requirement")
+    # an earlier cycle's AC (a re-verified inherited TC): its requirement is in the catalogue, not in this cycle's
+    # source — the AC number lives in an archived analysis, so the catalogue requirement is what resolves it
+    earlier = (catalogue.defined("requirement") - current) if catalogue is not None else set()
     ui = (design.defined("uj") | design.defined("scr")) if design is not None else set()
     problems = []
     for d in plan.definitions:
@@ -590,7 +596,7 @@ def unresolved_sources(plan: Doc, tcs: set, source: Doc, catalogue: Doc | None, 
                     bad = "SPEC:architecture on a TC that cites requirements (business oracles cite analysis or design)"
             elif kind == "SPEC":
                 if in_family(token, "ac"):
-                    bad = "" if token in known_acs else "unknown AC"
+                    bad = "" if token in known_acs or requirement_of(token) in earlier else "unknown AC"
                 elif in_family(token, "requirement"):
                     bad = "" if token in known_requirements else "unknown requirement"
                 elif in_family(token.split(".")[0], "uj") or in_family(token.split(".")[0], "scr"):
@@ -689,19 +695,23 @@ def gate_t(working: str, catalogue_path: str, facts_path: str = "") -> Result:
 
 
 def open_findings(doc: Doc) -> tuple[int, list[str]]:
-    """(number of Critical/Major findings, the open ones as 'F-3 (Major)')."""
+    """(number of Critical/Major findings, the open ones as 'F-3 (Major)'). A finding is closed when a Status /
+    Route / Resolution cell starts with fixed, resolved or accepted-by-user, or when an audit iteration's Result cell
+    (a column whose name starts with "result") starts with fixed, resolved or accepted."""
     blocking: dict[str, str] = {}
     closed: set[str] = set()
     for table in doc.tables:
         severity = [i for i, name in enumerate(table.header) if "severity" in name]
         status = [i for i, name in enumerate(table.header)
                   if any(word in name for word in ("status", "route", "resolution"))]
+        result = [i for i, name in enumerate(table.header) if name.strip().startswith("result")]
         for cells in table.rows:
             match = FINDING_ID.search(cells[0])
             if not match:
                 continue
             finding = match.group(0)
-            if any(CLOSED.search(cell_at(cells, i)) for i in status):
+            if (any(CLOSED.search(cell_at(cells, i)) for i in status)
+                    or any(RESULT_CLOSED.search(cell_at(cells, i)) for i in result)):
                 closed.add(finding)
             for i in severity:
                 level = first_token(cell_at(cells, i)).lower()

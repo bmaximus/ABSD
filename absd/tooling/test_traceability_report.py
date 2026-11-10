@@ -216,6 +216,33 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertEqual(plan["unplanned"], ["TC-0050"])
         self.assertIn("::warning title=unplanned::TC-0050", out)
 
+    def test_inherited_plans_make_earlier_cycles_test_cases_inherited(self):
+        self.write("archive/001/test_plan.md", "# Plan\n\n| Id | Case |\n|---|---|\n| TC-0050 | old |\n| TC-0051 | old two |\n")
+        self.write("archive/002/test_plan.md", "# Plan\n\n| Id | Case |\n|---|---|\n| TC-0060 | older |\n")
+        self.write("r/junit.xml", junit([
+            ("TC-0001", "passed", {}), ("TC-0002", "passed", {}), ("TC-0003", "passed", {}), ("TC-0004", "passed", {}),
+            ("TC-0050 earlier", "passed", {}), ("TC-0060 earlier", "failed", {}), ("TC-0070 stray", "passed", {}),
+        ]))
+        out_json = os.path.join(self.root, "t.json")
+        code, out = self.run_report("--plan", self.plan, "--inherited-plan", os.path.join(self.root, "archive", "*", "test_plan.md"),
+                                    "--fail-on", "unknown,unplanned", "--json", out_json)
+        self.assertEqual(code, 1, out)   # only TC-0070 is unplanned; TC-0051 absent is not missing
+        plan = self.load(out_json)["plan"]
+        self.assertEqual(plan["unplanned"], ["TC-0070"])
+        self.assertEqual(plan["inherited"], {"TC-0050": "passed", "TC-0060": "failed"})
+        self.assertIn("::warning title=failing::TC-0060 (inherited)", out)
+        self.assertNotIn("TC-0051", self.load(out_json)["problems"]["missing"])
+        self.assertIn("inherited from earlier cycles: 2 in tests, 1 passing, failing: TC-0060", out)
+
+    def test_inherited_plan_glob_must_match_and_needs_plan(self):
+        self.write("r/junit.xml", junit([("TC-0001", "passed", {})]))
+        code, out = self.run_report("--plan", self.plan, "--inherited-plan", os.path.join(self.root, "nope", "*.md"))
+        self.assertEqual(code, 2)
+        self.assertIn("No inherited plan found", out)
+        code, out = self.run_report("--catalogue", self.catalogue, "--inherited-plan", self.plan)
+        self.assertEqual(code, 2)
+        self.assertIn("needs --plan", out)
+
     def test_all_planned_cases_passing_passes(self):
         self.write("r/junit.xml", junit([
             ("TC-0001", "passed", {}), ("TC-0002", "passed", {}),
