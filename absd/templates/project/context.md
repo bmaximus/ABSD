@@ -109,7 +109,22 @@ A suite that cannot run here is proven only by a CI run at the product SHA, the 
 
 ## 14. Conventions (the single home for project conventions)
 - <naming, error model, API style, commit style, copy tone, UI language…>
-- Builder model tier (RULES §8): strongest (default) | <faster tier> for mechanical WPs — never money, permission or security WPs
+- Telemetry: on (default, ABSD:PIPE-3; replace on with off to make `metrics.py record` a no-op, ABSD:PIPE-4)
+- Model levels (RULES §8, ABSD:PIPE-1) — the model each level runs on; illustration only (two vendor families): a
+  vendor's top model (e.g. `opus`, or another vendor's flagship) for strongest, its mid model (e.g. `sonnet`, or that
+  vendor's mid model) for balanced, its small model for fast. Name two strongest models for an independent second audit.
+
+| Level | Model |
+|---|---|
+| strongest | <model id> |
+| balanced | <model id> |
+| fast | <model id or "unused"> |
+
+- Role/step overrides (ABSD:PIPE-1) — empty = the kit defaults; raise any level, lower only a step without a floor:
+
+| Role · step | Level | Reason |
+|---|---|---|
+
 - Second audit on money/permission cycles (XCA-17): ask per cycle (default) | always | never
 
 ## 15. Completed cycles (the first row is the Foundation, Mode B; the merge commit is filled in the next cycle's start commit)

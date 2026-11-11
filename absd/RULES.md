@@ -13,7 +13,7 @@ pick the **Manager** custom agent; delegation happens through handoffs the user 
 
 | Agent | Owns | Purpose |
 |---|---|---|
-| Manager | `cycle.md`, `brd.md`, `defect.md`, `context.md`, `lessons.md`, the agent configuration (`.claude/`, every `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/`) | Only voice to the user. Intake, routing, coverage gates, archive, harvest, upgrade. Makes no technical decision. |
+| Manager | `cycle.md`, `brd.md`, `defect.md`, `context.md`, `lessons.md`, `metrics/` (PIPE-3), the agent configuration (`.claude/`, every `CLAUDE.md`, `.github/copilot-instructions.md`, `.github/instructions/`) | Only voice to the user. Intake, routing, coverage gates, archive, harvest, upgrade. Makes no technical decision. |
 | Analyst | `analysis.md`, `catalogue.md` | Business language → stable, testable requirements with example values. |
 | Designer | `design.md`, `design-system.md`, `design_review.md` | The experience of every interface (screens, CLI grammar, API surface, data contracts); Design QA on the built product. |
 | Architect | `architecture.md` (+ `architecture/`) | Exhaustive blueprint, ADRs, work packages. |
@@ -23,8 +23,8 @@ pick the **Manager** custom agent; delegation happens through handoffs the user 
 
 Per-cycle artifacts live in `absd-project/working/` (skeletons: `absd/templates/artifacts/`) and are archived to
 `absd-project/archive/NNN_YYYY-MM-DD_slug/`.
-Living documents are never archived: `absd-project/context.md`, `catalogue.md`, `design-system.md`, `lessons.md`, and
-the Tester's `docs/testing/*` (paths per `context.md`). Source and tests live where `context.md` "Source Layout &
+Living documents are never archived: `absd-project/context.md`, `catalogue.md`, `design-system.md`, `lessons.md`, `metrics/`,
+and the Tester's `docs/testing/*` (paths per `context.md`). Source and tests live where `context.md` "Source Layout &
 Ownership" says — never under `absd/` (the vendored, read-only kit) or `absd-project/`.
 
 ## 2. Routes
@@ -158,15 +158,15 @@ Tests carry their ids in the name or as properties: `TC-0042` and `[AREA-n]` (se
 | Delegate to a worker | the Agent tool with the worker's name and an invocation brief | a handoff the user confirms |
 | Run commands | Bash | the terminal tools |
 | Gate records | `absd-project/working/cycle.md` | the same file |
-| Model tier | `model:` in each manual's frontmatter; per invocation, the Agent tool's `model` | the model picker |
+| Model level | the Agent tool's `model` on every invocation; frontmatter `model:` only as fallback | the model picker, named in the handoff |
 
 Workers are invoked only by the Manager with a brief (`absd/templates/briefs/invocation-brief.md`) and answer in ≤ 15
 lines: status, artifact paths, finding counts by severity, blockers — never artifact contents. The final reply is the
 deliverable: a worker never ends with work pending in background tasks or sub-runs — it collects or cancels them first;
-the Manager rejects a reply that references unfinished work. **Model tier:** the strongest tier for judgement roles
-(Manager, Analyst, Designer, Architect, Tester, Auditor, every security review); the Builder may run on a faster tier
-for mechanical work packages when the user records it in `context.md` §14 — never for a money, permission or security
-work package. Kit default: the strongest tier everywhere.
+the Manager rejects a reply that references unfinished work. **Model level:** the kit names levels (`strongest`,
+`balanced`, `fast`), never models; `context.md` §14 maps them to models. Each role and step runs on its PIPE-1 default or a §14 override; floors (architecture, 2R, Plan & Bind
+oracles, every audit and security review, money, permission and security WPs) stay `strongest`. The Manager passes
+the model per invocation and records each one in the cycle's telemetry (PIPE-2, PIPE-3).
 
 ## 9. Playbook and size
 

@@ -22,6 +22,7 @@ ABSD repository follows this file as maintainer (its `CLAUDE.md`), never as the 
 - [ ] CHANGELOG cites LL ids and every proposal with its outcome; VERSION bumped by the semver table (ENR-12)
 - [ ] Manifest regenerated; kit_lint and tooling tests green (ENR-13)
 - [ ] MINOR or MAJOR: kit acceptance run on a fixture product per profile, results in the CHANGELOG (ENR-14)
+- [ ] The acceptance run is the benchmark run: scored, committed, compared with the last accepted result (ENR-14, PIPE-6)
 - [ ] Provenance pseudonymous; no client data in kit text (ENR-15)
 - [ ] Products update proposal outcomes from the CHANGELOG in Mode U (ENR-16)
 - [ ] A long situation-triggered sequence is a procedure file cited by its triggering rule, not manual text (ENR-17)
@@ -166,15 +167,19 @@ python3 absd/tooling/kit_lint.py --root .
 python3 -m unittest discover -s absd/tooling -p 'test_*.py'
 ```
 
-**ENR-14** — Before tagging a MINOR or MAJOR version, run the kit acceptance procedure: install the kit into a tiny
-fixture product per interface profile (e.g. a one-screen web app, a todo CLI, a small library, a two-endpoint HTTP API,
-a one-stage batch pipeline, a one-screen native app), kept outside `absd/` and never in the MANIFEST; run Bootstrap and
-one feature cycle on each. Pass: every Foundation negative control turns RED then GREEN, trace_check and ownership_check
-pass at every gate, and no agent halted on a question the kit should have answered.
-- *Why:* the golden standard needs a regression test of its own; a manual can contradict a rule with no lint noticing.
-- *Check:* the CHANGELOG entry lists each fixture run with profile, commit and result.
+**ENR-14** — Before tagging a MINOR or MAJOR version, run the kit acceptance procedure as the agent benchmark run
+(PIPE-6, `benchmark/README.md`): install the kit into a tiny fixture product per interface profile (e.g. a one-screen
+web app, a todo CLI, a small library, a two-endpoint HTTP API, a one-stage batch pipeline, a one-screen native app),
+kept outside `absd/` and never in the MANIFEST; run Bootstrap and one feature cycle on each with telemetry on. Pass:
+every Foundation negative control turns RED then GREEN, trace_check and ownership_check pass at every gate, no agent
+halted on a question the kit should have answered, and the benchmark score does not regress against the last accepted
+result (PIPE-6).
+- *Why:* the golden standard needs a regression test of its own; a manual can contradict a rule with no lint noticing,
+  and an unscored run cannot show that agents now miss what they used to catch (LL-67).
+- *Check:* the CHANGELOG entry lists each fixture run with profile, commit and result, and the benchmark score with
+  its comparison; `benchmark/results/<version>.json` is committed.
 - *Applies when:* every MINOR or MAJOR release.
-- *Provenance:* industry baseline
+- *Provenance:* industry baseline; LL-67 (owner request after the 2.3.0 release and the ECC evaluation, 2026-11)
 
 **ENR-15** — Keep provenance pseudonymous: a product appears in the kit only as its slug (a pseudonym for client
 products) in LEDGER entries and Provenance lines — `LL-n (<slug>, YYYY-MM)`, or `industry baseline` for practice adopted

@@ -105,6 +105,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Procedures: on-demand step files, their format and how manuals cite them | ENR | `absd/playbook/process/enrichment.md` |
 | Harvest, lessons ledger, proposals, local kit edits (product side) | ENR | `absd/playbook/process/enrichment.md` |
 | Kit change procedure: inbox, dedupe, generalize, decide, LEDGER, rule text, CHANGELOG, semver, checks, kit acceptance, provenance | ENR | `absd/playbook/process/enrichment.md` |
+| Model level per role and step, floors, per-invocation model; cycle telemetry record, privacy and report; agent benchmark | PIPE | `absd/playbook/process/pipeline-operations.md` |
 
 Severity scale and finding schema: `absd/RULES.md` §6 (calibration: XCA). Routes, gates and modes: `absd/RULES.md` §2.
 
@@ -145,7 +146,7 @@ Stack, vendor and tool names appear only in labelled illustrations naming at lea
 
 - Products and artifacts cite `ABSD:CODE-n`; product and cycle ids follow `absd/RULES.md` §7.
 
-Reserved codes: `STRAT` `VAR` `ORACLE` `ACCESS` `INTEG` `FAKE` `EXT` `E2E` `TRACE` `GATE` `ESC` `EXPL` `A11Y` `PERF` `RESIL` `VIS` `OPS` `COMPAT` `TCQ` `DSN` `LOC` `ARCH` `CODE` `SEC` `PRIV` `ELIC` `DOD` `XCA` `ENR` `TC` `DEF` `CR` `ADR` `UJ` `SCR` `DEBT` `RISK` `LL` `AR` `TF` `DQ` `F` `CLR` `WP` `INH` `TSEAM` `CHAR` `C` `A` `OQ` `D` `UXQ` `UXA`
+Reserved codes: `STRAT` `VAR` `ORACLE` `ACCESS` `INTEG` `FAKE` `EXT` `E2E` `TRACE` `GATE` `ESC` `EXPL` `A11Y` `PERF` `RESIL` `VIS` `OPS` `COMPAT` `TCQ` `DSN` `LOC` `ARCH` `CODE` `SEC` `PRIV` `ELIC` `DOD` `XCA` `ENR` `PIPE` `TC` `DEF` `CR` `ADR` `UJ` `SCR` `DEBT` `RISK` `LL` `AR` `TF` `DQ` `F` `CLR` `WP` `INH` `TSEAM` `CHAR` `C` `A` `OQ` `D` `UXQ` `UXA`
 
 `QC` is the one fixed area code every product shares: the Foundation quality capabilities (`QC-n` catalogue rows,
 Area "Quality"). No product area code (`absd-project/context.md` §1) may be a reserved code: the Analyst checks at Gate 1 (ELIC-20), and

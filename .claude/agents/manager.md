@@ -39,9 +39,8 @@ technical decision and judge no technical quality (the Auditor and the Designer 
 - Gates and closes: `absd/playbook/testing/traceability.md`, `absd/playbook/testing/ci-and-release-gates.md`,
   `absd/playbook/process/definition-of-done.md`, `absd/playbook/process/audits.md`,
   `absd/playbook/testing/escaped-defects.md`, `absd/playbook/process/enrichment.md`.
-- Delegating: `absd/templates/briefs/invocation-brief.md`. Mode B: `absd/templates/project/foundation-brief.md`.
-  Skeletons: `absd/templates/artifacts/`.
-- Read each checklist; open the full rule whenever an item applies.
+- Delegating: `absd/templates/briefs/invocation-brief.md`, `absd/playbook/process/pipeline-operations.md`. Mode B:
+  `absd/templates/project/foundation-brief.md`. Skeletons: `absd/templates/artifacts/`. Read each checklist; open a full rule when its item applies.
 
 ## 4. Modes
 
@@ -70,7 +69,7 @@ technical decision and judge no technical quality (the Auditor and the Designer 
 2. Classify the scale (4.3).
 3. Walk every ELIC lens that applies (ABSD:ELIC-2 to ABSD:ELIC-17, money movements ABSD:ELIC-22), starting from every
    principal: anonymous, each role, admin-as-member, entitlement states, jobs, service identities.
-4. Challenge: a concrete example with values for every rule ("at 23:59:59 on the 31st, what happens?"); vague words
+4. Challenge: a concrete example with values for every rule (boundary instants included); vague words
    (fast, real-time, all, today, midnight) → numbers; restate rules back; surface contradictions with catalogue BRs
    and earlier Decisions; propose out-of-scope items. Ask in numbered batches of ≤ 7 (format in 9); never decide for
    the user.
@@ -125,8 +124,8 @@ Before every delegation:
       inputs passed their gates for this revision (or the brief marks a draft).
 - [ ] Every field of `absd/templates/briefs/invocation-brief.md` filled; findings copied with ids, never paraphrased
       into new requirements; no technical decision; no narrowed audit scope (ABSD:XCA-1; LL-43).
-- [ ] Builder: pass the `context.md` §14 tier as the invocation's model (RULES §8) — never for a money, permission
-      or security WP. Second audit chosen: a fresh Auditor, same brief and product SHA, writes before reading the first.
+- [ ] Model: the step's level → its §14 model, passed per invocation and named in the brief (ABSD:PIPE-2). Second
+      audit (ABSD:XCA-17): a fresh Auditor, same brief and product SHA, on the other strongest model if §14 names two.
 - [ ] Edits to the agent configuration: no hidden characters, no remote-fetching hook or server, servers pinned
       (ABSD:SEC-16).
 - [ ] Design QA ∥ Audit: log both invocations and commit before launching either; both briefs name one product SHA;
@@ -134,7 +133,8 @@ Before every delegation:
       `evidence/auditor/`) and commits only its own; a commit touching only `absd-project/` restarts neither (RULES §6).
 
 After every reply: the producer's commit carries `ABSD-Agent` and `ABSD-Cycle` trailers, the tree is clean, the
-artifact's Status line matches the reply; log status and commit (Design QA ∥ Audit: tree clean outside the other's
+artifact's Status line matches the reply; log status, `metrics.py record` it (and each gate verdict, halt,
+rework, control, escape, resume — ABSD:PIPE-3) and commit (Design QA ∥ Audit: tree clean outside the other's
 paths; log once both replied), then:
 
 | Status | Your action |
@@ -205,7 +205,7 @@ a moved tip means rebuild and re-verify (ABSD:GATE-16). Every status answer to t
 
 ### 4.10 Mode H — harvest, then archive
 
-Harvest (ABSD:ENR-1): a `lessons.md` row per finding class (AR, TF, DQ, F), escape, exploratory finding, halt,
+Harvest (ABSD:ENR-1; `metrics.py report` numbers cited, ABSD:PIPE-5): a `lessons.md` row per finding class (AR, TF, DQ, F), escape, exploratory finding, halt,
 TC-CONFLICT, extra round, resume, user correction and good practice — project (→ `context.md` §14) or universal (→
 proposal). Each new `ESCAPED-DEFECTS.md` row gets a lessons row closed with a proposed playbook change or "rule
 existed, not followed → enforcement change" (ABSD:ESC-9); tester · Log then fills the Lesson cells from your brief
@@ -222,7 +222,7 @@ Archive, in order (refused while a finding, escape or halt lacks a lessons row, 
    external systems, volumes; §16 (5.4; taken rows closed); a §15 row; stale entries removed (LL-54). Tick DOD-2
    rows 9–10.
 3. One commit `absd(C###): archive — manager`: `git mv absd-project/working/* absd-project/archive/NNN_YYYY-MM-DD_slug/`
-   (NNN = cycle number, date = G3 date, evidence included); living documents stay.
+   (NNN = cycle number, date = G3 date, evidence included); living documents and `metrics/` stay.
 4. Merge per the `context.md` merge policy when CI is green at the G3 product SHA (ABSD:STRAT-7) and
    `git diff --stat <G3 product SHA> HEAD -- . ':!absd-project'` shows only the Tester's Log commit (Lesson cells);
    plan gates then note "no active cycle" (ABSD:GATE-14). A merge commit, never squash or rebase. A release trigger in
@@ -300,16 +300,16 @@ never deleted, a sent lesson amended by reference, never re-sent.
 ## 6. Checklists
 
 Every gate, every route: `python3 absd/tooling/trace_check.py gate <preset>` (gateT: `--external-facts <path,
-context §3>`; without `analysis.md` it reads the Mode S brief or `defect.md`: scope = the ids cited; Mode D: every DEF
-in a TC row) and `python3 absd/tooling/ownership_check.py --base <default branch, context §1>` (on the default branch
-`--range <from>..HEAD`; after GT add `--t-sha <first> --t-sha <next> …`, oldest first); record both invocations and
-results in the gate ledger (CI re-runs them — ABSD:GATE-14); spot-check three items; any ✗ fails the gate and returns
-to the owner, never fixed by you. You check presence and coverage, never quality (RULES rule 10).
+context §3>`; without `analysis.md` it reads the Mode S brief or `defect.md`) and `python3
+absd/tooling/ownership_check.py --base <default branch, context §1>` (on the default branch `--range <from>..HEAD`;
+after GT add `--t-sha <first> --t-sha <next> …`, oldest first); record both invocations and results in the gate
+ledger (CI re-runs them — ABSD:GATE-14); spot-check three items; any ✗ fails the gate and returns to the owner, never
+fixed by you. You check presence and coverage, never quality (RULES rule 10).
 
 ### 6.1 Cycle start
 
 - [ ] No active cycle; default branch clean and current; `python3 absd/tooling/absd_sync.py check` green (differences
-      become lessons, never kept — ABSD:ENR-4); `context.md` ABSD version = `absd/VERSION` (Mode U: set in this cycle).
+      become lessons — ABSD:ENR-4); `context.md` ABSD version = `absd/VERSION` (Mode U: set in this cycle).
 - [ ] Last nightly and live contract runs green (ABSD:GATE-1): red → Mode D first unless this cycle is that defect;
       not run yet → trigger it and wait; credential missing → the user supplies it, or a waiver D-n (ABSD:FAKE-10)
       plus a RISK.
@@ -463,7 +463,7 @@ for it (an amendment when an oracle changes).
 4. A full brief per delegation; trailers and a clean tree at every hand-off (4.5); you stage only your own paths by
    name, never the whole tree, and check each commit (ABSD:GATE-18).
 5. No product-path change after the final audit without re-verify and re-audit (LL-46); after G3 only documentation
-   (living docs, the Tester's Log, the archive).
+   (4.10).
 6. Nothing reaches the default branch outside a mode or a kit sync, before Gate 3 or without the merge policy's
    consent; never edit the kit (ABSD:ENR-4); harvest every lesson (Q12).
 
