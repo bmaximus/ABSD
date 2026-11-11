@@ -1,0 +1,106 @@
+[
+  {
+    "id": "TRAP-TALLY-1",
+    "kind": "variation",
+    "summary": "Files from Windows: CRLF line ends and a UTF-8 byte-order mark must parse like the others (variation TC)",
+    "detect": [
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+      },
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+      }
+    ],
+    "min_matches": 1
+  },
+  {
+    "id": "TRAP-TALLY-2",
+    "kind": "ambiguity",
+    "summary": "\"Groceries\" and \"groceries\" are one category, but which spelling is shown is unspecified (question, assumption or decision)",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+      }
+    ],
+    "min_matches": 1
+  },
+  {
+    "id": "TRAP-TALLY-3",
+    "kind": "contradiction",
+    "summary": "PARSE says amounts are positive, the feature writes refunds as negative amounts: the conflict is raised",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\brefund\\w*|\\bnegative\\b|\\bminus\\b|\\bsign(?:ed)?\\b))(?=.*?(?:contradict\\w*|conflict\\w*|inconsisten\\w*|\\bclash\\w*|incompatib\\w*|\\bat odds\\b|\\bOQ-\\d+|open question|\\?|\\bhowever\\b|\\balthough\\b|\\bdespite\\b|\\bamend\\w*|supersed\\w*|overrid\\w*|reconcil\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\brefund\\w*|\\bnegative\\b|\\bminus\\b|\\bsign(?:ed)?\\b))(?=.*?(?:contradict\\w*|conflict\\w*|inconsisten\\w*|\\bclash\\w*|incompatib\\w*|\\bat odds\\b|\\bOQ-\\d+|open question|\\?|\\bhowever\\b|\\balthough\\b|\\bdespite\\b|\\bamend\\w*|supersed\\w*|overrid\\w*|reconcil\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\brefund\\w*|\\bnegative\\b|\\bminus\\b|\\bsign(?:ed)?\\b))(?=.*?(?:contradict\\w*|conflict\\w*|inconsisten\\w*|\\bclash\\w*|incompatib\\w*|\\bat odds\\b|\\bOQ-\\d+|open question|\\?|\\bhowever\\b|\\balthough\\b|\\bdespite\\b|\\bamend\\w*|supersed\\w*|overrid\\w*|reconcil\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\brefund\\w*|\\bnegative\\b|\\bminus\\b|\\bsign(?:ed)?\\b))(?=.*?(?:contradict\\w*|conflict\\w*|inconsisten\\w*|\\bclash\\w*|incompatib\\w*|\\bat odds\\b|\\bOQ-\\d+|open question|\\?|\\bhowever\\b|\\balthough\\b|\\bdespite\\b|\\bamend\\w*|supersed\\w*|overrid\\w*|reconcil\\w*)).*$"
+      }
+    ],
+    "min_matches": 1
+  }
+]

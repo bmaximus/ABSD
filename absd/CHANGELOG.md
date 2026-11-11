@@ -3,6 +3,31 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.4.0 — 2026-11-11
+
+The pipeline measured: model levels per role, per-cycle telemetry, and a scored benchmark of the agents (owner request,
+proposal telemetry-benchmark-models-2026-11-11). Ledger: LL-67.
+
+- **PIPE** (new code, `absd/playbook/process/pipeline-operations.md`):
+  - **PIPE-1** model levels (`strongest`, `balanced`, `fast`) per role and step, with floors no product lowers
+    (architecture, Gate 2R, Plan & Bind, every audit and security review, money/permission/security WPs) and a
+    level → model map in `context.md` §14; a second audit (XCA-17) runs on the strongest model that did not build.
+  - **PIPE-2** the Manager passes the model per invocation and names `<level> → <model>` in the brief (new `Model`
+    field); frontmatter `model:` is only the fallback. RULES §8 "Model level" row replaces the Builder-only tier.
+  - **PIPE-3** `absd-project/metrics/C###.json` per cycle, written only by `absd/tooling/metrics.py record`:
+    invocations, gate rounds and verdicts with finding counts and cited rules, halts, rework, negative controls,
+    escapes, resumes; tokens only when the platform reports them.
+  - **PIPE-4** telemetry is local, never sent, numbers/enums/ids only (the tool refuses free text and unknown keys);
+    `Telemetry: off` in §14 switches it off.
+  - **PIPE-5** Mode H runs `metrics.py report`: cost per step, level and model; FAIL rounds per gate; rules that catch
+    most and kit rules never cited; rework and halts by cause.
+  - **PIPE-6** + **ENR-14** (amended): the acceptance run is the benchmark — `benchmark/` at the kit root (fixtures
+    tally, shelf, ledger with three seeded traps each; `score.py score | combine | compare`); a release must not catch
+    fewer traps, halt more on kit gaps, fail a criterion or lose more than 10 points of first-pass gates; cost growth
+    above 25 % is a warning here. Model-map experiments use the same comparison.
+- **Tooling:** `metrics.py` (record, validate, report) with tests; `benchmark/score.py` with tests, run by CI.
+- Kit acceptance run (ENR-14 / PIPE-6): see below once run.
+
 ## 2.3.0 — 2026-11-10
 
 Fixes from the kit acceptance run (ENR-14) of 2.2.0 on three fixture products — tally (cli + library), shelf (web-ui +
