@@ -68,7 +68,9 @@ You own `absd-project/working/design.md` (and parts `absd-project/working/design
    (brownfield). Design QA: `test_report.md` (gallery index, a11y and visual results, product SHA), the gallery images
    and golden files, `design.md`, `design-system.md`, `build_log.md`.
 5. Playbook — Checklists in full, and every rule's full text when its item applies:
-   `absd/playbook/design/excellence.md` (DSN-1 to DSN-16; DSN-22 when a palette source is named), `absd/playbook/design/rubric-and-qa.md` (DSN-17 to DSN-21:
+   `absd/playbook/design/excellence.md` (DSN-1 to DSN-16; DSN-22 when a palette source is named),
+   `absd/playbook/design/visual-craft.md` (DSN-23 to DSN-34: art direction, generic looks, type, colour, space, depth,
+   icons, motion, charts, visual lint, the visual rubric) for web-ui and native-app, `absd/playbook/design/rubric-and-qa.md` (DSN-17 to DSN-21:
    machine surfaces, the rubric per profile, Design QA, protected baselines),
    `absd/playbook/testing/external-facts.md` (EXT-1, EXT-2: what a recorded sample and a VERIFIED fact are),
    `absd/playbook/design/content-and-locale.md` (LOC — all of it), `absd/playbook/testing/nonfunctional.md` (A11Y and
@@ -105,9 +107,12 @@ You own `absd-project/working/design.md` (and parts `absd-project/working/design
 2. **Upstream check**: anything you would have to invent — a rule, a permission, a value, a failure outcome, a volume
    — goes to §0.2; product choices inside the experience become UXQ-n with a recommended default (DSN-2). Design the
    default, marked "pending UXQ-n", so everything stays testable. A blocking issue stops the sections depending on it.
-3. **Design** in this order: goals (§1) → journeys, steps and fields counted, one primary action per surface (DSN-4,
+3. **Design** in this order: goals (§1) → web-ui, native-app: the art direction in `design-system.md` §1 with the
+   default-considered rows, surface mode per SCR and one signature, the generic-look catalogue checked (DSN-23 to
+   DSN-25) → journeys, steps and fields counted, one primary action per surface (DSN-4,
    DSN-7) → screens → blueprints per device class, smallest first (DSN-3, DSN-8) → every state (DSN-5) → content,
-   label maps, formatters, error catalogue (LOC, DSN-13) → accessibility (DSN-14, DSN-15) → devices, gestures, hover
+   label maps, formatters, error catalogue (LOC, DSN-13) → type, colour, space, depth, icons, motion and charts per
+   DSN-26 to DSN-32 → a subtraction pass per primary SCR, logged (DSN-24) → accessibility (DSN-14, DSN-15) → devices, gestures, hover
    inventory (DSN-9, DSN-10) → volume and default position (DSN-11) → resilience (DSN-12) → motion (DSN-6) → the
    sections of every other declared profile, naming the public surface of cli, http-api and library (§14–16; DSN-17,
    DSN-18) → protected screens and human-facing golden outputs (DSN-21) → amendments.
@@ -165,7 +170,8 @@ Nothing visual or human-facing in scope → Verdict N/A with the reason in §1.
    or a pipe (ABSD:A11Y-4), stdout/stderr split, exit codes per table; reports and rendered documents: wording,
    formats, alignment, page or width breaks.
 5. **Re-score the rubric** per profile from what is visible (`design_review.md` §5); a score without an image or
-   measurement counts as 1.
+   measurement counts as 1. web-ui, native-app: score V1–V10 (`design_review.md` §5a, ABSD:DSN-34) from the images and
+   commit the scores BEFORE opening `evidence/tester/visual-lint.json` (ABSD:DSN-33); then reconcile with notes.
 6. **Baselines and golden files**: per §18 of `design.md`, hash each file with a command; approve by path + SHA-256
    only when `design.md` intends that appearance; a change nothing in `design.md` asks for is rejected, never approved
    to turn a run green (ABSD:DSN-21, ABSD:VIS-2, ABSD:GATE-6).
@@ -174,7 +180,7 @@ Nothing visual or human-facing in scope → Verdict N/A with the reason in §1.
    · Design delta (your own gap, reported, never quietly patched); a bound TC that should have failed on it → name it.
 8. **Verdict** — the line `Verdict: PASS | FAIL | BLOCKED | N/A` outside any table (gate3 passes only PASS or N/A;
    the skeleton's placeholder reads as missing): PASS only with every cell reviewed, the rendered rubric at the DSN-19
-   bar for each profile and 0 open Critical/Major; BLOCKED per step 1; N/A per Scope; otherwise FAIL. Commit; reply.
+   bar for each profile, the visual rubric at the DSN-34 bar and 0 open Critical/Major; BLOCKED per step 1; N/A per Scope; otherwise FAIL. Commit; reply.
 
 Re-QA after a fix pass: append an Iteration section at the new product SHA; hash every gallery file; re-review every
 changed or new image and every image of a finding; carry the review of unchanged hashes; each previous finding

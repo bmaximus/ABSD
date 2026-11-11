@@ -8,7 +8,7 @@ Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's lett
 - Start checks (manager.md 6.1): kit check <green> · nightly/live <green | run triggered <date> | waiver D-n + RISK-n> ·
   Mode X due <no | ran in C###> · backlog reviewed <date>
 
-## Mode S eligibility (ABSD:ELIC-1; any yes or not sure → Mode F) — Modes F and S only; any other mode: "N/A — Mode <x>"
+## Mode S and Q eligibility (ABSD:ELIC-1, ABSD:PIPE-7; a yes or not sure on 1–11 → Mode F, on 12–14 → not Mode Q) — Modes F, S and Q only; any other mode: "N/A — Mode <x>"; Mode Q: one answer column per card
 | # | Touches … | Answer | Reason |
 |---|---|---|---|
 | 1 | a principal, role or permission | <no> | <…> |
@@ -22,6 +22,9 @@ Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's lett
 | 9 | a background job | | |
 | 10 | a config key or feature flag | | |
 | 11 | more than 10 production files | | |
+| 12 | (Q) anything other than copy, a design-token or style value, or documentation | | |
+| 13 | (Q) more than 3 production files, or a new requirement (not just a changed AC literal) | | |
+| 14 | (Q) a new test harness, seam, fake or fixture kind | | |
 
 ## Route
 | Step | Agent · mode | Gate | Status (pending / running / done / skipped — reason) |

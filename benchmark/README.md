@@ -16,16 +16,33 @@ product.
 | `fixtures/<name>/brief.md` | The owner brief plus the "Feature for the first feature cycle" — the only input the runner gets |
 | `fixtures/<name>/traps.json` | The seeded traps and their detectors — never shown to the runner |
 | `score.py` | `score` one run, `combine` a version's runs, `compare` with the baseline (standard library) |
-| `test_score.py` | The scorer's tests, including both directions of every shipped detector |
+| `runner/pipeline.workflow.js` | The dispatching harness (PIPE-8): one sub-agent per Manager decision and per role step, on the mapped model |
+| `usage.py` | After a run: records each invocation's platform-reported tokens and duration into the fixture's telemetry |
+| `test_score.py`, `test_usage.py` | The tools' tests, including both directions of every shipped detector |
 | `results/<version>.json` | One committed result per accepted kit version (from `combine`) |
 
 | Fixture | Interface profile | Feature | Traps |
 |---|---|---|---|
 | `tally` | CLI + library | Totals by category and month, table or `--json` | variation, ambiguity, contradiction |
-| `shelf` | Web UI + HTTP API, phones | Mark a book read with its date; admins see every shelf | security, time, ambiguity |
+| `shelf` | Web UI + HTTP API, phones | Mark a book read with its date; admins see every shelf | security, time, ambiguity, aesthetic |
 | `ledger` | Batch data pipeline | Daily summary per local calendar day | time, ambiguity, ambiguity |
+| `studio` | Web UI + HTTP API + card payment provider, phones | Buy a class pass online, book with it | provider lifecycle, reachability, idempotency, honest status, webhook authenticity, month-end validity, provider configuration (the 2026-11-07 payments lesson, LL-59 to LL-62) |
+
+**Depth.** A trap is *raised* when an artifact deals with it, *planned* when a test-plan row binds it, *tested* when
+test code exercises it (`planned` and `tested` detectors in `traps.json`; a level counts only once the trap is
+raised). Depth separates models that notice the same issues but carry them through differently: a run scores
+`depth / max_depth` per fixture next to the traps caught.
 
 ## Running it
+
+Every role step runs as its own sub-agent on its mapped model (PIPE-6, PIPE-8) — never one agent playing every role.
+On Claude Code the harness is `runner/pipeline.workflow.js` (the Workflow tool; sub-agents there cannot start
+sub-agents, so the harness dispatches on the Manager's behalf). Its args: `{"fixtures": [{"name", "repo", "brief"}],
+"models": {"strongest", "second", "balanced", "fast"}, "maxDecisions": 120}` — `second` runs the second audit
+(XCA-17). Each Manager invocation starts from `cycle.md` and ends with one decision; the owner's questions go to an
+owner agent that answers only from the brief (a `covered: false` answer is a kit-gap signal). After the run, record
+the invocation events with `usage.py --run-dir <the workflow's transcript dir> --repo <fixture>=<repo> …`; the score
+needs tokens for at least 90 % of invocations.
 
 One run per fixture, each in a fresh, empty repository outside this one:
 
@@ -58,7 +75,8 @@ python3 benchmark/score.py compare --baseline benchmark/results/2.3.0.json --can
 ```
 
 `compare` fails (exit 1) on a regression: a baseline fixture without a result, a trap the baseline caught now missed
-(or fewer traps caught in total), more kit-gap halts, any ENR-14 criterion not `pass`, or a first-pass gate rate more
+(or fewer traps caught in total), lower total depth on the baseline's fixtures, tokens known for fewer than 90 % of
+the candidate's invocations, more kit-gap halts, any ENR-14 criterion not `pass`, or a first-pass gate rate more
 than 10 points lower. Token or time growth above 25 % is a warning: record it in the CHANGELOG entry. With no
 baseline yet, the candidate becomes the first one. Commit the accepted result with the release.
 
@@ -83,7 +101,7 @@ show what it saved.
   The Auditor's and the tests' verdicts are what prove the handling; the score only shows the issue was noticed.
 - A regex can miss an unusual phrasing (a false miss) or match an unrelated line (a false catch); read the matched
   lines in the result before accepting a changed score.
-- One agent playing all roles does not test independence (XCA-17, the second audit): run the roles as separate
-  sessions or agents when that is what is being measured.
-- Three fixtures and nine traps are a smoke test, not a statistic; a run is not deterministic, so a single missed trap
+- Up to 2.4.0 one agent played every role, so independence and per-role cost were not measured; from 2.6.0 the
+  harness runs each role step separately and the second audit on another model.
+- Four fixtures and seventeen traps are a smoke test, not a statistic; a run is not deterministic, so a single missed trap
   is a reason to look, then rerun, before rejecting a release.

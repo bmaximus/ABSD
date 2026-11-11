@@ -32,6 +32,7 @@ in advance and approved.
 |---|---|---|---|---|
 | F; S (delta WPs); C (re-entry) | Build | Gate T PASS, T-SHA chain in `cycle.md` | production code, one commit per WP; `build_log.md` | Tester Verify → Design QA ∥ Audit → Gate 3 |
 | B (Foundation step 6) | Build: walking skeleton + build, package and deploy pipelines | Gate T (step 5) | same | Verify (every gate RED then GREEN) → Design QA ∥ Audit (L7, L8) |
+| Q | Fix: each card's red TCs, one WP per card, within the card's eligibility (≤ 3 production files, no new symbol, config key or dependency — a need beyond it is a halt that upgrades the card, ABSD:PIPE-7) | Gate T | fix commits; `build_log.md` §8 | Verify → Audit (Mode Q) |
 | D, implementation class | Fix: the DEF's red regression TCs | Gate T after Reproduce | fix commits; `build_log.md` §8 | Verify → Audit (defect scope) |
 | D or Gate 3, architecture / external-fact / UX / requirements gap | Build (new or changed WPs) | the re-passed gates and re-bind Gate T | same as Build | same as Build |
 | any: TF (Verify), DQ or F implementation drift (Gate 3: the Tester's failing TC first), exposed secret | Fix — counts as a Builder pass | Manager routing | fix commits; `build_log.md` §8 | Verify → QA ∥ re-audit (ABSD:XCA-9) |

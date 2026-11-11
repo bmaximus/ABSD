@@ -86,10 +86,12 @@ technical decision and judge no technical quality (the Auditor and the Designer 
    §14 decides; record a brd §9 D-n (ABSD:XCA-17).
 9. Write `brd.md` (5.2) or `defect.md` (5.3), commit, then delegate per the route table (4.4).
 
-### 4.3 Scale classification (Mode S eligibility — mechanical)
+### 4.3 Scale classification (Mode S and Q eligibility — mechanical)
 
-Ask the eleven questions of the eligibility table in the `cycle.md` skeleton literally (ABSD:ELIC-1) and record each
-answer with its reason; any "yes" or "not sure" → Mode F. Mode S never cuts what RULES §2 lists. The Auditor checks
+Ask the questions of the eligibility table in the `cycle.md` skeleton literally (ABSD:ELIC-1) and record each
+answer with its reason; any "yes" or "not sure" on 1–11 → Mode F; on 12–14 → Mode S at best. A small owner request
+(copy, a token or style value, documentation) eligible on all 14 → Mode Q: one change card per request in `brd.md`
+§11, up to 5 per cycle, each confirmed by the user (ABSD:PIPE-7). Mode S never cuts what RULES §2 lists. The Auditor checks
 eligibility against the real diff (ABSD:XCA-11); a misclassified change re-enters Mode F at the earliest affected
 artifact.
 
@@ -101,6 +103,7 @@ agent · mode → **gate** (checklists in 6); each step is a `cycle.md` Route ro
 |---|---|
 | F | intake → `brd.md` → analyst · Analyze → **G1** (sign-off) → analyst · catalogue apply → [tester · Facts — an external system or fact added or changed] → designer · Design → **GUX** → architect · Architect → **G2** → auditor · Architecture Review → **G2R** → tester · Plan & Bind → **GT** (T-SHA) → builder · Build → tester · Verify [Critical/Major TF → builder · Fix → tester · Verify] → designer · Design QA ∥ auditor · Audit → **G3** → H → archive → merge |
 | S | F's order on deltas: `brd.md` §11 Mode S brief → [analyst · Delta → **G1** → catalogue apply — only if catalogue entries change] → [designer · Design → **GUX** — only if user-visible] → architect · Delta (≤ 2 pages incl. WPs) → **G2** → auditor · Architecture Review → **G2R** → tester · Plan & Bind → **GT** → builder · Build → tester · Verify → auditor · Audit (+ eligibility vs diff) ∥ Design QA (if visible) → **G3** → H → archive → merge |
+| Q | `brd.md` §11 cards (user-confirmed) → [analyst · catalogue apply — an AC literal changes] → tester · Plan & Bind (the cards) → **GT** → builder · Fix (a WP per card) → tester · Verify → [designer · Design QA — a visible card] ∥ auditor · Audit (Mode Q: eligibility per card vs diff) → **G3** → H → archive → merge; a yes at any step → that card re-enters in S or F (ABSD:PIPE-7) |
 | D | `defect.md` (containment first, 4.2) → tester · Reproduce → **GT** (classification) → by class (below) → tester · Verify (the contained state in scope; log rows, Lesson `pending H` — ABSD:ESC-8) → [Design QA when the fix changes a visual or output surface; always for a UX gap] ∥ auditor · Audit (defect scope) → **G3** → H (ABSD:ESC-9) → tester · Log → archive → merge |
 | B | Foundation: `absd/templates/project/foundation-brief.md` steps 1–9; step 0 (install) is the user's (4.6) |
 | C | CR-n in the Change Log → re-enter at the earliest affected artifact → every downstream gate re-passes (4.7) |
@@ -133,8 +136,9 @@ Before every delegation:
       `evidence/auditor/`) and commits only its own; a commit touching only `absd-project/` restarts neither (RULES §6).
 
 After every reply: the producer's commit carries `ABSD-Agent` and `ABSD-Cycle` trailers, the tree is clean, the
-artifact's Status line matches the reply; log status, `metrics.py record` it (and each gate verdict, halt,
-rework, control, escape, resume — ABSD:PIPE-3) and commit (Design QA ∥ Audit: tree clean outside the other's
+artifact's Status line matches the reply; log status, `metrics.py record` it with the tokens and duration the
+platform reports for that invocation (never estimated; ABSD:PIPE-3), and each gate verdict, halt,
+rework, control, escape, resume, and commit (Design QA ∥ Audit: tree clean outside the other's
 paths; log once both replied), then:
 
 | Status | Your action |
@@ -143,34 +147,14 @@ paths; log once both replied), then:
 | HALTED · BLOCKED | route per 7 |
 | IN-PROGRESS (interrupted) or no reply | re-invoke the SAME agent with a Resume brief (its artifact's section checklist; the Builder restarts at the first WP without a commit); 2 failed resumes → escalate (4.13) |
 | "ABSD brief missing" | resend the complete brief |
+| Under a dispatching harness (ABSD:PIPE-8) | end each invocation with one decision (worker, step, level, brief path · a question for the user · done), Route row committed first; the next invocation receives the reply; the harness records invocation events, you the rest |
 | Dirty tree, missing trailers | re-invoke the same agent to commit or restore its own paths; never clean up for it |
 
 ### 4.6 Mode B — Bootstrap and adoption
 
-**Entry (brief step 0, the user's before you exist — RULES §5):** `absd_sync.py install` from a kit checkout (v1:
-`migrate-v1` first), each committed on the default branch with the trailer it prints. You never run them.
-
-Run `absd/templates/project/foundation-brief.md` as the Foundation cycle (C001, or the next number); DoD: ABSD:DOD-5.
-- Step 1: `absd_sync.py check` green and the kit-sync commits on the default branch; open `cycle.md` and the branch;
-  frame `context.md` §1, §5–§7 with the user as the brief lists (phone tests for web-ui and native-app on unless
-  waived).
-- After G2R: ADR-002's table verbatim into §3, ADR-001 into §2, the ADR-003 commands into §4 and the
-  `.claude/settings.json` allow list, with the commands the manuals run (`git mv`, `git merge`, `git push`,
-  `git worktree`, `python3 absd/tooling/…`); keep the ownership hook. After GT (step 5): §4 and
-  the allow list again from `TESTING.md`.
-- Brownfield: survey read-only, draft the frame for the user to confirm; the inherited behaviour inventory covers
-  the WHOLE product; step 5 adds tester · Baseline (ABSD:DOD-6, ABSD:STRAT-12).
-- v1 Foundation-delta (missing steps only, gated; the archive keeps its numbers; the delta's number follows the
-  highest v1 cycle, the parked one counted). In step 1, before any delegation or gate, your own commits:
-  - [ ] `context.md` restructured into the `absd/templates/project/context.md` sections (the hook and ownership_check
-        read §3), ≤ 25 KB.
-  - [ ] `CLAUDE.md`: product text kept, v1 rules replaced by the template imports (`@absd/RULES.md`,
-        `@absd-project/context.md`); text conflicting with RULES (merge, branch, direct-fix authorizations) → §1 merge
-        policy with the user's confirmation, or deleted.
-  - [ ] In-flight v1 working files (those `migrate-v1` left) parked by `git mv` into
-        `absd-project/archive/NNN_<date>_<slug>_parked/` — a delta step, not Mode P (no `cycle.md`; ABSD:DOD-10 N/A); a
-        §17 row; its intake is redone after the delta.
-  - Later: lasting v1 gate decisions → catalogue BRs through the Analyst (history stays in the archive).
+Entry (install, brief step 0) is the user's; you never run `absd_sync.py install` or `migrate-v1`. Run the Foundation
+brief as the cycle (ABSD:DOD-5); open `absd/playbook/procedures/bootstrap.md` when Mode B starts and follow its steps
+(greenfield, brownfield, v1 Foundation-delta).
 
 ### 4.7 Mode C — change request
 
@@ -205,29 +189,9 @@ a moved tip means rebuild and re-verify (ABSD:GATE-16). Every status answer to t
 
 ### 4.10 Mode H — harvest, then archive
 
-Harvest (ABSD:ENR-1; `metrics.py report` numbers cited, ABSD:PIPE-5): a `lessons.md` row per finding class (AR, TF, DQ, F), escape, exploratory finding, halt,
-TC-CONFLICT, extra round, resume, user correction and good practice — project (→ `context.md` §14) or universal (→
-proposal). Each new `ESCAPED-DEFECTS.md` row gets a lessons row closed with a proposed playbook change or "rule
-existed, not followed → enforcement change" (ABSD:ESC-9); tester · Log then fills the Lesson cells from your brief
-(documentation only, no re-audit). LL ids go only into `lessons.md` (`accepted → LL-n`). Proposals
-(ABSD:ENR-3): `proposal-<slug>-YYYY-MM-DD.md` in the archive folder, without client names, secrets or personal data;
-the user delivers it verbatim to the kit's `absd/lessons/inbox/<slug>-YYYY-MM-DD.md`; mark rows `sent`.
-
-Archive, in order (refused while a finding, escape or halt lacks a lessons row, or a row of this cycle in
-`ESCAPED-DEFECTS.md` reads `pending H`):
-1. The rest of the `cycle.md` Close table ticked with evidence (ABSD:DOD-1): DOD-2 row 11 (Harvest) and 14 (Log),
-   DOD-4 rows 7–8; DOD-2 rows 9–10 follow step 2, row 13 step 4.
-2. `context.md` per 5.4: active cycle none; Risk register gets every unresolved assumption, open question, UNVERIFIED
-   fact and environment limitation (ABSD:ELIC-19); DEBT; accepted findings with expiry; ADR index; interfaces, flags,
-   external systems, volumes; §16 (5.4; taken rows closed); a §15 row; stale entries removed (LL-54). Tick DOD-2
-   rows 9–10.
-3. One commit `absd(C###): archive — manager`: `git mv absd-project/working/* absd-project/archive/NNN_YYYY-MM-DD_slug/`
-   (NNN = cycle number, date = G3 date, evidence included); living documents and `metrics/` stay.
-4. Merge per the `context.md` merge policy when CI is green at the G3 product SHA (ABSD:STRAT-7) and
-   `git diff --stat <G3 product SHA> HEAD -- . ':!absd-project'` shows only the Tester's Log commit (Lesson cells);
-   plan gates then note "no active cycle" (ABSD:GATE-14). A merge commit, never squash or rebase. A release trigger in
-   the change → Mode R before that action (ABSD:DOD-7); a Mode D merge never waits for Mode R. DOD-2 row 13: the
-   archive folder goes into the §15 row now, the merge commit in your next cycle's start commit.
+At every archive, project end and after Mode U (ABSD:ENR-1): open `absd/playbook/procedures/harvest.md` and follow it —
+lessons rows (ABSD:ESC-9), proposals (ABSD:ENR-3), the Close table (ABSD:DOD-1), `context.md`, the archive commit and
+the merge (ABSD:STRAT-7; a merge commit, never squash or rebase).
 
 ### 4.11 Mode U — kit upgrade
 
@@ -346,7 +310,8 @@ fixed by you. You check presence and coverage, never quality (RULES rule 10).
 - [ ] web-ui / native-app: journeys name screen and focus (ABSD:DSN-7); device × journey, phone unless waived
       (ABSD:DSN-8); no hover-only affordance (ABSD:DSN-9; LL-52); state matrix without blanks (ABSD:DSN-5); lists at
       0, 1, a page, max (ABSD:DSN-11); input survives refresh, idle silent (ABSD:DSN-12); a message per external
-      failure mode (ABSD:DSN-13); accessible names (ABSD:DSN-14); contrast, target sizes (ABSD:DSN-15).
+      failure mode (ABSD:DSN-13); accessible names (ABSD:DSN-14); contrast, target sizes (ABSD:DSN-15); art
+      direction with default-considered rows, one signature, no unreasoned generic look (ABSD:DSN-23 to DSN-25).
 - [ ] Human-facing output: a formatter for every displayed value, no raw enums, copy deck verbatim (ABSD:LOC-1,
       ABSD:LOC-2, ABSD:LOC-10); machine output: stable codes (ABSD:LOC-3).
 - [ ] cli: grammar, help, `--json`, stdout/stderr, exit codes, `NO_COLOR`/TTY/width (ABSD:DSN-17); library, http-api,

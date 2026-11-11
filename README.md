@@ -85,10 +85,12 @@ playbook rules with ids (`ABSD:CODE-n`).
 | **2.2** | Security by design (abuse cases → design review → tests → evidence checklist; model-output and agent-configuration rules); evidenced, reachability-graded findings; planned-vs-actual diff per work package; gate pipes that cannot hide a failure; on-demand **procedures** to keep manuals short; a model tier per role; an optional second auditor on money and permission paths; `kit_lint` refuses hidden Unicode in the kit. |
 | **2.3** | From the first end-to-end acceptance run on three test products: a lawful repair for a commit that touched another agent's files (no history rewrite), each agent checks its own commits, later cycles inherit earlier test plans, a round counts only a failed review, mutation gates check the survivor list, clearer Foundation, park and no-CI routes. |
 | **2.4** | The pipeline measured: each role and step runs on a model **level** (strongest, balanced, fast) that each product maps to its models, with floors for judgement steps; every cycle writes a private, local telemetry file (cost, gate rounds, rules that fire, halts, rework) that the Harvest reports on; the kit has a **benchmark**: test products with seeded traps, scored before every release, so a kit change or a cheaper model cannot quietly make the agents worse. |
+| **2.5** | A palette may start from a curated colour-combination catalogue, as a guideline: hue kept, lightness fitted to contrast, with a `palette.py` check. |
+| **2.6** | **Visual craft**: a written art direction, a refusal list of generic looks, measurable type, colour, space, motion and chart floors, a visual lint on every rendered screen and a visual review scored blind. **Mode Q** for small owner requests. A **benchmark that separates models**: each role its own agent on its own model, tokens captured, traps scored by depth, and a payments test product from the launch-night lesson. |
 
-Still open (honestly): the backlog in [`absd/lessons/inbox/`](absd/lessons/inbox/), a benchmark run with separate
-agents per role (today one agent plays every role, so independence is not measured), risk-based routing to make small work lighter, and moving more of the long manuals into
-procedures (three so far: security review, ownership repair, park).
+Still open (honestly): the backlog in [`absd/lessons/inbox/`](absd/lessons/inbox/), visual-craft checks the
+benchmark can score beyond one aesthetic trap, and moving more of the long manuals into procedures (five so far:
+security review, ownership repair, park, bootstrap, harvest).
 
 ## Modes
 
@@ -96,6 +98,7 @@ procedures (three so far: security review, ownership repair, park).
 |---|---|
 | **F** Feature | a new capability (the full route above) |
 | **S** Small change | strictly eligible small changes — same controls, deltas instead of full artifacts |
+| **Q** Quick request | small owner requests (copy, a style value, docs) as change cards: tests first, fix, verify, independent audit — no analysis, design or blueprint passes |
 | **D** Defect | a bug or escaped defect — failing regression test first, then routed by root cause |
 | **B** Bootstrap / adopt | a new product, an existing codebase, or a v1 ABSD project — the Foundation cycle builds the quality harness |
 | **C** Change request | requirements change mid-cycle — re-enter at the earliest affected artifact |

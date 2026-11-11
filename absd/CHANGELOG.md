@@ -3,6 +3,37 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.6.0 — 2026-11-11
+
+Visual craft, a quick route for small owner requests, and a benchmark that can tell models apart (owner review of the
+2.4.0 benchmark, proposal owner-review-benchmark-2026-11-11). Ledger: LL-70, LL-71.
+
+- **Visual craft** (new `absd/playbook/design/visual-craft.md`, DSN-23 to DSN-34): art direction in
+  `design-system.md` §1 with "category default considered → our choice" rows and a surface mode per screen; one
+  signature and a logged subtraction pass; a generic-look catalogue used only with a brief reason; floors for type
+  (scale ratio, reading floor, measure, tabular numerals), colour (strategy, roles, perceptual ramps, themes designed
+  separately), space, depth and platform surfaces, icons, motion timing and charts; a visual lint the Tester runs over
+  every gallery page (`evidence/tester/visual-lint.json`, report shape fixed by the kit); a V1–V10 visual rubric the
+  Designer scores from images before reading the lint. Templates: `design-system.md` §1 art direction,
+  `design_review.md` §5a. Designer, Tester and Manager (Gate UX) wired.
+- **Mode Q — quick owner request** (RULES §2, PIPE-7): up to 5 user-confirmed change cards (`brd.md` §11) that change
+  only copy, a design-token or style value, or documentation, ≤ 3 production files, no new requirement: catalogue
+  apply → Plan & Bind → Gate T → Builder Fix → Verify → [Design QA] ∥ Audit → Gate 3. Never cut: tests before code, the
+  code/test split, the independent audit. A yes at any step moves that card to Mode S or F. `cycle.md` eligibility
+  questions 12–14; `trace_check` reads the cards as gate T scope and knows Mode Q's Gate 3 reports (with tests).
+- **PIPE-8 dispatching harness:** where the Manager cannot start sub-agents, a harness runs exactly the worker, level
+  and brief the Manager decided and records each invocation's platform-reported usage; RULES §1/§8 allow it.
+- **PIPE-3 tokens:** the count the platform reports per invocation (delegation result or harness transcript), never
+  estimated; the Manager records it with every invocation.
+- **PIPE-6 benchmark v2:** each role step its own sub-agent on its mapped model; trap **depth** (raised → planned →
+  tested); tokens known for ≥ 90 % of invocations or the run regresses; new fixture **studio** (card payments: provider
+  lifecycle, reachability, idempotent fulfilment, honest status, webhook authenticity, month-end validity, provider
+  configuration — LL-59 to LL-62); **TRAP-SHELF-4** aesthetic trap. `benchmark/runner/pipeline.workflow.js`,
+  `benchmark/usage.py` (tests), `score.py` depth and token coverage (tests).
+- Manager manual: Bootstrap and Harvest steps moved to procedures (`absd/playbook/procedures/bootstrap.md`,
+  `harvest.md`; ENR-17) to make room.
+- Kit acceptance run (ENR-14 / PIPE-6): see below once run.
+
 ## 2.5.0 — 2026-11-11
 
 A palette may start from a curated colour-combination catalogue — as a guideline, never a rule over the brief, a

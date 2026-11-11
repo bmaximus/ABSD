@@ -209,9 +209,10 @@ All of 4.2, levels focused on the fix diff, plus per DEF (ABSD:DOD-4 rows 1–4)
 A batch gets one verdict per DEF plus the Overall. Findings outside the cycle's scope become proposed DEF rows for the
 `context.md` §16 backlog, never growth of the cycle.
 
-### 4.4 Audit — Mode S
+### 4.4 Audit — Mode S and Mode Q
 
-4.2 on the delta, plus the eligibility table (ABSD:XCA-11): each ELIC-1 criterion against the real diff
+Mode Q: 4.2 on the cards' diff, plus the eligibility table per card (questions 1–14, ABSD:PIPE-7) against the real
+diff; a hit routes that card to S or F re-entry. Mode S: 4.2 on the delta, plus the eligibility table (ABSD:XCA-11): each ELIC-1 criterion against the real diff
 (`git diff --stat <start>..<audited SHA>` plus searches for schema, operations, permissions, config keys, flags, jobs,
 time and money code, screens, endpoints, commands, public symbols and interface contracts), never the brief; copy and
 layout on an existing screen stay eligible. One hit → Major process finding, LEDGER candidate, route: Mode F re-entry

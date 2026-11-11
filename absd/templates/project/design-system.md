@@ -4,8 +4,20 @@
 > references it instead of re-declaring tokens). Rules: `absd/playbook/design/excellence.md` and
 > `absd/playbook/design/rubric-and-qa.md` (DSN), `absd/playbook/design/content-and-locale.md` (LOC). Keep only the sections for the product's interface profiles.
 
-## 1. Character
+## 1. Character and art direction (web-ui, native-app: DSN-23 to DSN-25)
 - Personality in three words: <e.g. calm, precise, warm>
+- Subject world (materials, objects, places of the domain): <…> · Use scene (who, where, light, device, pace): <…>
+- Colour strategy (restrained · committed · full · drenched, DSN-27): <…> · Type roles (≤ 2 families, DSN-26): <…>
+- Layout concept: <…> · Three principles: <…> · Signature (one, DSN-24): <…>
+
+| Foundation | Category default considered | Our choice | Reason (a default kept needs one from the brief) |
+|---|---|---|---|
+| Palette | | | |
+| Type | | | |
+| Layout | | | |
+| Motion | | | |
+
+- Generic looks used on purpose (DSN-25; each with its brief reason): <none | …>
 - Signature moments (where delight is worth the effort): <…>
 - What the product never does: <e.g. modal interruptions for non-critical news; colour-only meaning>
 - Palette source (optional, DSN-22): <none | catalogue + combination id + why it fits> — the brief and a brand palette win

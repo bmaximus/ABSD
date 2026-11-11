@@ -15,6 +15,8 @@ sys.path.insert(0, HERE)
 import score  # noqa: E402
 
 FIXTURES = os.path.join(HERE, "fixtures")
+NAMES = ("tally", "shelf", "ledger", "studio")
+TRAP_COUNTS = {"tally": 3, "shelf": 4, "ledger": 3, "studio": 7}
 
 # Per trap: artifact lines that deal with the issue (each must be caught on its own) and lines from a fixture that
 # never discussed it (none may be caught). Each sample goes into the named artifact of a fresh repo.
@@ -106,6 +108,89 @@ SAMPLES = {
         "| REJ-1 | A malformed row goes to the rejects file with its line number and reason |",
         "| SUM-3 | Net = revenue − refunds per Athens day |",
     ]),
+    "TRAP-SHELF-4": ("design-system.md", [
+        "| Palette | cream background, serif headings, terracotta accent (the generic 'bookish' default) | deep ink blue on cool paper grey | brief says calm and warm, not old |",
+        "- We avoid the expected parchment-and-serif library look; the signature is the reading-date ribbon.",
+        "| Type | a classic serif for everything (the obvious bookish choice) | a humanist sans for UI, one serif for titles | rather than nostalgia |",
+    ], [
+        "- Personality in three words: calm, warm, readable",
+        "| color.bg / surface / raised | #F6F1E7 | page background | 14.2:1 |",
+        "| type.title | serif 24/32 | headings | |",
+    ]),
+    "TRAP-STUDIO-1": ("analysis.md", [
+        "| question | OQ-2 | Which PayCo events besides a successful payment must we handle (expired checkout, refund, dispute)? |",
+        "| PAY-4 | A checkout the member abandons expires after 24 h and leaves no pass |",
+        "| EXT-PAYCO-3 | A refunded payment removes the unused classes of its pass | UNVERIFIED |",
+        "- A failed card payment on PayCo's page returns the member to the pass list with a message.",
+    ], [
+        "| PAY-1 | A member pays for a pass on PayCo's hosted page; we never see card numbers |",
+        "| PAY-2 | When PayCo reports the payment went through, the pass appears on the account |",
+        "| BOOK-3 | Cancelling up to 6 hours before the class gives the class back |",
+    ]),
+    "TRAP-STUDIO-2": ("design.md", [
+        "| SCR-2 | Member home: bookings, classes left and a 'Buy a pass' button — the entry point to purchase |",
+        "- UJ-3 starts at the member home screen; the bottom tab bar has Timetable, Passes (buy) and Account.",
+        "| TC-0061 | From the member's home, navigate to buy a 10-class pass and pay (reachability journey) |",
+    ], [
+        "| SCR-4 | Pass purchase page: 10-class and 5-class passes with prices |",
+        "| SCR-2 | Member home: upcoming bookings and classes left |",
+        "| UJ-3 | A member chooses a pass, pays on PayCo's page and returns |",
+    ]),
+    "TRAP-STUDIO-3": ("test_plan.md", [
+        "| TC-0071 | The same PayCo payment notification delivered twice → exactly one pass |",
+        "| PAY-6 | Fulfilment is idempotent: a payment id seen before adds no second pass |",
+        "- PayCo retries a notification until we answer 2xx; a replayed event is ignored.",
+    ], [
+        "| TC-0010 | Booking a class takes one class off the pass |",
+        "| TC-0011 | A member with no classes left cannot book |",
+        "| TC-0012 | Runner retries are 0 for unit tests |",
+    ]),
+    "TRAP-STUDIO-4": ("test_report.md", [
+        "- Status: payments are built and verified against the fake only; PayCo behaviour is UNVERIFIED, so payments ship with the flag off.",
+        "| RISK-3 | PayCo live payments not verified from this machine; online sales stay disabled until a live check |",
+        "- Members cannot yet pay: checkout fails closed until the provider facts are verified.",
+    ], [
+        "| PAY-1 | A member pays for a pass on PayCo's hosted page |",
+        "- Verify: 75/75 TCs pass at the product SHA; coverage 96 %.",
+        "| TC-0020 | Checkout page lists both passes with their prices |",
+    ]),
+    "TRAP-STUDIO-5": ("architecture.md", [
+        "| POST /api/v1/payco/notifications | verifies the PayCo signature (HMAC-SHA256 with the shared secret) before reading the body |",
+        "| TC-0081 | A forged webhook without a valid signature is rejected with 401 and adds no pass |",
+        "- Threat: anyone can call the notification endpoint; spoofed events are refused.",
+    ], [
+        "| POST /api/v1/payco/notifications | PayCo calls it after a payment |",
+        "| POST /api/v1/sessions | sign-in with email and password (hashed) |",
+        "- Sessions expire after 12 hours.",
+    ]),
+    "TRAP-STUDIO-6": ("test_plan.md", [
+        "| TC-0091 | Pass bought 30 November 2026 is valid until 28 February 2027 (shorter month, clamped) |",
+        "| TC-0092 | Pass bought on 31 August is valid until 30 November: month-end clamp |",
+        "| TC-0093 | Validity ends at midnight Athens time, not UTC |",
+    ], [
+        "| TC-0005 | A pass is valid for three months from the day it is bought |",
+        "| TC-0006 | A 10-class pass costs 120 euros |",
+        "| TC-0007 | A pass is used up one class at a time |",
+    ]),
+    "TRAP-STUDIO-7": ("analysis.md", [
+        "| EXT-PAYCO-5 | The PayCo API version and the subscribed event types are set in the PayCo dashboard | UNVERIFIED |",
+        "| RISK-4 | The webhook endpoint registration on the PayCo account must be checked before launch |",
+        "- Live keys must have only the permissions the checkout needs (restricted keys).",
+    ], [
+        "| EXT-PAYCO-1 | PayCo hosts the payment page | owner statement |",
+        "| PAY-3 | The admin sees every pass sold with member, amount and date |",
+        "- PayCo's monthly statement lists every payment.",
+    ]),
+}
+
+# Per trap with depth levels: a TC row that plans it and a test-code line that exercises it.
+LEVEL_SAMPLES = {
+    "TRAP-TALLY-1": ("| TC-0007 | CRLF line ends parse like LF |", "content = 'a\\r\\nb'"),
+    "TRAP-SHELF-2": ("| TC-0031 | Mark read at 00:30 Athens time (22:30 UTC the day before) → date read is the Athens date |", "const zone = 'Europe/Athens'"),
+    "TRAP-STUDIO-3": ("| TC-0071 | The same notification delivered twice → one pass |",
+                      "test('duplicate webhook event adds one pass', async () => {"),
+    "TRAP-STUDIO-6": ("| TC-0091 | Pass bought 30 November is valid until 28 February (clamped) |",
+                      "assert.equal(validUntil('2026-11-30'), '2027-02-28')"),
 }
 
 
@@ -116,7 +201,7 @@ def write(path: str, text: str) -> None:
 
 
 def all_traps() -> dict:
-    return {t["id"]: t for name in ("tally", "shelf", "ledger") for t in score.load_traps(os.path.join(FIXTURES, name))}
+    return {t["id"]: t for name in NAMES for t in score.load_traps(os.path.join(FIXTURES, name))}
 
 
 def run(argv: list[str]) -> tuple[int, str]:
@@ -153,10 +238,11 @@ def telemetry(cycle: str = "C001", gates=(("G1", "PASS"),), halts=(), tokens=(10
 
 
 class ShippedTraps(unittest.TestCase):
-    def test_every_fixture_has_three_valid_traps_and_a_brief_with_a_feature(self):
-        for name in ("tally", "shelf", "ledger"):
+    def test_every_fixture_has_its_valid_traps_and_a_brief_with_a_feature(self):
+        self.assertEqual(sorted(NAMES), sorted(n for n in os.listdir(FIXTURES) if not n.startswith(".")))
+        for name in NAMES:
             traps = score.load_traps(os.path.join(FIXTURES, name))
-            self.assertEqual(len(traps), 3, name)
+            self.assertEqual(len(traps), TRAP_COUNTS[name], name)
             self.assertTrue(all(t["id"].startswith(f"TRAP-{name.upper()}-") for t in traps))
             with open(os.path.join(FIXTURES, name, "brief.md"), encoding="utf-8") as f:
                 brief = f.read()
@@ -186,16 +272,40 @@ class ShippedTraps(unittest.TestCase):
 
     def test_the_brief_copied_into_every_artifact_catches_no_trap(self):
         # An analysis that only restates the owner's words has not dealt with any trap.
-        for name in ("tally", "shelf", "ledger"):
+        for name in NAMES:
             with open(os.path.join(FIXTURES, name, "brief.md"), encoding="utf-8") as f:
                 brief = f.read()
             with tempfile.TemporaryDirectory() as repo:
-                for artifact in ("analysis.md", "test_plan.md", "design.md", "architecture.md"):
+                for artifact in ("analysis.md", "test_plan.md", "design.md", "architecture.md", "context.md", "cycle.md",
+                                 "test_report.md", "audit.md", "brd.md"):
                     write(os.path.join(repo, "absd-project/working", artifact), brief)
-                write(os.path.join(repo, "absd-project/catalogue.md"), brief)
+                for path in ("absd-project/catalogue.md", "absd-project/context.md", "absd-project/design-system.md",
+                             "docs/testing/EXTERNAL-FACTS.md"):
+                    write(os.path.join(repo, path), brief)
                 for trap in score.load_traps(os.path.join(FIXTURES, name)):
                     with self.subTest(trap=trap["id"]):
                         self.assertFalse(score.detect_trap(trap, repo)["caught"])
+
+    def test_depth_counts_planned_and_tested_levels_only_after_raised(self):
+        traps = all_traps()
+        for trap_id, (planned, tested) in LEVEL_SAMPLES.items():
+            trap = traps[trap_id]
+            with self.subTest(trap=trap_id), tempfile.TemporaryDirectory() as repo:
+                write(os.path.join(repo, "tests/unit/a.test.js"), tested + "\n")
+                self.assertEqual(score.detect_trap(trap, repo)["depth"], 0)   # tests alone: never raised
+                write(os.path.join(repo, "absd-project/working/test_plan.md"), planned + "\n")
+                result = score.detect_trap(trap, repo)
+                self.assertTrue(result["caught"])
+                self.assertEqual((result["depth"], result["max_depth"]), (3, 3))
+                os.remove(os.path.join(repo, "tests/unit/a.test.js"))
+                self.assertEqual(score.detect_trap(trap, repo)["depth"], 2)
+
+    def test_dependency_folders_are_never_read(self):
+        trap = all_traps()["TRAP-TALLY-1"]
+        with tempfile.TemporaryDirectory() as repo:
+            write(os.path.join(repo, "absd-project/working/test_plan.md"), "| TC-0007 | CRLF line ends parse |\n")
+            write(os.path.join(repo, "tests/node_modules/x/test.js"), "'\\r\\n'\n")
+            self.assertEqual(score.detect_trap(trap, repo)["depth"], 2)
 
     def test_split_artifacts_and_other_artifact_files_are_read(self):
         trap = all_traps()["TRAP-LEDGER-1"]
@@ -279,7 +389,8 @@ class Score(unittest.TestCase):
         self.assertEqual(gates["first_pass_rate"], 50.0)
         self.assertEqual(result["halts"], {"total": 2, "kit_gap": 1, "by_cause": {"kit-gap": 1, "spec-gap": 1}})
         self.assertEqual(result["controls"], {"total": 3, "ok": 2})
-        self.assertEqual(result["cost"], {"invocations": 4, "duration_s": 240, "tokens": 250, "tokens_unknown": 1})
+        self.assertEqual(result["cost"], {"invocations": 4, "duration_s": 240, "tokens": 250, "tokens_unknown": 1,
+                                          "token_coverage": 75.0})
         self.assertEqual(result["criteria"], {"c1": "pass", "c2": "fail", "c3": "pass"})
         self.assertIn("1/3 traps caught", out)
 
@@ -317,7 +428,7 @@ class Score(unittest.TestCase):
 
 
 def result(fixture: str, caught=(True, True, False), first_pass=(1, 2), kit_gap=0, tokens=1000, duration=600,
-           criteria=None, kit="2.4.0") -> dict:
+           criteria=None, kit="2.4.0", unknown=0) -> dict:
     ids = [f"TRAP-{fixture.upper()}-{n}" for n in range(1, len(caught) + 1)]
     return {"schema": 1, "fixture": fixture, "kit": kit,
             "traps": {"total": len(caught), "caught": sum(caught),
@@ -329,7 +440,8 @@ def result(fixture: str, caught=(True, True, False), first_pass=(1, 2), kit_gap=
                       "list": []},
             "halts": {"total": kit_gap, "kit_gap": kit_gap, "by_cause": {"kit-gap": kit_gap} if kit_gap else {}},
             "controls": {"total": 1, "ok": 1},
-            "cost": {"invocations": 5, "duration_s": duration, "tokens": tokens, "tokens_unknown": 0},
+            "cost": {"invocations": 5, "duration_s": duration, "tokens": tokens, "tokens_unknown": unknown,
+                     "token_coverage": score.rate(5 - unknown, 5)},
             "criteria": criteria or {"c1": "pass", "c2": "pass", "c3": "pass"}}
 
 
@@ -398,6 +510,7 @@ class CombineCompare(unittest.TestCase):
                            "criterion c3 is not reported"),
             "first-pass": ([result("tally", first_pass=(1, 3)), result("shelf", first_pass=(1, 3))],
                            "more than 10 points"),
+            "tokens": ([result("tally", unknown=2), result("shelf")], "tokens known for 80.0% "),
         }
         for name, (results, message) in cases.items():
             with self.subTest(name):

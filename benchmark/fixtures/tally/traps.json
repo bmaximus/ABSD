@@ -29,7 +29,53 @@
         "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "\\bCRLF\\b|\\\\r\\\\n|carriage[- ]returns?|byte[- ]order[- ]marks?|\\bBOM\\b|utf-?8-sig|\\bline[- ]endings?\\b|\\bline[- ]terminators?\\b|\\bnewline (?:style|convention)s?\\b|\\\\ufeff|\\bEF ?BB ?BF\\b"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "\\\\r\\\\n|\\\\x0d|\\\\ufeff|utf-?8-sig|\\bBOM\\b|\\bCRLF\\b|\\\\xef\\\\xbb\\\\xbf"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "\\\\r\\\\n|\\\\x0d|\\\\ufeff|utf-?8-sig|\\bBOM\\b|\\bCRLF\\b|\\\\xef\\\\xbb\\\\xbf"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "\\\\r\\\\n|\\\\x0d|\\\\ufeff|utf-?8-sig|\\bBOM\\b|\\bCRLF\\b|\\\\xef\\\\xbb\\\\xbf"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "\\\\r\\\\n|\\\\x0d|\\\\ufeff|utf-?8-sig|\\bBOM\\b|\\bCRLF\\b|\\\\xef\\\\xbb\\\\xbf"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "\\\\r\\\\n|\\\\x0d|\\\\ufeff|utf-?8-sig|\\bBOM\\b|\\bCRLF\\b|\\\\xef\\\\xbb\\\\xbf"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "\\\\r\\\\n|\\\\x0d|\\\\ufeff|utf-?8-sig|\\bBOM\\b|\\bCRLF\\b|\\\\xef\\\\xbb\\\\xbf"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "\\\\r\\\\n|\\\\x0d|\\\\ufeff|utf-?8-sig|\\bBOM\\b|\\bCRLF\\b|\\\\xef\\\\xbb\\\\xbf"
+        }
+      ],
+      "min_matches": 1
+    }
   },
   {
     "id": "TRAP-TALLY-2",
@@ -77,7 +123,53 @@
         "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bcategor\\w*|\\bgroceries\\b))(?=.*?(?:\\bspell(?:ing|t|ed)\\b|(?<![-\\w])casing\\b|\\bletter[- ]case\\b|\\bcapitali[sz]\\w*|\\bcapital letters?\\b|\\bfirst[- ]seen\\b|\\bfirst (?:seen|written|typed|occurrence|used)\\b|\\bas (?:typed|written|entered)\\b|\\b(?:in|to) (?:lower|upper|title)[- ]?case\\b|\\b(?:lower|upper|title)[- ]?case (?:form|spelling|version|name)\\b|\\bcanonical (?:form|spelling|name)\\b))(?=.*?(?:\\bdisplay\\w*|\\bshown\\b|\\bshows?\\b|\\bprint\\w*|\\boutput\\w*|\\brender\\w*|\\bappear\\w*|\\blabel\\w*|\\brows?\\b|\\bjson\\b|\\btable\\b|\\breport\\w*|\\bwritten\\b)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "(?-i:Groceries|GROCERIES)"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "(?-i:Groceries|GROCERIES)"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "(?-i:Groceries|GROCERIES)"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "(?-i:Groceries|GROCERIES)"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "(?-i:Groceries|GROCERIES)"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "(?-i:Groceries|GROCERIES)"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "(?-i:Groceries|GROCERIES)"
+        }
+      ],
+      "min_matches": 1
+    }
   },
   {
     "id": "TRAP-TALLY-3",
@@ -101,6 +193,39 @@
         "regex": "^(?=.*?(?:\\brefund\\w*|\\bnegative\\b|\\bminus\\b|\\bsign(?:ed)?\\b))(?=.*?(?:contradict\\w*|conflict\\w*|inconsisten\\w*|\\bclash\\w*|incompatib\\w*|\\bat odds\\b|\\bOQ-\\d+|open question|\\?|\\bhowever\\b|\\balthough\\b|\\bdespite\\b|\\bamend\\w*|supersed\\w*|overrid\\w*|reconcil\\w*)).*$"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "-\\d+\\.\\d\\d\\b"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "-\\d+\\.\\d\\d\\b"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "-\\d+\\.\\d\\d\\b"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "-\\d+\\.\\d\\d\\b"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "-\\d+\\.\\d\\d\\b"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "-\\d+\\.\\d\\d\\b"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "-\\d+\\.\\d\\d\\b"
+        }
+      ],
+      "min_matches": 1
+    }
   }
 ]

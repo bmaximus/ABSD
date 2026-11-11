@@ -31,6 +31,20 @@ Missing cells or a product path changed since S: <none | list → Verdict BLOCKE
 | Dimension | Profile | design.md §20 | Rendered | Evidence (image paths, golden files, measurements) |
 |---|---|---|---|---|
 
+## 5a. Visual rubric (web-ui, native-app; DSN-34) — scored from images and committed BEFORE the visual lint is read
+| V | Score (1/3/5) per primary SCR · average | Evidence (image paths, measurements) | Lint reconciliation (after) |
+|---|---|---|---|
+| V1 ★ Direction and specificity | | | |
+| V2 Composition and hierarchy | | | |
+| V3 ★ Typography | | | |
+| V4 Colour | | | |
+| V5 Space and density | | | |
+| V6 Depth, shape and surfaces | | | |
+| V7 Icons and imagery | | | |
+| V8 Motion | | | |
+| V9 Data visualisation | | | |
+| V10 Finish | | | |
+
 ## 6. Baselines and golden files
 | SCR / command / output | State / variant | Device | Theme | Path | SHA-256 | Decision: approved / rejected — reason | Intended by (design.md §18 · CR-n) |
 |---|---|---|---|---|---|---|---|
