@@ -1,6 +1,6 @@
 # Design Excellence
 
-Code **DSN** (DSN-1 to DSN-16). The design bar and its proof: beauty through hierarchy, rhythm and restraint; minimal
+Code **DSN** (DSN-1 to DSN-16, DSN-22). The design bar and its proof: beauty through hierarchy, rhythm and restraint; minimal
 flows; every device class, volume, state and failure designed; WCAG 2.2 AA as testable checks; per-profile
 deliverables. Applied by the Designer (`design.md`, `design-system.md`); this Checklist and the one in
 `absd/playbook/design/rubric-and-qa.md` (CLI and machine surfaces, the rubric per profile, Design QA, baselines:
@@ -25,6 +25,7 @@ L2. Related: LOC (`absd/playbook/design/content-and-locale.md`); A11Y, VIS (`abs
 - [ ] Name, role, state per interactive element; labels linked; keyboard path; dialog contract (DSN-14)
 - [ ] Computed contrast; targets ≥ 24×24, 44×44 on touch; reflow 320 px; zoom 200 % (DSN-15)
 - [ ] Every statement observable; trace table complete (DSN-16)
+- [ ] Palette from a combination catalogue (optional): source recorded, hue kept, lightness fitted, area-only pairs marked (DSN-22)
 - [ ] CLI and machine surfaces, rubric per profile, Design QA, baselines: `absd/playbook/design/rubric-and-qa.md` (DSN-17–21)
 
 ## Rules
@@ -131,3 +132,22 @@ L2. Related: LOC (`absd/playbook/design/content-and-locale.md`); A11Y, VIS (`abs
 - *Check:* Plan & Bind raises 0 blocking "untestable design statement" defects; trace_check gate-ux has no unmapped requirement.
 - *Applies when:* always.
 - *Provenance:* LL-45, LL-29 (KatenatsioTipster, 2026-10)
+
+**DSN-22** — Guideline, used only when the brief, a Decision or `design-system.md` §1 names a palette source (a
+curated colour-combination catalogue): treat the chosen combination as the palette's starting point, never as a rule
+over the brief, a brand palette or DSN-15. Record the catalogue, the combination id, why it fits the product's
+character, and where the screen values come from (print values converted to screen are approximate). Map its colours
+to the anchor roles (surface, brand, accent); derive neutrals, status, focus, hover, disabled and any dark theme from
+them, keeping their hues. To meet contrast, change only lightness — and chroma only where the gamut forces it — never
+hue; log each change; mark every pair below 3:1 as area-only (never text or a control boundary).
+- *Why:* curated combinations give colours that belong together, but they were chosen for print areas and mood, not
+  text contrast or interface states; used raw they fail contrast, fixed by swapping hues they lose their character, and
+  one catalogue applied to every product makes products look alike.
+- *Check:* `design-system.md` §2 "Palette source" rows (catalogue, combination id, value source, colour → role,
+  adjustment with ΔL and hue shift); `absd/tooling/palette.py report` over the final tokens and `fit` for each adjusted
+  colour, outputs in the Designer's evidence; hue shift ≤ 3° per adjusted colour; the DSN-15 contrast table passes on
+  the final values; Design QA confirms area-only pairs carry no text.
+- *Applies when:* optional — web-ui, native-app, when a palette source is named.
+- *Provenance:* LL-69 (owner request, palette-catalogue-2026-11-11)
+- Illustration: e.g. Sanzo Wada's *A Dictionary of Color Combinations*, Werner's *Nomenclature of Colours*, or a
+  combination set from a brand guide.
