@@ -11,6 +11,7 @@ whole prompt. A worker that receives a request without a brief refuses and answe
 | Cycle | C### — <slug> (branch `absd/C###-<slug>`) |
 | Route | Mode F / S / D / B / X / R (a change request keeps its cycle's letter, Mode C) — step <n> of `absd-project/working/cycle.md` |
 | Agent mode | one of — Analyst: Analyze · Delta · Catalogue apply · Designer: Design · Design System · Design QA · Architect: Architect · Delta · Foundation · Tester: Baseline · Facts · Plan & Bind · Reproduce · Verify · Log · Builder: Build · Fix · Auditor: Architecture Review · Audit (cycle, defect, Mode S, cross-cycle) · Re-audit |
+| Model | <level> → <model> — the PIPE-1 level for this role and step, mapped by `context.md` §14 (ABSD:PIPE-2) |
 | Iteration | Builder pass <n>/3 · gate round <n>/3 · halts <n>/3 |
 | Revision | HEAD <sha> · product SHA <sha> (last commit outside `absd-project/`) · T-SHA chain <sha, …, oldest first, or "not yet"> |
 | Resume | "fresh start" or "resume from <artifact section / WP-n>; artifact status IN-PROGRESS" |
@@ -45,6 +46,7 @@ Blockers / questions for the Manager: <list or "none">
 ## Manager checklist before sending
 
 - [ ] `cycle.md` updated: invocation logged (agent, mode, brief summary, time).
+- [ ] Model resolved (role · step → level → model) and passed with the invocation, not left to frontmatter (ABSD:PIPE-2).
 - [ ] Working tree clean (`git status --porcelain` empty) and on the cycle branch.
 - [ ] Every input artifact the worker needs has passed its gate (or the brief says it is a draft input).
 - [ ] Findings to address are copied with their ids — never paraphrased into new requirements.

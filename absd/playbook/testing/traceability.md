@@ -102,7 +102,9 @@ page (GATE-10) and in `test_report.md` with the run's SHA.
 
 **TRACE-7** — Cover clauses, not stories: every AC `<ID>.AC<n>`, every BR boundary and every NF criterion maps to ≥ 1 TC
 in `test_plan.md` (trace_check gateT), and a requirement counts as verified for the cycle only when each of its in-scope
-clauses has a passing TC (TRACE-9) — on each device class it runs on (E2E-6). A test links a requirement only if it
+clauses has a passing TC (TRACE-9) — on each device class it runs on (E2E-6); an AC with several clauses (a zone and
+a locale) binds one assertion per clause, and a TC needing an environment feature (a locale, a zone database) asserts
+it is present — it fails, never skips. A test links a requirement only if it
 asserts one of its clauses — a link to a requirement it merely passes through is tag drift, a finding; a requirement
 with ≥ 2 ACs and one linked test is reviewed for unproven clauses.
 - *Why:* one passing test "verified" a requirement whose other clauses (won, lost, back to open) were never run;
@@ -110,7 +112,7 @@ with ≥ 2 ACs and one linked test is reviewed for unproven clauses.
 - *Check:* gateT AC coverage (TC rows only); each device project's results are a separate `--junit` glob that must
   match, and its per-project pass is read in `test_report.md` §2; the Auditor samples linked tests against ACs (L3).
 - *Applies when:* always.
-- *Provenance:* LL-45 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-45 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10); LL-68 (benchmark 2.4.0, 2026-11)
 
 **TRACE-8** — Count only first-attempt passes as proof. The report XML records a pass-on-retry as a plain pass, so the
 job producing acceptance results fails on any pass-on-retry — the runner's option where it exists
@@ -130,17 +132,21 @@ after Gate T and at Verify, once over the index and its `test_plan/` parts (a pl
 exists as a test that ran and passed (`missing` = no test or only skipped ones; `failing`) — red by design until the
 work packages turn it green. Earlier cycles' TCs are inherited, not unplanned: every run adds
 `--inherited-plan 'absd-project/archive/*/test_plan.md' --inherited-plan 'absd-project/archive/*/test_plan/*.md'` (a
-glob that matches nothing yet is a notice); an inherited TC need not be present but still fails if it fails. An `unplanned` TC id is
+glob that matches nothing yet is a notice); an inherited TC need not be present but still fails if it fails. A planned TC
+no host or CI service of this pipeline can run (a declared device or runtime class proven only in the release lane)
+is passed as `--deferred TC-nnnn=D-n` — a recorded user Decision plus its RISK-n, never a removed AC: it may be missing,
+still fails if it fails, and must pass in the release lane before Mode R (DOD-8). An `unplanned` TC id is
 then only a "Verify addition" appended to the plan with its source; any other is a finding. The Plan & Bind red run
 uses `--fail-on unknown,unplanned`; each TC it reports missing belongs to a unit keyed to a later WP (plan §12) and is
 listed in §14 — else a plan defect. With no active cycle the step prints "no active cycle" (GATE-14).
 - *Why:* measurable criteria never became tests (LL-45); tests written after the code had no plan to conform to
   (LL-29); a split plan's index planned 0 TCs and passed, and plan gates re-run after the archive failed every push
-  (LL-55, LL-57).
-- *Check:* the plan-conformance section of `test_report.md`: planned, passing, missing, failing, unplanned + reason.
+  (LL-55, LL-57); a runtime class with no host could only reach Gate 3 by deleting its AC (LL-68).
+- *Check:* the plan-conformance section of `test_report.md`: planned, passing, missing, failing, deferred + Decision,
+  unplanned + reason.
 - *Applies when:* `absd-project/working/test_plan.md` exists (an active cycle).
 - *Provenance:* LL-29, LL-45 (KatenatsioTipster, 2026-10); LL-55, LL-57 (ABSD v2 kit review, 2026-10); LL-66 (ENR-14,
-  2026-11)
+  2026-11); LL-68 (benchmark 2.4.0, 2026-11)
 
 **TRACE-10** — End every pipeline artifact with a Traceability section `trace_check.py` reads: a table whose first cell
 holds the upstream id (requirement, AC, UJ, SCR, EXT, TC) and whose other cells name the downstream ids, every id whole

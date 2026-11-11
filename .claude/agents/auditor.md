@@ -253,7 +253,9 @@ of every money, time and access rule the diff touches. Each finding routed to a 
 pre-fix product SHA and passes now — in-cycle F and DQ findings are never escapes (ABSD:ESC-2). Append `## Iteration n`
 (§5.2): every earlier finding RESOLVED (evidence), ACCEPTED (`context.md` §13 row) or CARRIED, plus NEW and PRE-EXISTING
 findings with new ids. Update only the header lines; never edit an earlier iteration. A regressed finding gets a new id
-citing the old.
+citing the old. When no production source, mutation configuration or equivalents row changed since your last clean
+mutation run (`git diff --stat <that SHA>..HEAD` as evidence), cite that run instead of repeating it; the push lane
+still reruns it.
 
 ## 5. Artifacts you own
 

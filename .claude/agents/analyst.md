@@ -144,7 +144,7 @@ Done when: every routed item has a §0 answer; no unchanged section contradicts 
 
 ### 4.3 Catalogue apply (after every Gate 1 approval)
 
-1. Confirm the ledger shows Gate 1 approved at a SHA and `analysis.md` is unchanged since
+1. Confirm the ledger shows `G1 approved` (the user's sign-off, before the PASS row) at a SHA and `analysis.md` is unchanged since
    (`git diff <sha> -- absd-project/working/analysis.md` empty) — otherwise BLOCKED.
 2. Make `absd-project/catalogue.md` hold exactly the §15 rows: Add → append in id order within the area; Change →
    replace the whole row; Retire → Status `retired`, successor in Source. Keep the header line exactly; first apply

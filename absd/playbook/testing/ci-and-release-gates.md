@@ -80,9 +80,11 @@ tests, scan every log, report, artifact, diff and run summary, and fail on any c
 history for secrets on every push.
 - *Why:* a secret pasted into a deployment manifest reached a CI log through a dry-run diff (LL-8).
 - *Check:* canaries cover every secret key in `architecture.md`'s configuration table; a test printing a setting turns
-  the gate RED (GATE-8); masking and rotation per SEC rules in `absd/playbook/security/baseline.md`.
+  the gate RED (GATE-8); masking and rotation per SEC rules in `absd/playbook/security/baseline.md`; artifacts,
+  reports and evidence cite a secret-shaped match by file and line, never quote it, and stored control output is
+  redacted before it is committed — a quoted match turns the scan RED at HEAD.
 - *Applies when:* the product or its pipeline handles any secret or credential.
-- *Provenance:* LL-8 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-8 (KatenatsioTipster, 2026-10); LL-68 (ENR-14 benchmark of 2.4.0, 2026-11-11)
 
 **GATE-14** — Run the pipeline-integrity checks in a Tester-owned workflow. On every push of a cycle branch:
 `absd/tooling/ownership_check.py --base <default branch from context.md §1>` (on the default branch itself, `--range`

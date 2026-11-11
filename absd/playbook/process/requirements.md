@@ -140,7 +140,8 @@ reconciliation with that system, disputes and chargebacks; an unanswered cell is
 volume, errors, limits, sync or async) as UNVERIFIED until `EXTERNAL-FACTS.md` holds it VERIFIED (EXT-2); a person's
 statement, the owner's included, is an UNVERIFIED candidate. Reserve each new fact's id `EXT-<SYS>-n` in
 `analysis.md` §7 (highest in `EXTERNAL-FACTS.md` and `context.md` §7 + 1; the Tester adopts it). Per system, a failure
-mode → user outcome table (what the user sees, what the system does, retry or not). A feature on an UNVERIFIED
+mode → user outcome table (what the user sees, what the system does, retry or not); a file input's table also covers
+encoding, byte-order mark, line endings, an empty file and a header-only file. A feature on an UNVERIFIED
 fact is specified flag-off and fail-closed (EXT-1). A new or changed system or fact → the Tester's Facts mode right
 after Gate 1 (EXT-4), before design.
 - *Why:* an owner's description of a field settled half-time scores as final (LL-2); served days were never asked

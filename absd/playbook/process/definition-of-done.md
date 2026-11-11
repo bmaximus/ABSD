@@ -145,16 +145,16 @@ region, store major version, deploy tooling). `cycle.md` records the trigger and
 | # | Done when |
 |---|---|
 | 1 | Mode X PASS on the release candidate (no production change since it ran); every accepted finding re-raised and re-decided (XCA-8, XCA-12) |
-| 2 | Last nightly and live contract runs green at the candidate; one that did not run is RED (GATE-1) |
+| 2 | Last nightly and live contract runs green at the candidate; one not run is RED (GATE-1) |
 | 3 | No enabled feature depends on an UNVERIFIED external fact (EXT-1, EXT-4) |
-| 4 | Every in-scope requirement verified; open DEF and RISK items reviewed with the user; a Critical only with written risk acceptance |
+| 4 | Every in-scope requirement verified, deferred TCs passing (TRACE-9); open DEF and RISK reviewed with the user; a Critical only with written risk acceptance |
 | 5 | Human-facing profiles: human sessions per affected principal × device or runtime class (EXPL-4) and the manual acceptance checklist ticked (EXPL-8); web-ui, native-app: real-device checks (EXPL-9) |
-| 6 | When the product owns persistent state (a cli's or library's local state and config included): migrations from empty and from the previous release with data; the previous release runs on the new schema |
+| 6 | When the product owns persistent state (a cli's or library's local state and config too): migrations from empty and from the previous release with data; the previous release runs on the new schema |
 | 7 | When the product owns persistent state: backup → restore drill current; a backup is taken right before the deploy (OPS-5) |
 | 8 | Deployables: the tested digest (OPS-2), version-aware health, smoke, synthetic journey, error-rate watch, automatic rollback rehearsed (OPS-3), who watches and how long; cli, library: tested package published, install smoke, withdraw or yank rehearsed |
-| 9 | Production secrets only in the secret store; canary gate green; anything ever committed rotated |
+| 9 | Production secrets only in the secret store; canary gate green; any ever committed rotated |
 | 10 | Every operability default within its OPS *Applies when* verified or waived by the user (ELIC-14) |
-| 11 | Release notes generated from the catalogue report; the user's go recorded |
+| 11 | Release notes from the catalogue report; the user's go recorded |
 
 **DOD-9** — Finish a kit upgrade (Mode U) only when every row holds.
 - *Why:* a project adapting the kit in prose instead of upgrading forks it; its lessons stop flowing back (LL-28).

@@ -1,0 +1,589 @@
+{
+  "fixtures": {
+    "ledger": {
+      "controls": {
+        "ok": 18,
+        "total": 18
+      },
+      "cost": {
+        "duration_s": 8770,
+        "invocations": 56,
+        "tokens": 0,
+        "tokens_unknown": 56
+      },
+      "criteria": {
+        "c1": "pass",
+        "c2": "pass",
+        "c3": "pass"
+      },
+      "cycles": [
+        "C001",
+        "C002"
+      ],
+      "fixture": "ledger",
+      "gates": {
+        "fail_rounds": 2,
+        "first_pass": 10,
+        "first_pass_rate": 83.3,
+        "list": [
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G1",
+            "rounds": 1
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2",
+            "rounds": 6
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 1,
+            "first_pass": false,
+            "gate": "G2R",
+            "rounds": 6
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G3",
+            "rounds": 1
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GT",
+            "rounds": 4
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GUX",
+            "rounds": 4
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G1",
+            "rounds": 2
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2R",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 1,
+            "first_pass": false,
+            "gate": "G3",
+            "rounds": 2
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GT",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GUX",
+            "rounds": 2
+          }
+        ],
+        "total": 12
+      },
+      "halts": {
+        "by_cause": {
+          "blueprint-gap": 3
+        },
+        "kit_gap": 0,
+        "total": 3
+      },
+      "kit": "2.4.0",
+      "schema": 1,
+      "traps": {
+        "caught": 3,
+        "list": [
+          {
+            "caught": true,
+            "id": "TRAP-LEDGER-1",
+            "kind": "time",
+            "matches": [
+              {
+                "file": "absd-project/archive/001_2026-11-11_foundation/test_plan.md",
+                "glob": "absd-project/**/test_plan*.md",
+                "line": 132
+              },
+              {
+                "file": "absd-project/archive/001_2026-11-11_foundation/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 129
+              }
+            ],
+            "summary": "Athens DST change days (23- and 25-hour days): a time TC on the clock-change days"
+          },
+          {
+            "caught": true,
+            "id": "TRAP-LEDGER-2",
+            "kind": "ambiguity",
+            "matches": [
+              {
+                "file": "absd-project/archive/001_2026-11-11_foundation/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 206
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_daily-summary/test_plan.md",
+                "glob": "absd-project/**/test_plan*.md",
+                "line": 54
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_daily-summary/architecture.md",
+                "glob": "absd-project/**/architecture.md",
+                "line": 98
+              },
+              {
+                "file": "absd-project/catalogue.md",
+                "glob": "absd-project/catalogue.md",
+                "line": 28
+              }
+            ],
+            "summary": "A re-sent export repeats order_ids in one file: how duplicates count is decided or asked"
+          },
+          {
+            "caught": true,
+            "id": "TRAP-LEDGER-3",
+            "kind": "ambiguity",
+            "matches": [
+              {
+                "file": "absd-project/archive/002_2026-11-11_daily-summary/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 57
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_daily-summary/architecture.md",
+                "glob": "absd-project/**/architecture.md",
+                "line": 14
+              },
+              {
+                "file": "absd-project/catalogue.md",
+                "glob": "absd-project/catalogue.md",
+                "line": 27
+              }
+            ],
+            "summary": "Status values beyond paid/refunded/cancelled may appear: open question or a reject rule"
+          }
+        ],
+        "total": 3
+      }
+    },
+    "shelf": {
+      "controls": {
+        "ok": 21,
+        "total": 21
+      },
+      "cost": {
+        "duration_s": 37138,
+        "invocations": 45,
+        "tokens": 0,
+        "tokens_unknown": 45
+      },
+      "criteria": {
+        "c1": "pass",
+        "c2": "pass",
+        "c3": "pass"
+      },
+      "cycles": [
+        "C001",
+        "C002"
+      ],
+      "fixture": "shelf",
+      "gates": {
+        "fail_rounds": 4,
+        "first_pass": 9,
+        "first_pass_rate": 75.0,
+        "list": [
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G1",
+            "rounds": 1
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2",
+            "rounds": 4
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2R",
+            "rounds": 4
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 2,
+            "first_pass": false,
+            "gate": "G3",
+            "rounds": 3
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 1,
+            "first_pass": false,
+            "gate": "GT",
+            "rounds": 2
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GUX",
+            "rounds": 2
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G1",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2R",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 1,
+            "first_pass": false,
+            "gate": "G3",
+            "rounds": 2
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GT",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GUX",
+            "rounds": 1
+          }
+        ],
+        "total": 12
+      },
+      "halts": {
+        "by_cause": {
+          "blueprint-gap": 1
+        },
+        "kit_gap": 0,
+        "total": 1
+      },
+      "kit": "2.4.0",
+      "schema": 1,
+      "traps": {
+        "caught": 3,
+        "list": [
+          {
+            "caught": true,
+            "id": "TRAP-SHELF-1",
+            "kind": "security",
+            "matches": [
+              {
+                "file": "absd-project/archive/002_2026-11-11_shelves-and-sign-in/architecture.md",
+                "glob": "absd-project/**/architecture.md",
+                "line": 415
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_shelves-and-sign-in/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 208
+              }
+            ],
+            "summary": "Usernames are any text the member chooses: abuse-case TC with reserved object keys (__proto__, constructor) or an equivalent hostile-text set"
+          },
+          {
+            "caught": true,
+            "id": "TRAP-SHELF-2",
+            "kind": "time",
+            "matches": [
+              {
+                "file": "absd-project/archive/002_2026-11-11_shelves-and-sign-in/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 120
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_shelves-and-sign-in/design.md",
+                "glob": "absd-project/**/design.md",
+                "line": 282
+              }
+            ],
+            "summary": "\"Date read\" for members in Athens with the server in UTC: TC around Athens midnight or a foreign zone"
+          },
+          {
+            "caught": true,
+            "id": "TRAP-SHELF-3",
+            "kind": "ambiguity",
+            "matches": [
+              {
+                "file": "absd-project/archive/002_2026-11-11_shelves-and-sign-in/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 265
+              },
+              {
+                "file": "absd-project/catalogue.md",
+                "glob": "absd-project/catalogue.md",
+                "line": 44
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_shelves-and-sign-in/design.md",
+                "glob": "absd-project/**/design.md",
+                "line": 95
+              }
+            ],
+            "summary": "Whether admins may change other members' shelves is unstated: open question or recorded decision"
+          }
+        ],
+        "total": 3
+      }
+    },
+    "tally": {
+      "controls": {
+        "ok": 12,
+        "total": 12
+      },
+      "cost": {
+        "duration_s": 5864,
+        "invocations": 61,
+        "tokens": 0,
+        "tokens_unknown": 61
+      },
+      "criteria": {
+        "c1": "pass",
+        "c2": "pass",
+        "c3": "pass"
+      },
+      "cycles": [
+        "C001",
+        "C002"
+      ],
+      "fixture": "tally",
+      "gates": {
+        "fail_rounds": 0,
+        "first_pass": 12,
+        "first_pass_rate": 100.0,
+        "list": [
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G1",
+            "rounds": 2
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2",
+            "rounds": 2
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2R",
+            "rounds": 2
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G3",
+            "rounds": 1
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GT",
+            "rounds": 1
+          },
+          {
+            "cycle": "C001",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GUX",
+            "rounds": 2
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G1",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2",
+            "rounds": 2
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G2R",
+            "rounds": 2
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "G3",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GT",
+            "rounds": 1
+          },
+          {
+            "cycle": "C002",
+            "fail_rounds": 0,
+            "first_pass": true,
+            "gate": "GUX",
+            "rounds": 1
+          }
+        ],
+        "total": 12
+      },
+      "halts": {
+        "by_cause": {
+          "blueprint-gap": 2
+        },
+        "kit_gap": 0,
+        "total": 2
+      },
+      "kit": "2.4.0",
+      "schema": 1,
+      "traps": {
+        "caught": 3,
+        "list": [
+          {
+            "caught": true,
+            "id": "TRAP-TALLY-1",
+            "kind": "variation",
+            "matches": [
+              {
+                "file": "absd-project/archive/002_2026-11-11_totals/test_plan.md",
+                "glob": "absd-project/**/test_plan*.md",
+                "line": 41
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_totals/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 80
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_totals/architecture.md",
+                "glob": "absd-project/**/architecture.md",
+                "line": 15
+              }
+            ],
+            "summary": "Files from Windows: CRLF line ends and a UTF-8 byte-order mark must parse like the others (variation TC)"
+          },
+          {
+            "caught": true,
+            "id": "TRAP-TALLY-2",
+            "kind": "ambiguity",
+            "matches": [
+              {
+                "file": "absd-project/archive/002_2026-11-11_totals/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 19
+              },
+              {
+                "file": "absd-project/archive/002_2026-11-11_totals/architecture.md",
+                "glob": "absd-project/**/architecture.md",
+                "line": 11
+              }
+            ],
+            "summary": "\"Groceries\" and \"groceries\" are one category, but which spelling is shown is unspecified (question, assumption or decision)"
+          },
+          {
+            "caught": true,
+            "id": "TRAP-TALLY-3",
+            "kind": "contradiction",
+            "matches": [
+              {
+                "file": "absd-project/archive/001_2026-11-11_foundation/analysis.md",
+                "glob": "absd-project/**/analysis.md",
+                "line": 180
+              }
+            ],
+            "summary": "PARSE says amounts are positive, the feature writes refunds as negative amounts: the conflict is raised"
+          }
+        ],
+        "total": 3
+      }
+    }
+  },
+  "kit": "2.4.0",
+  "schema": 1,
+  "totals": {
+    "criteria_not_passing": 0,
+    "duration_s": 51772,
+    "fail_rounds": 6,
+    "first_pass_rate": 86.1,
+    "gates_first_pass": 31,
+    "gates_total": 36,
+    "invocations": 162,
+    "kit_gap_halts": 0,
+    "tokens": 0,
+    "tokens_unknown": 162,
+    "traps_caught": 9,
+    "traps_total": 9
+  }
+}

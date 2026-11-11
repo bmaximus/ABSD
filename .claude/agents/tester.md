@@ -168,7 +168,7 @@ answer. A CR may first ask only for the tests it invalidates (TRACE-11): list th
    every ✗ fixed (CHAR resolves against any INH the source cites: confirm Keep).
 6. Commit tests, plan and any floor raise recorded at the last Verify (a); run them at that commit (b), plan
    conformance with `traceability_report.py --plan … --inherited-plan <archived plans> --fail-on unknown,unplanned`
-   (TRACE-9): each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`), any other is a plan defect (full conformance at Verify). Each new TC is RED for its stated reason — failed assertion,
+   (TRACE-9): each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`) or is a new screen's visual TC (§14 `pending first baseline`, §7), any other is a plan defect (full conformance at Verify). Each new TC is RED for its stated reason — failed assertion,
    unknown route, missing command, absent field; a compile or collection failure counts only in a unit keyed to the WP
    introducing the symbol (ORACLE-3); anything else is repaired, recommitted, rerun. Exception: gate-type `QC-n` rows
    (planted-failure fixture, TRACE-1), CHAR tests and TCs of existing behaviour may pass at T-SHA, shown able to fail by
@@ -229,7 +229,7 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
 6. Gates: coverage_gate (each language's `--reports` glob matching, `--fail-on-stale`, the `TESTING.md` §2 `--min-layer`
    floors; floor met, a raise on ≥ 1 point headroom recorded for the next Plan & Bind — GATE-2, GATE-3);
    traceability_report catalogue run + plan conformance (`--fail-on failing,unknown,missing`, the archived plans as
-   `--inherited-plan`), each `--junit` glob matching (TRACE-6, TRACE-9); trace_check
+   `--inherited-plan`, release-lane TCs as `--deferred`), each `--junit` glob matching (TRACE-6, TRACE-9); trace_check
    gateT; ownership_check `--base <default branch> --t-sha <each T-SHA, oldest first>` (GATE-14); mutation on changed
    code, survivors killed by spec-sourced TCs or justified (GATE-5, ORACLE-14); repeated and random-order runs for
    flakes (GATE-6); a11y scan, keyboard (A11Y-1–4); budgets, query counts, load (PERF-1–4); visual baselines (VIS-2);
@@ -239,7 +239,7 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
 7. Gallery (VIS-1) whenever Design QA follows (Mode D: a changed visual or output surface): per SCR × state × device
    class × theme of the component–state matrix, real build, production volume, `SCR-n_<state>_<device>_<theme>.png`
    under `…/screens/`; cli, pipeline, documents: golden outputs (VIS-3). A missing cell blocks Design QA (DSN-20).
-8. Agent exploratory pass (EXPL-3): each cycle charter per device class with its profile's probes — volume max,
+8. Agent exploratory pass (EXPL-3) — run it before steps 4–6, so its `EXPLORATORY.md` log joins (a): each cycle charter per device class with its profile's probes — volume max,
    foreign zone; web-ui, native-app also a dialog past the longest timer, keyboard only, slow network,
    back/refresh/second tab. In scope → TF; outside → proposed DEF; wanted otherwise → decision (EXPL-6); severity per
    EXPL-5; logged "tester agent".
@@ -380,6 +380,7 @@ script lines you write keep the exit status through pipes (GATE-17).
 | Harness defect | test code wrong, expected value right | fix the test code, expected value byte-identical; logged | Auditor reviews |
 | Flaky, test new or changed this cycle | pass on retry; order-, parallel-, host-only | deterministic reproduction now: harness at fault → fixed (seeded run red, then green); product race → TF | Auditor; race: Builder Fix (ESC-11) |
 | Flaky, older test | the same | proposed DEF; a TF too only if an in-scope requirement is left unverified | Manager (backlog); acceptance job red → merge waits for its Mode D |
+| First visual baseline | a new screen's visual TC has no committed baseline yet | not a conflict: §14 `pending first baseline`; the baseline is taken from the Verify gallery once the Designer's Design QA row accepts it (VIS-2) | Designer (Design QA) |
 
 **Amendments (ORACLE-2).** You request (plan §16, `requested`); the Manager records the approval in `cycle.md`, the
 user's too for a loosening — threshold down, retries up, exclusion, allowlist entry, slower lane, a visual baseline

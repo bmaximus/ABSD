@@ -22,6 +22,8 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Tooling tests
         run: python -m unittest discover -s absd/tooling -p 'test_*.py'
+      - name: Benchmark scorer tests
+        run: python -m unittest discover -s benchmark -p 'test_*.py'
       - name: Kit lint (rule ids, citations, provenance, paths, mirrors, budgets, stack neutrality, hidden characters)
         run: python absd/tooling/kit_lint.py --root .
       - name: Manifest matches the kit files

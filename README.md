@@ -75,7 +75,7 @@ flowchart LR
 The full set: ten immutable rules and twelve quality laws in [`absd/RULES.md`](absd/RULES.md), each law tied to
 playbook rules with ids (`ABSD:CODE-n`).
 
-## What improved (v1 → 2.3)
+## What improved (v1 → 2.4)
 
 | Version | In short |
 |---|---|
@@ -84,9 +84,10 @@ playbook rules with ids (`ABSD:CODE-n`).
 | **2.1** | From a launch-night payments failure: a status answer names its level (built ≠ reachable ≠ live), every capability is reachable from real navigation, payment/identity/messaging providers get their whole event lifecycle, releases are diffed against a moving default branch. |
 | **2.2** | Security by design (abuse cases → design review → tests → evidence checklist; model-output and agent-configuration rules); evidenced, reachability-graded findings; planned-vs-actual diff per work package; gate pipes that cannot hide a failure; on-demand **procedures** to keep manuals short; a model tier per role; an optional second auditor on money and permission paths; `kit_lint` refuses hidden Unicode in the kit. |
 | **2.3** | From the first end-to-end acceptance run on three test products: a lawful repair for a commit that touched another agent's files (no history rewrite), each agent checks its own commits, later cycles inherit earlier test plans, a round counts only a failed review, mutation gates check the survivor list, clearer Foundation, park and no-CI routes. |
+| **2.4** | The pipeline measured: each role and step runs on a model **level** (strongest, balanced, fast) that each product maps to its models, with floors for judgement steps; every cycle writes a private, local telemetry file (cost, gate rounds, rules that fire, halts, rework) that the Harvest reports on; the kit has a **benchmark**: test products with seeded traps, scored before every release, so a kit change or a cheaper model cannot quietly make the agents worse. |
 
-Still open (honestly): the backlog in [`absd/lessons/inbox/`](absd/lessons/inbox/), a scored benchmark of the
-agents themselves, risk-based routing to make small work lighter, and moving more of the long manuals into
+Still open (honestly): the backlog in [`absd/lessons/inbox/`](absd/lessons/inbox/), a benchmark run with separate
+agents per role (today one agent plays every role, so independence is not measured), risk-based routing to make small work lighter, and moving more of the long manuals into
 procedures (three so far: security review, ownership repair, park).
 
 ## Modes
@@ -119,6 +120,7 @@ absd/                      THE KIT — vendored into products, read-only there, 
   lessons/LEDGER.md        where every rule comes from + the escape scoreboard
   lessons/inbox/           enrichment proposals from products, verbatim
   VERSION  CHANGELOG.md  MANIFEST
+benchmark/                 kit repository only: fixture products with seeded traps, the scorer, results per version
 .claude/agents/            the seven agent manuals (Claude Code)
 .github/agents/            thin GitHub Copilot mirrors
 
@@ -127,6 +129,7 @@ absd-project/              PRODUCT STATE — created in each product, never touc
   catalogue.md             permanent requirement catalogue
   design-system.md         living design system
   lessons.md               harvested lessons and their status
+  metrics/                 one telemetry file per cycle (local, numbers and ids only)
   working/                 the current cycle's artifacts
   archive/                 finished cycles
 ```
@@ -168,6 +171,8 @@ handoffs to workers are confirmed by you ("assisted mode").
 | `absd/tooling/ownership_check.py` | Git history: who changed what, tests committed before code (the T-SHA chain), kit-sync commits |
 | `absd/tooling/ownership_hook.py` | Write-time hook: an agent cannot write paths it does not own, the kit, or the agent configuration |
 | `absd/tooling/absd_sync.py` | Install, verify, upgrade the kit; migrate v1 projects |
+| `absd/tooling/metrics.py` | Per-cycle telemetry: `record` (validated numbers, enums and ids only; off with one setting), `validate`, `report` for the Harvest |
+| `benchmark/score.py` | Kit repository only: scores a benchmark run (traps caught, gate rounds, halts, cost) and compares it with the last accepted release |
 | `absd/tooling/kit_lint.py` | The kit's own CI: rule ids, citations, provenance, paths, mirrors, reserved codes, budgets, stack neutrality, hidden Unicode characters |
 
 ## Making ABSD better

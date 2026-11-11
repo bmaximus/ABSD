@@ -55,7 +55,8 @@ DEBT-n", burned down). Only unit, component (STRAT-13), integration and contract
 - *Why:* a results reader shipped with 0% coverage behind a total floor and read half-time as the final score; the sweep
   this gate forced found six more untested areas (LL-2); stale entries that only warned outlived their units (LL-57);
   keyed by a bare class or file name, a whole package that no test ran merged into a tested one (LL-58).
-- *Check:* push-lane step with `--fail-on-stale`; the tool requires the reason after `#`, the Auditor checks owner,
+- *Check:* push-lane step with `--fail-on-stale` (its negative control plants a unit of at least `--min-lines`
+  coverable lines — a smaller one is not gated); the tool requires the reason after `#`, the Auditor checks owner,
   expiry and validity — valid reasons: schema seam without behaviour, design-time factory, development-only shim off in
   tests and production, generated code; "hard to test", "trivial", "covered elsewhere" are rejected; Gate 3 lists
   every allowlist change.
@@ -101,11 +102,14 @@ reviewer) and on a stale row whose mutant no longer exists or no longer survives
 - *Why:* coverage proves lines ran, not that an assertion notices them being wrong; a test that runs a calculation
   without asserting its result satisfies every coverage gate.
 - *Check:* `test_report.md` shows the changed-code score and, per money/time/access rule, mutants, killed and controls;
-  the gate's negative controls include an unrecorded survivor and a stale equivalents row;
+  the gate's negative controls include an unrecorded survivor and a stale equivalents row; a mutant's id is its
+  position range + mutator + replacement (line and column alone collide), and a row is stale only for a unit the run
+  mutated; code that runs only in a child process gets the mutant selector passed to it, browser code gets
+  applied-copy mutants, and code no mutant reaches is listed with its negative control;
   the Auditor injects ≥ 1 fault per such rule in a throwaway worktree outside the project (ORACLE-13) and sees a test
   fail (XCA-2).
 - *Applies when:* always; the 100% clause wherever money, time or access rules exist.
-- *Provenance:* industry baseline; LL-66 (ENR-14 acceptance of 2.2.0: tally, shelf, ledger fixtures, 2026-11-10)
+- *Provenance:* industry baseline; LL-66 (ENR-14 acceptance of 2.2.0: tally, shelf, ledger fixtures, 2026-11-10); LL-68
 - Illustration: e.g. Stryker (C#, JavaScript), PIT (JVM), mutmut (Python), cargo-mutants (Rust).
 
 **GATE-6** — Set retries explicitly in every runner configuration: 0 for unit, component, integration and contract tests

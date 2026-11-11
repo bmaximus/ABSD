@@ -1,0 +1,114 @@
+[
+  {
+    "id": "TRAP-LEDGER-1",
+    "kind": "time",
+    "summary": "Athens DST change days (23- and 25-hour days): a time TC on the clock-change days",
+    "detect": [
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+      },
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+      }
+    ],
+    "min_matches": 1
+  },
+  {
+    "id": "TRAP-LEDGER-2",
+    "kind": "ambiguity",
+    "summary": "A re-sent export repeats order_ids in one file: how duplicates count is decided or asked",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+      }
+    ],
+    "min_matches": 1
+  },
+  {
+    "id": "TRAP-LEDGER-3",
+    "kind": "ambiguity",
+    "summary": "Status values beyond paid/refunded/cancelled may appear: open question or a reject rule",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+      }
+    ],
+    "min_matches": 1
+  }
+]

@@ -150,6 +150,8 @@ Public names (cli, http-api, library: every name `design.md` gives, adopted verb
 |---|---|---|---|---|---|---|---|---|
 
 - Start-up refuses and lists every missing or invalid key, incl. unresolvable world facts; one source per world fact
+- Configuration files a WP creates (settings per env, env example, runner or tool config): full contents per file, or every
+  key with its value and comments — the Builder infers none (ARCH-8)
 
 ## 10. Dependency wiring
 | Abstraction | Implementation (production · off/Null · test double) | Lifetime | Registered at (composition root file) | Condition |

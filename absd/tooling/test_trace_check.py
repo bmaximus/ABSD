@@ -510,6 +510,24 @@ class TraceCheckTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("1 missing — ACC-1.AC2", out)
 
+    def test_gate_t_with_a_requirement_column_an_id_in_inputs_is_not_coverage(self):
+        table = ("| TC | Requirement ids | Inputs | Expected | Source |\n|---|---|---|---|---|\n"
+                 "| TC-0001 | ACC-1.AC1 | fixture from ACC-3.AC1 | dashboard | SPEC:ACC-1.AC1 |\n"
+                 "| TC-0002 | ACC-1.AC2 | — | \"Wrong password\" | SPEC:ACC-1.AC2 |\n"
+                 "| TC-0003 | ACC-2.AC1 | — | mail within 60 s | SPEC:ACC-2.AC1 |\n"
+                 "| TC-0004 | ACC-3 | — | owner signs in | SPEC:ACC-3 |\n"
+                 "| TC-0005 | ACC-NF-1 | — | p95 < 1 s | SPEC:ACC-NF-1 |\n"
+                 "| TC-0006 | ACC-BR-1 | — | 4 → open, 5 → locked | SPEC:ACC-BR-1 |\n"
+                 "| TC-0007 | EXT-MAIL-1 | — | 413 from the fake | FACT:EXT-MAIL-1 |\n")
+        head, rest = TEST_PLAN.split("| TC | Covers", 1)
+        self.write("working/test_plan.md", head + table + rest[rest.index("\n### "):])
+        code, out = self.run_gate("gateT")
+        self.assertEqual(code, 1, out)
+        self.assertIn("1 missing — ACC-3.AC1", out)
+        self.edit("working/test_plan.md", "| TC-0004 | ACC-3 |", "| TC-0004 | ACC-3.AC1 |")
+        code, out = self.run_gate("gateT")
+        self.assertEqual(code, 0, out)
+
     def test_gate_t_acs_of_removed_requirements_and_removed_acs_are_not_required(self):
         self.edit("working/analysis.md", "## External facts", "| ACC-1.AC3 | removed in C004 |\n\n## External facts")
         self.edit("working/test_plan.md", "ACC-3.AC1", "ACC-3")

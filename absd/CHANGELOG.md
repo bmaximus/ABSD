@@ -3,6 +3,67 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.4.0 — 2026-11-11
+
+The pipeline measured: model levels per role, per-cycle telemetry, and a scored benchmark of the agents (owner request,
+proposal telemetry-benchmark-models-2026-11-11). Ledger: LL-67.
+
+- **PIPE** (new code, `absd/playbook/process/pipeline-operations.md`):
+  - **PIPE-1** model levels (`strongest`, `balanced`, `fast`) per role and step, with floors no product lowers
+    (architecture, Gate 2R, Plan & Bind, every audit and security review, money/permission/security WPs) and a
+    level → model map in `context.md` §14; a second audit (XCA-17) runs on the strongest model that did not build.
+  - **PIPE-2** the Manager passes the model per invocation and names `<level> → <model>` in the brief (new `Model`
+    field); frontmatter `model:` is only the fallback. RULES §8 "Model level" row replaces the Builder-only tier.
+  - **PIPE-3** `absd-project/metrics/C###.json` per cycle, written only by `absd/tooling/metrics.py record`:
+    invocations, gate rounds and verdicts with finding counts and cited rules, halts, rework, negative controls,
+    escapes, resumes; tokens only when the platform reports them.
+  - **PIPE-4** telemetry is local, never sent, numbers/enums/ids only (the tool refuses free text and unknown keys);
+    `Telemetry: off` in §14 switches it off.
+  - **PIPE-5** Mode H runs `metrics.py report`: cost per step, level and model; FAIL rounds per gate; rules that catch
+    most and kit rules never cited; rework and halts by cause.
+  - **PIPE-6** + **ENR-14** (amended): the acceptance run is the benchmark — `benchmark/` at the kit root (fixtures
+    tally, shelf, ledger with three seeded traps each; `score.py score | combine | compare`); a release must not catch
+    fewer traps, halt more on kit gaps, fail a criterion or lose more than 10 points of first-pass gates; cost growth
+    above 25 % is a warning here. Model-map experiments use the same comparison.
+- **Tooling:** `metrics.py` (record, validate, report) with tests; `benchmark/score.py` with tests, run by CI.
+- **Benchmark findings** (LL-68, proposal benchmark-2-4-0-2026-11-11):
+  - **TRACE-9 / DOD-8:** a planned TC no host or CI of the pipeline can run is passed as `--deferred TC-nnnn=D-n`
+    (a user Decision plus RISK, never a deleted AC): it may be missing, still fails if it fails, an unplanned one is
+    `unknown`, and it must pass in the release lane before Mode R. `traceability_report.py --deferred`, with tests.
+  - **ARCH-8:** each WP's lint, type and format commands name only paths that exist once it is done, and dictated code
+    passes the project's own static rules (both benchmark Builder halts).
+  - **Tester Verify:** the exploratory pass runs before the gate run, so its log joins commit (a).
+  - **PIPE-3:** gate events take `repass` (a re-run after a decision or CLR, not a review round); invocation result
+    `blocked`. `metrics.py` and `score.py` skip re-passes when counting rounds.
+  - RULES §7: `D-n` is a product-scope id. `cycle.md`: Mode S eligibility is "N/A" outside Modes F and S.
+  - **EXT-1:** an input the product reads and validates needs no flag when it fails closed (non-conforming input
+    rejected with an alerting exit); its facts keep a RISK row and a real sample is due before Mode R.
+  - **Limits:** reaching a limit (the 3rd pass, FAIL round or halt) escalates before the next one starts.
+  - **Gate 1:** the ledger records `G1 approved` before catalogue apply, then PASS after `gate1` (no circular wait).
+  - **trace_check gateT:** in a TC table with a Requirement column only the Requirement and Source cells count as
+    coverage (an id in Inputs is not); with tests.
+  - **TRACE-7:** one assertion per AC clause; a TC needing an environment feature asserts it is present (fails,
+    never skips). **ELIC-10:** file inputs list encoding, byte-order mark, line ends, empty and header-only files.
+    **GATE-2:** the untested-unit control plants a unit of at least `--min-lines`. Foundation brief: QC-1 only with
+    principals, QC-14 only with secrets (as DOD-5). **ARCH-8:** no two WPs produce the same path.
+  - **Shelf run:** GATE-13 — artifacts, reports and evidence cite a secret-shaped match by file and line, never
+    quote it; stored control output is redacted. GATE-5 — a mutant's id is position range + mutator + replacement; a
+    row is stale only for a unit the run mutated; child-process code gets the mutant selector, browser code
+    applied-copy mutants. `absd_sync.py` install and upgrade add `absd/**/__pycache__/` to the product's `.gitignore`
+    (the push lane's kit tests left the tree dirty), with tests. Architecture template §9: configuration files a WP
+    creates are given in full. `metrics.py`: steps `design-system`, `catalogue-apply`, `fix`; rework causes
+    `minor-routed`, `user-answer`; `resume` defined (PIPE-3). Tester: a new screen's first visual baseline is
+    `pending first baseline`, not a TC-CONFLICT. Auditor re-audit cites the last clean mutation run when production
+    code, mutation configuration and equivalents are unchanged. XCA-17 / PIPE-1: with one strongest model, the second
+    audit is a fresh invocation of it. Manager Gate 1: an answered blocking OQ gets an Analyst delta before catalogue
+    apply.
+- Kit acceptance run (ENR-14 / PIPE-6), 2026-11-11, one agent playing every role, Bootstrap + one feature cycle per
+  fixture, telemetry on: **9/9 seeded traps caught**, criteria c1–c3 pass on all three fixtures, kit-gap halts 0,
+  negative controls 51/51 red then green, first-pass gate rate 86.1% (tally 12/12, ledger 10/12, shelf 9/12 — Gate 3
+  failed rounds on mutation identity and secret citation, fixed above). First scored baseline:
+  `benchmark/results/2.4.0.json`; later MINOR and MAJOR versions compare against it (PIPE-6). Findings: proposal
+  `benchmark-2-4-0-2026-11-11`, LL-68.
+
 ## 2.3.0 — 2026-11-10
 
 Fixes from the kit acceptance run (ENR-14) of 2.2.0 on three fixture products — tally (cli + library), shelf (web-ui +

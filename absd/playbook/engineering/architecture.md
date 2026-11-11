@@ -66,9 +66,9 @@ SEC, PRIV, INTEG, FAKE, EXT, ACCESS, VAR.
 
 **ARCH-8** — Meet the blueprint standard: a code generator with no prior knowledge builds every component without asking (paths, signatures in the project's language, types, constants, order, all success and failure paths); "handle appropriately", "as needed", "etc.", "similar to", "TBD" and a helper without `path:line` fail; self-verification recorded.
 - *Why:* Builder improvisation filled gaps, logged as notes (LL-42).
-- *Check:* grep the phrases, open each `path:line`, verify both ways: structure ↔ specs ↔ registrations, diagram ↔ specs, one meaning per field, "the X of Y" cardinality, requirement → section → component → test level → WP.
+- *Check:* grep the phrases, open each `path:line`, verify both ways: structure ↔ specs ↔ registrations, diagram ↔ specs, one meaning per field, "the X of Y" cardinality, requirement → section → component → test level → WP; each WP's static-check commands and config name only paths that exist after it, and dictated code passes the project's own lint and type rules (two benchmark halts, LL-68).
 - *Applies when:* always.
-- *Provenance:* LL-42 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-42 (KatenatsioTipster, 2026-10); LL-68 (benchmark 2.4.0, 2026-11)
 
 **ARCH-9** — Give every consumer data need (screen, dialog, command output, report, downstream stage) a non-mutating read and every operation a consumer; reads write nothing (no audit row, counter, side effect).
 - *Why:* a panel without a read used a mutating update; each view wrote a phantom audit row (LL-42).

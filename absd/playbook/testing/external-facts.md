@@ -20,11 +20,13 @@ contract and live checks: FAKE rules in `absd/playbook/testing/contracts-and-fak
 
 ## Rules
 
-**EXT-1** — Put behaviour that depends on an UNVERIFIED external fact behind a flag that is off in every environment, and make it fail closed: refuse with a designed "not available" outcome instead of acting on a guessed default. Behaviour resting only on VERIFIED facts needs no such flag: a defect fix whose fact was corrected and VERIFIED at Mode D Reproduce (EXT-4) may ship enabled.
+**EXT-1** — Put behaviour that depends on an UNVERIFIED external fact behind a flag that is off in every environment, and make it fail closed: refuse with a designed "not available" outcome instead of acting on a guessed default. Behaviour resting only on VERIFIED facts needs no such flag: a defect fix whose fact was corrected and VERIFIED at Mode D Reproduce (EXT-4) may ship enabled. An input the product reads and validates (a file or message whose format the requirements state)
+needs no flag when it fails closed: input breaking the stated format is rejected with an alerting exit or error, never
+read by a guessed default; its UNVERIFIED facts keep their RISK row and a recorded real sample is due before Mode R.
 - *Why:* an unknown provider zone, flagged as a blocking open question, shipped as a "safe default" with the feature on, and the caveat died when the cycle was archived (LL-1); a live Critical fix on a corrected fact could only ship disabled (LL-56).
 - *Check:* each UNVERIFIED fact has a Risk register row `blocks: flag:<name>` in `context.md`; a TC proves the flag-off path inert and the fail-closed outcome; Mode R blocks on any UNVERIFIED fact behind an enabled feature; the Auditor greps for defaults standing in for unverified facts and accepts an enabled fix only when every fact it rests on is VERIFIED.
 - *Applies when:* always.
-- *Provenance:* LL-1 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-1 (KatenatsioTipster, 2026-10); LL-56 (ABSD v2 kit review, 2026-10); LL-68 (benchmark 2.4.0, 2026-11)
 
 **EXT-2** — Accept as evidence of an external fact only a recorded real response plus an independent source (official documentation, a published schedule, a known real event); a person's statement, a default value or a fake is not evidence; give every external system the full fact checklist below, each row VERIFIED, UNVERIFIED or N/A with a reason.
 - *Why:* the requirements accepted the owner's statement about a field's meaning (LL-2); served days and the provider calendar were never asked (LL-3); failure modes were never listed (LL-11).
