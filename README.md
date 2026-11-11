@@ -172,6 +172,7 @@ handoffs to workers are confirmed by you ("assisted mode").
 | `absd/tooling/ownership_hook.py` | Write-time hook: an agent cannot write paths it does not own, the kit, or the agent configuration |
 | `absd/tooling/absd_sync.py` | Install, verify, upgrade the kit; migrate v1 projects |
 | `absd/tooling/metrics.py` | Per-cycle telemetry: `record` (validated numbers, enums and ids only; off with one setting), `validate`, `report` for the Harvest |
+| `absd/tooling/palette.py` | Palette check for a design system seeded from a colour-combination catalogue (DSN-22): contrast and use of every pair, and a lightness-only fit to a contrast target that keeps the hue |
 | `benchmark/score.py` | Kit repository only: scores a benchmark run (traps caught, gate rounds, halts, cost) and compares it with the last accepted release |
 | `absd/tooling/kit_lint.py` | The kit's own CI: rule ids, citations, provenance, paths, mirrors, reserved codes, budgets, stack neutrality, hidden Unicode characters |
 

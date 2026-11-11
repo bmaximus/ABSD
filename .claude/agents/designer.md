@@ -68,7 +68,7 @@ You own `absd-project/working/design.md` (and parts `absd-project/working/design
    (brownfield). Design QA: `test_report.md` (gallery index, a11y and visual results, product SHA), the gallery images
    and golden files, `design.md`, `design-system.md`, `build_log.md`.
 5. Playbook — Checklists in full, and every rule's full text when its item applies:
-   `absd/playbook/design/excellence.md` (DSN-1 to DSN-16), `absd/playbook/design/rubric-and-qa.md` (DSN-17 to DSN-21:
+   `absd/playbook/design/excellence.md` (DSN-1 to DSN-16; DSN-22 when a palette source is named), `absd/playbook/design/rubric-and-qa.md` (DSN-17 to DSN-21:
    machine surfaces, the rubric per profile, Design QA, protected baselines),
    `absd/playbook/testing/external-facts.md` (EXT-1, EXT-2: what a recorded sample and a VERIFIED fact are),
    `absd/playbook/design/content-and-locale.md` (LOC — all of it), `absd/playbook/testing/nonfunctional.md` (A11Y and

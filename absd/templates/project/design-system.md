@@ -8,6 +8,7 @@
 - Personality in three words: <e.g. calm, precise, warm>
 - Signature moments (where delight is worth the effort): <…>
 - What the product never does: <e.g. modal interruptions for non-critical news; colour-only meaning>
+- Palette source (optional, DSN-22): <none | catalogue + combination id + why it fits> — the brief and a brand palette win
 
 ## 2. Visual foundations (web-ui, native-app)
 | Token | Value | Use | Contrast checked against |
@@ -22,6 +23,11 @@
 | type.display / title / body / caption / mono | size / weight / line height | | |
 | motion.fast / normal / slow + easing | ~150 / 250 / 400 ms | state changes; reduced-motion fallback | |
 | breakpoints | phone / tablet / desktop | | |
+
+Palette source (only with §1 Palette source; DSN-22; `absd/tooling/palette.py` outputs in evidence):
+
+| Source colour (catalogue id · value source) | Role | Final value | Adjustment (ΔL, hue shift) | Pairs below 3:1 (area-only) |
+|---|---|---|---|---|
 | touch target min | 44 × 44 px (never below 24 × 24) | | |
 
 ## 3. Components

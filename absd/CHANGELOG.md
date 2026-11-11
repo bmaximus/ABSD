@@ -3,6 +3,24 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.5.0 — 2026-11-11
+
+A palette may start from a curated colour-combination catalogue — as a guideline, never a rule over the brief, a
+brand palette or contrast (owner request, proposal palette-catalogue-2026-11-11). Ledger: LL-69.
+
+- **DSN-22** (`absd/playbook/design/excellence.md`): when the brief, a Decision or `design-system.md` §1 names a
+  palette source, record the catalogue, combination id, why it fits and the source of screen values; map its colours
+  to the anchor roles and derive neutrals, status, focus, hover, disabled and dark theme keeping their hues; meet
+  contrast by changing lightness only (chroma only where the gamut forces it), log each change, mark pairs below 3:1
+  area-only.
+- **`absd/tooling/palette.py`** (new, with tests): `report` — WCAG contrast and use (text, large, area) for every
+  pair, with OKLCH values; `fit` — moves a colour's lightness until it reaches a contrast target on a background,
+  keeping its hue, and reports ΔL, ΔC and hue shift. The kit bundles no catalogue data.
+- Templates: `design-system.md` §1 "Palette source" line and a §2 palette-source table; the Foundation brief lets the
+  user name a palette source at step 1, used by the Designer at step 3. Designer manual cites DSN-22.
+- Kit acceptance run (ENR-14 / PIPE-6): due before the `v2.5.0` tag. DSN-22 is optional and none of the benchmark
+  fixtures names a palette source, so their scores are not expected to move.
+
 ## 2.4.0 — 2026-11-11
 
 The pipeline measured: model levels per role, per-cycle telemetry, and a scored benchmark of the agents (owner request,
