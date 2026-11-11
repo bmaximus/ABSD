@@ -298,6 +298,19 @@ class ReportTests(MetricsTestCase):
         self.assertEqual(gate["first_pass_rate"], 0.5)
         self.assertEqual(report["findings"], {"critical": 0, "major": 1, "minor": 2})
 
+    def test_repass_is_not_a_round_and_blocked_is_a_result(self):
+        self.seed()
+        self.cycle("C002", [
+            {"kind": "gate", "gate": "G2R", "round": 1, "verdict": "PASS", "repass": True},
+            {"kind": "invocation", "agent": "tester", "step": "facts", "level": "balanced", "model": "sonnet",
+             "result": "blocked"},
+        ])
+        code, out, report = self.report()
+        self.assertEqual(code, 0, out)
+        gate = report["gates"]["G2R"]
+        self.assertEqual((gate["rounds"], gate["repasses"], gate["first_pass"]), (3, 1, 1))
+        self.assertIn("| G2R | 3 | 1 |", out)
+
     def test_rules_halts_rework_controls_escapes(self):
         self.seed()
         _, out, report = self.report()

@@ -144,7 +144,7 @@ count for the whole cycle.
 
 | Scope | IDs |
 |---|---|
-| Product (never reused; next = highest in repo and archive + 1) | requirements `AREA-n`, `AREA-NF-n`, `AREA-BR-n` with criteria `AREA-n.ACn`; `UJ-n` `SCR-n` `ADR-n` `TC-nnnn` `DEF-n` `CR-n` `DEBT-n` `RISK-n` `EXT-SYS-n` `INH-n` `QC-n`; cycles `C###` |
+| Product (never reused; next = highest in repo and archive + 1) | requirements `AREA-n`, `AREA-NF-n`, `AREA-BR-n` with criteria `AREA-n.ACn`; `UJ-n` `SCR-n` `ADR-n` `TC-nnnn` `DEF-n` `CR-n` `DEBT-n` `RISK-n` `D-n` (decisions, cited across cycles) `EXT-SYS-n` `INH-n` `QC-n`; cycles `C###` |
 | Cycle (cite `C005/F-3`) | `AR-n` `TF-n` `DQ-n` `F-n` `CLR-n` `WP-n` `TSEAM-n` `TC-CONFLICT-n` |
 | Kit | `LL-n`; playbook rules `CODE-n`, cited `ABSD:CODE-n` |
 

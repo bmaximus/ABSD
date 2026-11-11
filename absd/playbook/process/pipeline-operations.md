@@ -71,12 +71,12 @@ cycle, never moved); `metrics.py validate` checks every file.
 - *Check:* `metrics.py validate 'absd-project/metrics/*.json'` passes; every logged invocation and gate round in
   `cycle.md` has its event; no event carries an estimated token count.
 - *Applies when:* every cycle while telemetry is on (PIPE-4).
-- *Provenance:* LL-67 (owner request after the 2.3.0 release and the ECC evaluation, 2026-11)
+- *Provenance:* LL-67 (owner request after the 2.3.0 release and the ECC evaluation, 2026-11); LL-68 (benchmark 2.4.0, 2026-11)
 
 | Event (`--kind`) | Fields |
 |---|---|
-| `invocation` | agent, step, level, model, duration (s), tokens (only when reported), result (done, halt, interrupted, rejected) |
-| `gate` | gate (G1, GUX, G2, G2R, GT, G3, XCA, REL), round, verdict (PASS, FAIL), finding counts by RULES §6 severity, rule ids the findings cite |
+| `invocation` | agent, step, level, model, duration (s), tokens (only when reported), result (done, halt, blocked, interrupted, rejected) |
+| `gate` | gate (G1, GUX, G2, G2R, GT, G3, XCA, REL), round, verdict (PASS, FAIL), finding counts by RULES §6 severity, rule ids the findings cite, `repass` (a re-run after an upstream change — a decision or CLR — not a review round) |
 | `halt` | agent, cause (blueprint-gap, spec-gap, kit-gap, external, user) |
 | `rework` | from, to, cause (review-fail, upstream-gap, spec-defect, halt, clr, change-request) |
 | `control` | negative-control id, turned red, turned green |

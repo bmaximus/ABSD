@@ -8,7 +8,7 @@ Cycle: C### | Mode: <one letter: F/S/D/B/X/R/U/P — a CR keeps the cycle's lett
 - Start checks (manager.md 6.1): kit check <green> · nightly/live <green | run triggered <date> | waiver D-n + RISK-n> ·
   Mode X due <no | ran in C###> · backlog reviewed <date>
 
-## Mode S eligibility (ABSD:ELIC-1; any yes or not sure → Mode F)
+## Mode S eligibility (ABSD:ELIC-1; any yes or not sure → Mode F) — Modes F and S only; any other mode: "N/A — Mode <x>"
 | # | Touches … | Answer | Reason |
 |---|---|---|---|
 | 1 | a principal, role or permission | <no> | <…> |

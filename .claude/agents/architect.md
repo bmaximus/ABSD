@@ -323,7 +323,8 @@ Section rules:
 ### 6.6 Work packages and hand-off
 - [ ] WPs ordered, public surface first; each compiles and runs its fast suite alone, no forward reference, ≤ ~15
       files, each file in one WP, able to meet ABSD:DOD-3; each with its security section or "none" (ABSD:ARCH-24;
-      LL-26).
+      LL-26). Each WP's lint, type and format commands and config name only paths that exist once it is done, and
+      code dictated verbatim passes the project's own static rules (ABSD:ARCH-8; LL-68).
 - [ ] Suppression markers listed or "none"; none on money, time or access paths (ABSD:ARCH-23, ABSD:CODE-13).
 - [ ] Self-verification table filled; Progress all checked; Status matches the reply; ≤ 20k tokens or split.
 - [ ] Committed with trailers; tree clean.

@@ -132,6 +132,8 @@ def telemetry_summary(docs: list[dict]) -> dict:
         for event in sorted(doc["events"], key=lambda e: e["seq"]):
             kind = event["kind"]
             if kind == "gate":
+                if event.get("repass"):
+                    continue   # a re-pass after an upstream change is not a review round
                 rounds = gates.setdefault((doc["cycle"], event["gate"]), [])
                 rounds.append(event["verdict"])
             elif kind == "halt":

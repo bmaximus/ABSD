@@ -26,6 +26,16 @@ proposal telemetry-benchmark-models-2026-11-11). Ledger: LL-67.
     fewer traps, halt more on kit gaps, fail a criterion or lose more than 10 points of first-pass gates; cost growth
     above 25 % is a warning here. Model-map experiments use the same comparison.
 - **Tooling:** `metrics.py` (record, validate, report) with tests; `benchmark/score.py` with tests, run by CI.
+- **Benchmark findings** (LL-68, proposal benchmark-2-4-0-2026-11-11):
+  - **TRACE-9 / DOD-8:** a planned TC no host or CI of the pipeline can run is passed as `--deferred TC-nnnn=D-n`
+    (a user Decision plus RISK, never a deleted AC): it may be missing, still fails if it fails, an unplanned one is
+    `unknown`, and it must pass in the release lane before Mode R. `traceability_report.py --deferred`, with tests.
+  - **ARCH-8:** each WP's lint, type and format commands name only paths that exist once it is done, and dictated code
+    passes the project's own static rules (both benchmark Builder halts).
+  - **Tester Verify:** the exploratory pass runs before the gate run, so its log joins commit (a).
+  - **PIPE-3:** gate events take `repass` (a re-run after a decision or CLR, not a review round); invocation result
+    `blocked`. `metrics.py` and `score.py` skip re-passes when counting rounds.
+  - RULES §7: `D-n` is a product-scope id. `cycle.md`: Mode S eligibility is "N/A" outside Modes F and S.
 - Kit acceptance run (ENR-14 / PIPE-6): see below once run.
 
 ## 2.3.0 — 2026-11-10

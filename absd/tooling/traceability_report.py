@@ -220,6 +220,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--inherited-plan", action="append", default=[],
                         help="glob of earlier cycles' test_plan.md files (repeatable, ** allowed): their TC ids are "
                              "inherited, not unplanned; needs --plan")
+    parser.add_argument("--deferred", action="append", default=[], metavar="TC-nnnn=D-n|RISK-n",
+                        help="a planned TC the user deferred to the release lane (repeatable; needs --plan): it may be "
+                             "missing, but still fails if it fails")
     parser.add_argument("--fail-on", default="failing,unknown,missing", help=f"comma list of: {', '.join(CATEGORIES)}")
     parser.add_argument("--json", dest="json_out")
     parser.add_argument("--summary-md")
@@ -232,9 +235,16 @@ def main(argv: list[str] | None = None) -> int:
     if not args.catalogue and not args.plan:
         print("::error::give --catalogue, --plan, or both")
         return 2
-    if args.inherited_plan and not args.plan:
-        print("::error::--inherited-plan needs --plan")
+    if (args.inherited_plan or args.deferred) and not args.plan:
+        print("::error::--inherited-plan and --deferred need --plan")
         return 2
+    deferred: dict[str, str] = {}
+    for item in args.deferred:
+        match = re.fullmatch(r"(TC-\d+)=((?:D|RISK)-\d+)", item.strip())
+        if not match:
+            print(f"::error::--deferred {item!r}: expected TC-nnnn=D-n or TC-nnnn=RISK-n (the user decision or risk)")
+            return 2
+        deferred[match.group(1)] = match.group(2)
 
     try:
         cases, files = read_junit(args.junit)
@@ -292,6 +302,9 @@ def main(argv: list[str] | None = None) -> int:
         for tc in planned:
             statuses = [c.status for c in by_tc.get(tc, [])]
             if not statuses or all(s == "skipped" for s in statuses):
+                if tc in deferred:
+                    states[tc] = "deferred"
+                    continue
                 states[tc] = "missing" if not statuses else "skipped"
                 problems["missing"].append(f"{tc} ({states[tc]})")
             elif "failed" in statuses:
@@ -305,10 +318,13 @@ def main(argv: list[str] | None = None) -> int:
             inherited[tc] = "failed" if "failed" in statuses else ("passed" if "passed" in statuses else "skipped")
             if inherited[tc] == "failed":
                 problems["failing"].append(f"{tc} (inherited)")
+        for tc in sorted(set(deferred) - set(planned), key=trace_check.natural):
+            problems["unknown"].append(f"{tc} (deferred but not planned)")
         unplanned = sorted(set(by_tc) - set(planned) - inherited_ids)
         problems["unplanned"].extend(unplanned)
         passing = sum(1 for s in states.values() if s == "passed")
-        not_passing = [f"| {tc} | {state} |" for tc, state in states.items() if state != "passed"]
+        not_passing = [f"| {tc} | {state}{' — ' + deferred[tc] if state == 'deferred' else ''} |"
+                       for tc, state in states.items() if state != "passed"]
         sections.append("\n".join([
             f"### Test plan conformance — {passing}/{len(planned)} planned test cases passing",
             f"plan: `{args.plan}` · unplanned TC ids in tests: {', '.join(unplanned) or 'none'}",
@@ -319,7 +335,7 @@ def main(argv: list[str] | None = None) -> int:
             *(["", "| Test case | State |", "|---|---|", *not_passing] if not_passing else []),
         ]))
         report["plan"] = {"planned": len(planned), "passing": passing, "states": states, "unplanned": unplanned,
-                          "inherited": inherited}
+                          "inherited": inherited, "deferred": {tc: deferred[tc] for tc in deferred if tc in states}}
 
     markdown = "\n\n".join(sections) + "\n"
     print(markdown)

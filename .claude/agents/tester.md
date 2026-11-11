@@ -229,7 +229,7 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
 6. Gates: coverage_gate (each language's `--reports` glob matching, `--fail-on-stale`, the `TESTING.md` §2 `--min-layer`
    floors; floor met, a raise on ≥ 1 point headroom recorded for the next Plan & Bind — GATE-2, GATE-3);
    traceability_report catalogue run + plan conformance (`--fail-on failing,unknown,missing`, the archived plans as
-   `--inherited-plan`), each `--junit` glob matching (TRACE-6, TRACE-9); trace_check
+   `--inherited-plan`, release-lane TCs as `--deferred`), each `--junit` glob matching (TRACE-6, TRACE-9); trace_check
    gateT; ownership_check `--base <default branch> --t-sha <each T-SHA, oldest first>` (GATE-14); mutation on changed
    code, survivors killed by spec-sourced TCs or justified (GATE-5, ORACLE-14); repeated and random-order runs for
    flakes (GATE-6); a11y scan, keyboard (A11Y-1–4); budgets, query counts, load (PERF-1–4); visual baselines (VIS-2);
@@ -239,7 +239,7 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
 7. Gallery (VIS-1) whenever Design QA follows (Mode D: a changed visual or output surface): per SCR × state × device
    class × theme of the component–state matrix, real build, production volume, `SCR-n_<state>_<device>_<theme>.png`
    under `…/screens/`; cli, pipeline, documents: golden outputs (VIS-3). A missing cell blocks Design QA (DSN-20).
-8. Agent exploratory pass (EXPL-3): each cycle charter per device class with its profile's probes — volume max,
+8. Agent exploratory pass (EXPL-3) — run it before steps 4–6, so its `EXPLORATORY.md` log joins (a): each cycle charter per device class with its profile's probes — volume max,
    foreign zone; web-ui, native-app also a dialog past the longest timer, keyboard only, slow network,
    back/refresh/second tab. In scope → TF; outside → proposed DEF; wanted otherwise → decision (EXPL-6); severity per
    EXPL-5; logged "tester agent".

@@ -234,6 +234,27 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertNotIn("TC-0051", self.load(out_json)["problems"]["missing"])
         self.assertIn("inherited from earlier cycles: 2 in tests, 1 passing, failing: TC-0060", out)
 
+    def test_deferred_test_case_may_be_missing_but_still_fails_and_must_be_planned(self):
+        self.write("r/junit.xml", junit([("TC-0001", "passed", {}), ("TC-0002", "passed", {}), ("TC-0003", "passed", {})]))
+        out_json = os.path.join(self.root, "t.json")
+        code, out = self.run_report("--plan", self.plan, "--deferred", "TC-0004=D-5", "--json", out_json)
+        self.assertEqual(code, 0, out)
+        plan = self.load(out_json)["plan"]
+        self.assertEqual(plan["states"]["TC-0004"], "deferred")
+        self.assertEqual(plan["deferred"], {"TC-0004": "D-5"})
+        self.assertIn("| TC-0004 | deferred — D-5 |", out)
+        self.write("r/junit.xml", junit([("TC-0001", "passed", {}), ("TC-0002", "passed", {}), ("TC-0003", "passed", {}),
+                                         ("TC-0004", "failed", {})]))
+        code, out = self.run_report("--plan", self.plan, "--deferred", "TC-0004=RISK-2")
+        self.assertEqual(code, 1, out)
+        code, out = self.run_report("--plan", self.plan, "--deferred", "TC-0004=RISK-2", "--deferred", "TC-0099=D-1")
+        self.assertIn("TC-0099 (deferred but not planned)", out)
+        for bad in ("TC-0004", "TC-0004=because", "TC-0004=D-x"):
+            code, out = self.run_report("--plan", self.plan, "--deferred", bad)
+            self.assertEqual(code, 2, bad)
+        code, out = self.run_report("--catalogue", self.catalogue, "--deferred", "TC-0004=D-5")
+        self.assertEqual(code, 2)
+
     def test_unmatched_inherited_plan_is_a_notice_and_needs_plan(self):
         self.write("r/junit.xml", junit([("TC-0001", "passed", {})]))
         code, out = self.run_report("--plan", self.plan, "--inherited-plan", os.path.join(self.root, "nope", "*.md"))
@@ -241,7 +262,7 @@ class TraceabilityReportTests(unittest.TestCase):
         self.assertNotIn("::error::", out)
         code, out = self.run_report("--catalogue", self.catalogue, "--inherited-plan", self.plan)
         self.assertEqual(code, 2)
-        self.assertIn("needs --plan", out)
+        self.assertIn("need --plan", out)
 
     def test_all_planned_cases_passing_passes(self):
         self.write("r/junit.xml", junit([

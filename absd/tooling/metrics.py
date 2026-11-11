@@ -60,7 +60,7 @@ AGENTS = {"manager", "analyst", "designer", "architect", "builder", "tester", "a
 STEPS = {"brd", "analysis", "facts", "design", "architecture", "arch-review", "plan-bind", "build", "verify",
          "design-qa", "audit", "second-audit", "reproduce", "baseline", "log", "harvest", "other"}
 LEVELS = {"strongest", "balanced", "fast"}
-RESULTS = {"done", "halt", "interrupted", "rejected"}
+RESULTS = {"done", "halt", "blocked", "interrupted", "rejected"}
 GATES = {"G1", "GUX", "G2", "G2R", "GT", "G3", "XCA", "REL"}
 VERDICTS = {"PASS", "FAIL"}
 HALT_CAUSES = {"blueprint-gap", "spec-gap", "kit-gap", "external", "user"}
@@ -109,7 +109,7 @@ KINDS = {   # kind -> {key: (validator, required?)}
                    "model": (_pattern(MODEL), True), "result": (_enum(RESULTS), True),
                    "duration_s": (_count, False), "tokens": (_count, False)},
     "gate": {"gate": (_enum(GATES), True), "round": (_positive, True), "verdict": (_enum(VERDICTS), True),
-             "findings": (_findings, False), "rules": (_rules, False)},
+             "findings": (_findings, False), "rules": (_rules, False), "repass": (_bool, False)},
     "halt": {"agent": (_enum(AGENTS), True), "cause": (_enum(HALT_CAUSES), True), "step": (_enum(STEPS), False)},
     "rework": {"from": (_enum(ENDPOINTS), True), "to": (_enum(ENDPOINTS), True), "cause": (_enum(REWORK_CAUSES), True)},
     "control": {"control": (_pattern(ID), True), "red": (_bool, True), "green": (_bool, True)},
@@ -357,7 +357,7 @@ def _bucket():
 
 def build_report(docs: list[dict], playbook_ids: list[str] | None = None, never_cited_after: int = 5) -> dict:
     by = {name: defaultdict(_bucket) for name in ("step", "agent", "level", "model")}
-    gates = defaultdict(lambda: {"rounds": 0, "fail": 0, "instances": 0, "first_pass": 0})
+    gates = defaultdict(lambda: {"rounds": 0, "fail": 0, "instances": 0, "first_pass": 0, "repasses": 0})
     first_round = {}   # (cycle, gate) -> verdict of its lowest round
     findings = Counter({s: 0 for s in SEVERITIES})
     cited, halts, rework, escapes = Counter(), Counter(), Counter(), Counter()
@@ -376,6 +376,10 @@ def build_report(docs: list[dict], playbook_ids: list[str] | None = None, never_
                             bucket[key] += event[key]
                         else:
                             bucket[unknown] += 1
+            elif kind == "gate" and event.get("repass"):
+                gates[event["gate"]]["repasses"] += 1   # re-run after an upstream change: not a review round
+                findings.update(event.get("findings", {}))
+                cited.update(event.get("rules", []))
             elif kind == "gate":
                 gate = gates[event["gate"]]
                 gate["rounds"] += 1
@@ -434,9 +438,10 @@ def summary_markdown(report: dict) -> str:
             lines.append(f"| {key} | {b['invocations']} | {b['duration_s']} | {b['tokens']} | {b['tokens_unknown']} |")
         lines.append("")
     if report["gates"]:
-        lines += ["| Gate | Rounds | FAIL rate | First-pass rate |", "|---|---|---|---|"]
+        lines += ["| Gate | Rounds | Re-passes | FAIL rate | First-pass rate |", "|---|---|---|---|---|"]
         for gate, g in report["gates"].items():
-            lines.append(f"| {gate} | {g['rounds']} | {100 * g['fail_rate']:.0f}% | {100 * g['first_pass_rate']:.0f}% |")
+            lines.append(f"| {gate} | {g['rounds']} | {g['repasses']} | {100 * g['fail_rate']:.0f}% | "
+                         f"{100 * g['first_pass_rate']:.0f}% |")
         lines.append("")
     lines.append("Findings: " + ", ".join(f"{s} {n}" for s, n in report["findings"].items()))
     lines.append("Rules cited: " + (", ".join(f"{r} ×{n}" for r, n in report["rules_cited"].items()) or "none"))
