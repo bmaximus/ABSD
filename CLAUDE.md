@@ -39,7 +39,8 @@ python3 -m unittest discover -s absd/tooling -p 'test_*.py'
 ```
 
 CI (`.github/workflows/kit.yml`) runs the same checks on every push. Before tagging a MINOR or MAJOR version, run the
-kit acceptance procedure in `enrichment.md` (Bootstrap + one cycle on a tiny fixture product per interface profile).
+kit acceptance procedure in `enrichment.md`: the agent benchmark in `benchmark/` (Bootstrap + one feature cycle on each
+fixture product, seeded traps, telemetry on), scored and compared with the last accepted result (ENR-14, PIPE-6).
 
 ## Writing rules for kit files
 
