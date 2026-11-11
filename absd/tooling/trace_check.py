@@ -82,7 +82,7 @@ from dataclasses import dataclass, field
 
 PLAYBOOK_CODES = {"STRAT", "VAR", "ORACLE", "ACCESS", "INTEG", "FAKE", "EXT", "E2E", "TRACE", "GATE", "ESC", "EXPL",
                   "A11Y", "PERF", "RESIL", "VIS", "OPS", "COMPAT", "TCQ", "DSN", "LOC", "ARCH", "CODE", "SEC", "PRIV", "ELIC",
-                  "DOD", "XCA", "ENR"}
+                  "DOD", "XCA", "ENR", "PIPE"}
 # Product area codes may not use these (contract §9), so "[UJ-3]" or "ABSD:CODE-4" is never a requirement.
 # QC is not reserved: it is the fixed area code of the Foundation quality capabilities (catalogue rows QC-n).
 RESERVED = PLAYBOOK_CODES | {"TC", "DEF", "CR", "ADR", "UJ", "SCR", "DEBT", "RISK", "EXT", "LL", "AR", "TF", "DQ", "F",
