@@ -102,7 +102,9 @@ page (GATE-10) and in `test_report.md` with the run's SHA.
 
 **TRACE-7** — Cover clauses, not stories: every AC `<ID>.AC<n>`, every BR boundary and every NF criterion maps to ≥ 1 TC
 in `test_plan.md` (trace_check gateT), and a requirement counts as verified for the cycle only when each of its in-scope
-clauses has a passing TC (TRACE-9) — on each device class it runs on (E2E-6). A test links a requirement only if it
+clauses has a passing TC (TRACE-9) — on each device class it runs on (E2E-6); an AC with several clauses (a zone and
+a locale) binds one assertion per clause, and a TC needing an environment feature (a locale, a zone database) asserts
+it is present — it fails, never skips. A test links a requirement only if it
 asserts one of its clauses — a link to a requirement it merely passes through is tag drift, a finding; a requirement
 with ≥ 2 ACs and one linked test is reviewed for unproven clauses.
 - *Why:* one passing test "verified" a requirement whose other clauses (won, lost, back to open) were never run;
@@ -110,7 +112,7 @@ with ≥ 2 ACs and one linked test is reviewed for unproven clauses.
 - *Check:* gateT AC coverage (TC rows only); each device project's results are a separate `--junit` glob that must
   match, and its per-project pass is read in `test_report.md` §2; the Auditor samples linked tests against ACs (L3).
 - *Applies when:* always.
-- *Provenance:* LL-45 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-45 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10); LL-68 (benchmark 2.4.0, 2026-11)
 
 **TRACE-8** — Count only first-attempt passes as proof. The report XML records a pass-on-retry as a plain pass, so the
 job producing acceptance results fails on any pass-on-retry — the runner's option where it exists

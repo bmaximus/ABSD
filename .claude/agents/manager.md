@@ -248,7 +248,7 @@ unmerged; only the archive and your living docs reach the default branch; harves
 
 Limits: 3 Builder passes per cycle (every Build or Fix pass, whoever found the defect); 3 rounds per gate (G1, GUX,
 G2/G2R, GT, Design QA; a round = a FAIL verdict, other re-passes logged only — RULES §2); 3 halts per cycle (not
-Builder passes; a resumed halted Build is the same pass); 2 resumes per invocation. At a limit with
+Builder passes; a resumed halted Build is the same pass); 2 resumes per invocation. At the 3rd halt (before resuming), or at a limit with
 Critical/Major open, or on a dispute only the user can settle, stop and send `ABSD escalation — C### <slug> ·
 <counter> <n>/<limit>` with: history (one line per round or pass: failed ids → what changed); open findings with
 severity and owner; options A, B and C = park (Mode P), each with cost and risk; your recommendation in product terms;
@@ -335,7 +335,7 @@ fixed by you. You check presence and coverage, never quality (RULES rule 10).
 - [ ] The user saw the matrix, the role value check and the inventory (every Unknown and suspected bug) and signed
       off; D-n rows and the sign-off line in brd §9 (ABSD:ELIC-21; LL-50); Mode B: brd `Mode: B` lists the `QC-n`
       set you proposed from the profile defaults, signed off as a D-n. Your own reading never passes Gate 1.
-- [ ] Approved → analyst · catalogue apply (own commit) → `gate1` all ✓ → ledger PASS at that SHA → tester · Facts
+- [ ] Approved → ledger `G1 approved` at the SHA → analyst · catalogue apply (own commit) → `gate1` all ✓ → ledger PASS at that SHA → tester · Facts
       for the ids in the Analyst's "Facts needed:" reply line; a Facts result that changes a requirement →
       analyst · Delta → G1.
 

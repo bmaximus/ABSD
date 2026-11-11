@@ -55,7 +55,8 @@ DEBT-n", burned down). Only unit, component (STRAT-13), integration and contract
 - *Why:* a results reader shipped with 0% coverage behind a total floor and read half-time as the final score; the sweep
   this gate forced found six more untested areas (LL-2); stale entries that only warned outlived their units (LL-57);
   keyed by a bare class or file name, a whole package that no test ran merged into a tested one (LL-58).
-- *Check:* push-lane step with `--fail-on-stale`; the tool requires the reason after `#`, the Auditor checks owner,
+- *Check:* push-lane step with `--fail-on-stale` (its negative control plants a unit of at least `--min-lines`
+  coverable lines — a smaller one is not gated); the tool requires the reason after `#`, the Auditor checks owner,
   expiry and validity — valid reasons: schema seam without behaviour, design-time factory, development-only shim off in
   tests and production, generated code; "hard to test", "trivial", "covered elsewhere" are rejected; Gate 3 lists
   every allowlist change.

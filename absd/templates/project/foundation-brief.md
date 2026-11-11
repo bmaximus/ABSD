@@ -31,7 +31,7 @@ product's area codes. `QC-n` and the brief's ADR numbers survive a parked Founda
 
 | QC | Capability | Profiles |
 |---|---|---|
-| QC-1 | CI fails when an operation has no access-and-visibility rule (completeness test) | web-ui, native-app, http-api, data-pipeline, cli (if credentials) |
+| QC-1 | CI fails when an operation has no access-and-visibility rule (completeness test) | web-ui, native-app, http-api, data-pipeline, cli — when operations have principals |
 | QC-2 | End-to-end tests fail on any unexpected error signal | all |
 | QC-3 | The acceptance report lists every catalogue requirement as verified / failing / untested; unknown ids fail | all |
 | QC-4 | Test-plan conformance: every planned TC exists and passes | all |
@@ -44,7 +44,7 @@ product's area codes. `QC-n` and the brief's ADR numbers survive a parked Founda
 | QC-11 | Phone (and every declared device/runtime class) projects; one foreign time zone/locale project | web-ui, native-app; runtime matrix for cli/library |
 | QC-12 | Accessibility scan of every screen state (0 serious/critical) | web-ui, native-app |
 | QC-13 | Ownership and ordering checks (`absd/tooling/ownership_check.py`) and gate traces (`absd/tooling/trace_check.py`) in CI | all |
-| QC-14 | Secret canaries: no configured secret value appears in any log, artifact or diff | all |
+| QC-14 | Secret canaries: no configured secret value appears in any log, artifact or diff | products with secrets |
 | QC-15 | Backup → restore drill | products with persistent state |
 | QC-16 | Fresh clone → running from the docs | all |
 

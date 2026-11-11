@@ -23,7 +23,8 @@ analysis.md's scope is the requirements it defines and their ACs; a brief's or d
 cites (and their requirements) plus the NF/BR requirements it cites — ids it marks removed/retired are left out.
 design.md is optional for gate2 and gateT (its checks are then skipped with a notice); architecture.md is optional
 for gateT (EXT check skipped). "In a TC row" means inside a table row or heading section that defines a planned TC —
-an "Out of scope" line or a spec-defect row mentioning an id is not coverage.
+an "Out of scope" line or a spec-defect row mentioning an id is not coverage; in a table with a Requirement column,
+only the row's Requirement and Source cells count (an id in Inputs or Purpose is not coverage).
 
 Gates (artifacts read from --working):
   gate1    analysis.md defines at least one requirement; every functional requirement it defines has an AC id in it
@@ -170,6 +171,7 @@ class Definition:
     id: str
     status: str    # decides removed/retired/open: the row's Status cell if its table has one, else the whole line
     context: str   # the row, or the heading's whole section (where an oracle source may sit)
+    cover: str = ""   # what counts as coverage: a row's Requirement and Source cells when its table has them
 
     @property
     def excluded(self) -> bool:
@@ -207,7 +209,7 @@ class Doc:
         found: set = set()
         for d in self.definitions:
             if in_family(d.id, "tc") and not d.excluded:
-                found |= referenced_in(d.context, family)
+                found |= referenced_in(d.cover or d.context, family)
         return found
 
 
@@ -267,13 +269,16 @@ def parse_table(block: list[str]) -> tuple[Table, list[Definition]]:
     if len(rows) > 1 and is_separator(rows[1]):
         header, first = [cell.strip(DECORATION).lower() for cell in rows[0]], 2
     status_columns = [index for index, name in enumerate(header) if "status" in name]
+    cover_columns = ([index for index, name in enumerate(header) if "requirement" in name or "source" in name]
+                     if any("requirement" in name for name in header) else [])
     table, definitions = Table(header, []), []
     for line, cells in zip(block[first:], rows[first:]):
         table.rows.append(cells)
         token = first_token(cells[0])
         if token:
             status = " ".join(cell_at(cells, i) for i in status_columns) if status_columns else line
-            definitions.append(Definition(token, status, line))
+            cover = " ".join(cell_at(cells, i) for i in cover_columns) if cover_columns else ""
+            definitions.append(Definition(token, status, line, cover))
     return table, definitions
 
 

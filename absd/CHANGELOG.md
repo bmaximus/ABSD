@@ -36,6 +36,16 @@ proposal telemetry-benchmark-models-2026-11-11). Ledger: LL-67.
   - **PIPE-3:** gate events take `repass` (a re-run after a decision or CLR, not a review round); invocation result
     `blocked`. `metrics.py` and `score.py` skip re-passes when counting rounds.
   - RULES §7: `D-n` is a product-scope id. `cycle.md`: Mode S eligibility is "N/A" outside Modes F and S.
+  - **EXT-1:** an input the product reads and validates needs no flag when it fails closed (non-conforming input
+    rejected with an alerting exit); its facts keep a RISK row and a real sample is due before Mode R.
+  - **Limits:** reaching a limit (the 3rd pass, FAIL round or halt) escalates before the next one starts.
+  - **Gate 1:** the ledger records `G1 approved` before catalogue apply, then PASS after `gate1` (no circular wait).
+  - **trace_check gateT:** in a TC table with a Requirement column only the Requirement and Source cells count as
+    coverage (an id in Inputs is not); with tests.
+  - **TRACE-7:** one assertion per AC clause; a TC needing an environment feature asserts it is present (fails,
+    never skips). **ELIC-10:** file inputs list encoding, byte-order mark, line ends, empty and header-only files.
+    **GATE-2:** the untested-unit control plants a unit of at least `--min-lines`. Foundation brief: QC-1 only with
+    principals, QC-14 only with secrets (as DOD-5). **ARCH-8:** no two WPs produce the same path.
 - Kit acceptance run (ENR-14 / PIPE-6): see below once run.
 
 ## 2.3.0 — 2026-11-10

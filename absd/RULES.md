@@ -56,8 +56,8 @@ scope become DEF rows in the `context.md` defect backlog, never growth of the cy
 3 cycles and before any release) · **R** Release readiness · **H** Harvest (every archive) · **U** Upgrade the kit
 (between cycles only) · **P** Park/abandon. Details: `.claude/agents/manager.md`.
 
-**Limits:** max 3 Builder passes per cycle, 3 revision rounds per gate, 3 halts per cycle — then escalate to the
-user. A round is a review whose verdict is FAIL; a re-pass caused by an upstream gap, a spec defect, a halt or a CLR is
+**Limits:** max 3 Builder passes per cycle, 3 revision rounds per gate, 3 halts per cycle — reaching a limit (the 3rd
+pass, FAIL round or halt) escalates to the user before the next one starts. A round is a review whose verdict is FAIL; a re-pass caused by an upstream gap, a spec defect, a halt or a CLR is
 logged, not counted; a halted Builder invocation resumed after its CLR is the same pass. An interrupted agent is re-invoked with a Resume brief (max 2), never finished by someone else. A change request
 (Mode C) that re-enters at the analysis resets the gate-round counters downstream of its entry; Builder passes and halts
 count for the whole cycle.
