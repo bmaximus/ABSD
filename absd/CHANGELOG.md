@@ -46,7 +46,23 @@ proposal telemetry-benchmark-models-2026-11-11). Ledger: LL-67.
     never skips). **ELIC-10:** file inputs list encoding, byte-order mark, line ends, empty and header-only files.
     **GATE-2:** the untested-unit control plants a unit of at least `--min-lines`. Foundation brief: QC-1 only with
     principals, QC-14 only with secrets (as DOD-5). **ARCH-8:** no two WPs produce the same path.
-- Kit acceptance run (ENR-14 / PIPE-6): see below once run.
+  - **Shelf run:** GATE-13 — artifacts, reports and evidence cite a secret-shaped match by file and line, never
+    quote it; stored control output is redacted. GATE-5 — a mutant's id is position range + mutator + replacement; a
+    row is stale only for a unit the run mutated; child-process code gets the mutant selector, browser code
+    applied-copy mutants. `absd_sync.py` install and upgrade add `absd/**/__pycache__/` to the product's `.gitignore`
+    (the push lane's kit tests left the tree dirty), with tests. Architecture template §9: configuration files a WP
+    creates are given in full. `metrics.py`: steps `design-system`, `catalogue-apply`, `fix`; rework causes
+    `minor-routed`, `user-answer`; `resume` defined (PIPE-3). Tester: a new screen's first visual baseline is
+    `pending first baseline`, not a TC-CONFLICT. Auditor re-audit cites the last clean mutation run when production
+    code, mutation configuration and equivalents are unchanged. XCA-17 / PIPE-1: with one strongest model, the second
+    audit is a fresh invocation of it. Manager Gate 1: an answered blocking OQ gets an Analyst delta before catalogue
+    apply.
+- Kit acceptance run (ENR-14 / PIPE-6), 2026-11-11, one agent playing every role, Bootstrap + one feature cycle per
+  fixture, telemetry on: **9/9 seeded traps caught**, criteria c1–c3 pass on all three fixtures, kit-gap halts 0,
+  negative controls 51/51 red then green, first-pass gate rate 86.1% (tally 12/12, ledger 10/12, shelf 9/12 — Gate 3
+  failed rounds on mutation identity and secret citation, fixed above). First scored baseline:
+  `benchmark/results/2.4.0.json`; later MINOR and MAJOR versions compare against it (PIPE-6). Findings: proposal
+  `benchmark-2-4-0-2026-11-11`, LL-68.
 
 ## 2.3.0 — 2026-11-10
 

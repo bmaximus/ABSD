@@ -332,10 +332,10 @@ fixed by you. You check presence and coverage, never quality (RULES rule 10).
 - [ ] Assumptions and open questions owned and flagged; contradictions listed; every blocking one answered by the
       user as a D-n (ABSD:ELIC-19).
 - [ ] Catalogue delta present; ids permanent; area codes not reserved (ABSD:ELIC-20).
-- [ ] The user saw the matrix, the role value check and the inventory (every Unknown and suspected bug) and signed
+- [ ] The user saw the matrix, role value check and inventory (every Unknown and suspected bug) and signed
       off; D-n rows and the sign-off line in brd §9 (ABSD:ELIC-21; LL-50); Mode B: brd `Mode: B` lists the `QC-n`
-      set you proposed from the profile defaults, signed off as a D-n. Your own reading never passes Gate 1.
-- [ ] Approved → ledger `G1 approved` at the SHA → analyst · catalogue apply (own commit) → `gate1` all ✓ → ledger PASS at that SHA → tester · Facts
+      set you proposed from the profile defaults, signed off as a D-n. Your reading never passes Gate 1.
+- [ ] Approved → ledger `G1 approved` at the SHA → analyst · Delta for an answered blocking OQ · catalogue apply (own commit) → `gate1` all ✓ → ledger PASS at that SHA → tester · Facts
       for the ids in the Analyst's "Facts needed:" reply line; a Facts result that changes a requirement →
       analyst · Delta → G1.
 

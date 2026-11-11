@@ -168,7 +168,7 @@ answer. A CR may first ask only for the tests it invalidates (TRACE-11): list th
    every ✗ fixed (CHAR resolves against any INH the source cites: confirm Keep).
 6. Commit tests, plan and any floor raise recorded at the last Verify (a); run them at that commit (b), plan
    conformance with `traceability_report.py --plan … --inherited-plan <archived plans> --fail-on unknown,unplanned`
-   (TRACE-9): each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`), any other is a plan defect (full conformance at Verify). Each new TC is RED for its stated reason — failed assertion,
+   (TRACE-9): each TC it reports missing belongs to a unit keyed to a WP (§14 `pending WP-m`) or is a new screen's visual TC (§14 `pending first baseline`, §7), any other is a plan defect (full conformance at Verify). Each new TC is RED for its stated reason — failed assertion,
    unknown route, missing command, absent field; a compile or collection failure counts only in a unit keyed to the WP
    introducing the symbol (ORACLE-3); anything else is repaired, recommitted, rerun. Exception: gate-type `QC-n` rows
    (planted-failure fixture, TRACE-1), CHAR tests and TCs of existing behaviour may pass at T-SHA, shown able to fail by
@@ -380,6 +380,7 @@ script lines you write keep the exit status through pipes (GATE-17).
 | Harness defect | test code wrong, expected value right | fix the test code, expected value byte-identical; logged | Auditor reviews |
 | Flaky, test new or changed this cycle | pass on retry; order-, parallel-, host-only | deterministic reproduction now: harness at fault → fixed (seeded run red, then green); product race → TF | Auditor; race: Builder Fix (ESC-11) |
 | Flaky, older test | the same | proposed DEF; a TF too only if an in-scope requirement is left unverified | Manager (backlog); acceptance job red → merge waits for its Mode D |
+| First visual baseline | a new screen's visual TC has no committed baseline yet | not a conflict: §14 `pending first baseline`; the baseline is taken from the Verify gallery once the Designer's Design QA row accepts it (VIS-2) | Designer (Design QA) |
 
 **Amendments (ORACLE-2).** You request (plan §16, `requested`); the Manager records the approval in `cycle.md`, the
 user's too for a loosening — threshold down, retries up, exclusion, allowlist entry, slower lane, a visual baseline

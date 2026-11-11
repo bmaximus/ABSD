@@ -58,13 +58,15 @@ sys.dont_write_bytecode = True   # no __pycache__ in the kit: an untracked file 
 SCHEMA = 1
 AGENTS = {"manager", "analyst", "designer", "architect", "builder", "tester", "auditor"}
 STEPS = {"brd", "analysis", "facts", "design", "architecture", "arch-review", "plan-bind", "build", "verify",
-         "design-qa", "audit", "second-audit", "reproduce", "baseline", "log", "harvest", "other"}
+         "design-qa", "design-system", "catalogue-apply", "fix", "audit", "second-audit", "reproduce", "baseline", "log",
+         "harvest", "other"}
 LEVELS = {"strongest", "balanced", "fast"}
 RESULTS = {"done", "halt", "blocked", "interrupted", "rejected"}
 GATES = {"G1", "GUX", "G2", "G2R", "GT", "G3", "XCA", "REL"}
 VERDICTS = {"PASS", "FAIL"}
 HALT_CAUSES = {"blueprint-gap", "spec-gap", "kit-gap", "external", "user"}
-REWORK_CAUSES = {"review-fail", "upstream-gap", "spec-defect", "halt", "clr", "change-request"}
+REWORK_CAUSES = {"review-fail", "upstream-gap", "spec-defect", "halt", "clr", "change-request", "minor-routed",
+                 "user-answer"}
 SEVERITIES = ("critical", "major", "minor")   # RULES §6
 ENDPOINTS = GATES | AGENTS
 

@@ -257,6 +257,8 @@ def seed(kit: str, target: str, manifest: Manifest, seeds: tuple[tuple[str, str]
 
 SETTINGS = ".claude/settings.json"
 CLAUDE_MD = "CLAUDE.md"
+GITIGNORE = ".gitignore"
+IGNORED_BYTECODE = "absd/**/__pycache__/"   # the push lane runs the kit's tests (GATE-8); keep every hand-off clean
 MERGED_SEEDS = (SETTINGS, CLAUDE_MD)   # an existing one is completed at install, never left without the pipeline
 
 
@@ -490,6 +492,20 @@ def cmd_check(args: argparse.Namespace) -> int:
     return 0 if diff.clean else 1
 
 
+def ignore_kit_bytecode(target: str) -> bool:
+    """Add the kit's bytecode line to the product's .gitignore unless present; True when added."""
+    path = local(target, GITIGNORE)
+    text = ""
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8") as f:
+            text = f.read()
+    if IGNORED_BYTECODE in text.splitlines():
+        return False
+    with open(path, "a", encoding="utf-8", newline="\n") as f:
+        f.write(("" if not text or text.endswith("\n") else "\n") + IGNORED_BYTECODE + "\n")
+    return True
+
+
 def cmd_install(args: argparse.Namespace) -> int:
     kit, target = args.source, args.target
     require_directory(target, "--to")
@@ -512,12 +528,15 @@ def cmd_install(args: argparse.Namespace) -> int:
                 merged[path] = merge(local(kit, f"{TEMPLATES}/{template}"), local(target, path))
             except (ValueError, KeyError) as error:   # json.JSONDecodeError is a ValueError
                 print(f"::error title=Not merged::{path}: {error} — merge {TEMPLATES}/{template} into it by hand")
+    ignored = ignore_kit_bytecode(target)
     leftover = [path for path in kit_files(target) if path not in manifest.files]
 
     print(f"Installed ABSD {manifest.version} from {kit} into {target}:")
     print_paths("copied", sorted(manifest.files) + [MANIFEST])
     print_paths("seeded", seeded)
     print_paths("kept", kept)
+    if ignored:
+        print(f"  ignored  {IGNORED_BYTECODE} (added to {GITIGNORE})")
     for path, added in merged.items():
         if added:
             print(f"::warning title=Merged::{path} existed; added {'; '.join(added)} (the product's own entries stay)")
@@ -576,6 +595,7 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
                      and f"{TEMPLATES}/{template}" in new.files]
     if edits:
         write_local_edits(target, old.version, new.version, edits)
+    ignored = ignore_kit_bytecode(target)
     leftover = [path for path in kit_files(target) if path not in new.files]
 
     print(f"Upgraded ABSD {old.version} → {new.version} in {target}: "
@@ -585,6 +605,8 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
     print_paths("removed", removed)
     print_paths("seeded", seeded)
     print_paths("kept", kept)
+    if ignored:
+        print(f"  ignored  {IGNORED_BYTECODE} (added to {GITIGNORE})")
     if edits:
         print(f"::warning title=Local kit edits::{len(edits)} local changes to kit paths recorded in {LOCAL_EDITS}")
     for path in leftover:

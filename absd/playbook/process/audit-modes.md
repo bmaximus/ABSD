@@ -81,9 +81,10 @@ evidence in `arch_review.md` or `audit.md`, and a missing step is BLOCKED, never
 **XCA-17** — When the user chooses it (a brd Decision or `context.md` §14) for a cycle that changes money or
 permission paths, run a second independent audit: a fresh Auditor invocation with the same brief and product SHA that
 must not read the first audit's findings until its own are written, appended to `audit.md` as `## Second audit`; the
-union of findings counts, and a class graded differently takes the higher severity (XCA-7).
+union of findings counts, and a class graded differently takes the higher severity (XCA-7). Model choice per PIPE-1:
+a different strongest-level model when `context.md` §14 names two, else the same model in that fresh invocation.
 - *Why:* one auditor's blind spot on the highest-cost paths survives every gate; independent review with the same
   rubric exposes it.
 - *Check:* `audit.md` holds both audits at one product SHA; the second's evidence predates its reading of the first.
 - *Applies when:* optional — money or permission changes, on the user's choice.
-- *Provenance:* LL-65 (ECC evaluation, 2026-11)
+- *Provenance:* LL-65 (ECC evaluation, 2026-11); LL-68 (benchmark 2.4.0, 2026-11-11)

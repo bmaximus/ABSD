@@ -305,8 +305,10 @@ class InstallTests(SyncTestCase):
             self.assertEqual(files[destination], KIT[template].encode(), destination)
             self.assertIn(f"seeded   {destination}", out)
         # never shipped: the inbox, maintainer files, non-agent files; product files untouched
-        expected = set(KIT_OWNED) | {"absd/MANIFEST"} | set(seeds) | set(PRODUCT)
+        expected = set(KIT_OWNED) | {"absd/MANIFEST", ".gitignore"} | set(seeds) | set(PRODUCT)
         self.assertEqual(set(files), expected)
+        self.assertEqual(files[".gitignore"], b"absd/**/__pycache__/\n")   # the push lane's kit tests leave no trace
+        self.assertIn("ignored  absd/**/__pycache__/", out)
         for path, text in PRODUCT.items():   # an existing CLAUDE.md gains the pipeline's imports on top
             expected_text = KIT["absd/templates/project/CLAUDE.md"] + "\n" + text if path == "CLAUDE.md" else text
             self.assertEqual(files[path], expected_text.encode(), path)
@@ -461,6 +463,19 @@ class UpgradeTests(SyncTestCase):
         self.assertIn("::warning title=Seed template changed::absd/templates/project/context.md", out)
         code, out = self.run_sync("check", "--root", product)
         self.assertEqual(code, 0, out)
+
+    def test_the_bytecode_ignore_line_is_added_once_and_appended_after_product_lines(self):
+        _, product = self.installed_product()
+        path = os.path.join(product, ".gitignore")
+        write(path, "node_modules/")   # the product rewrote it, no trailing newline
+        code, out = self.upgrade(product, self.make_next_kit())
+        self.assertEqual(code, 0, out)
+        self.assertEqual(read(path), "node_modules/\nabsd/**/__pycache__/\n")
+        self.assertIn("ignored  absd/**/__pycache__/", out)
+        code, out = self.upgrade(product, self.make_kit("kit-third", {"absd/VERSION": "2.2.0\n"}))
+        self.assertEqual(code, 0, out)
+        self.assertEqual(read(path), "node_modules/\nabsd/**/__pycache__/\n")
+        self.assertNotIn("ignored ", out)
 
     def test_directories_emptied_by_removed_kit_files_are_pruned_up_the_tree(self):
         nested = "absd/playbook/legacy/deep/old.md"

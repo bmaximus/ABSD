@@ -27,13 +27,14 @@ default table below unless `absd-project/context.md` §14 "Role/step overrides" 
 the §14 "Model levels" table maps each level to a model. No product setting lowers a floor: architecture, the Gate 2R
 review, Plan & Bind oracles and RED tests, every audit and security review, and every work package with money,
 permission or security content run on `strongest`. When the second audit (XCA-17) runs and the map names two
-strongest-level models, it runs on the one that did not build the code.
+strongest-level models, it runs on the one that did not build the code; with one strongest model, a fresh invocation of
+it that sees none of the first audit's context counts.
 - *Why:* one tier for every step either wastes the strongest model on bookkeeping or puts a cheaper one on the
   judgement that gates catch least; naming models in the kit dates it with every model release (LL-67).
 - *Check:* every invocation event in the cycle's telemetry (PIPE-3) names a level at or above its row's floor and the
   model §14 maps it to; the second audit's model differs from the Builder's when §14 names two strongest models.
 - *Applies when:* always.
-- *Provenance:* LL-65 (ECC evaluation, 2026-11); LL-67 (owner request after the 2.3.0 release and the ECC evaluation, 2026-11)
+- *Provenance:* LL-65 (ECC evaluation, 2026-11); LL-67 (owner request after the 2.3.0 release and the ECC evaluation, 2026-11); LL-68 (benchmark 2.4.0, 2026-11-11)
 
 | Role · step | Default level | Floor (no product setting lowers it) |
 |---|---|---|
@@ -78,10 +79,11 @@ cycle, never moved); `metrics.py validate` checks every file.
 | `invocation` | agent, step, level, model, duration (s), tokens (only when reported), result (done, halt, blocked, interrupted, rejected) |
 | `gate` | gate (G1, GUX, G2, G2R, GT, G3, XCA, REL), round, verdict (PASS, FAIL), finding counts by RULES §6 severity, rule ids the findings cite, `repass` (a re-run after an upstream change — a decision or CLR — not a review round) |
 | `halt` | agent, cause (blueprint-gap, spec-gap, kit-gap, external, user) |
-| `rework` | from, to, cause (review-fail, upstream-gap, spec-defect, halt, clr, change-request) |
+| `invocation` steps | brd, analysis, facts, design, design-system, architecture, arch-review, catalogue-apply, plan-bind, build, fix, verify, design-qa, audit, second-audit, reproduce, baseline, log, harvest, other |
+| `rework` | from, to, cause (review-fail, upstream-gap, spec-defect, halt, clr, change-request, minor-routed, user-answer) |
 | `control` | negative-control id, turned red, turned green |
 | `escape` | DEF id, why-missed class (ESC taxonomy) |
-| `resume` | agent |
+| `resume` | agent — the same invocation continued after a lost session or context; a Build restarted after a halt is a new invocation plus a `rework` with cause halt |
 
 **PIPE-4** — Keep telemetry private and inert: a local file in the product repository, never sent anywhere — no hook,
 tool or workflow transmits it; it holds only numbers, timestamps, enums and ids (the tool refuses free text, unknown

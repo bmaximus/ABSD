@@ -311,6 +311,22 @@ class ReportTests(MetricsTestCase):
         self.assertEqual((gate["rounds"], gate["repasses"], gate["first_pass"]), (3, 1, 1))
         self.assertIn("| G2R | 3 | 1 |", out)
 
+    def test_steps_and_causes_the_shelf_benchmark_needed_are_accepted(self):
+        self.seed()
+        self.cycle("C002", [
+            {"kind": "invocation", "agent": "analyst", "step": "catalogue-apply", "level": "balanced", "model": "m",
+             "result": "done"},
+            {"kind": "invocation", "agent": "designer", "step": "design-system", "level": "strongest", "model": "m",
+             "result": "done"},
+            {"kind": "invocation", "agent": "builder", "step": "fix", "level": "balanced", "model": "m", "result": "done"},
+            {"kind": "rework", "from": "G3", "to": "builder", "cause": "minor-routed"},
+            {"kind": "rework", "from": "G1", "to": "analyst", "cause": "user-answer"},
+        ])
+        code, out, report = self.report()
+        self.assertEqual(code, 0, out)
+        self.assertEqual(report["rework"]["G3→builder (minor-routed)"], 1)
+        self.assertEqual(report["rework"]["G1→analyst (user-answer)"], 1)
+
     def test_rules_halts_rework_controls_escapes(self):
         self.seed()
         _, out, report = self.report()
