@@ -1,7 +1,7 @@
 export const meta = {
   name: 'absd-benchmark',
   description: 'ABSD benchmark: each fixture run through Bootstrap and one feature cycle, one sub-agent per role step (PIPE-8)',
-  whenToUse: 'Kit acceptance (ENR-14 / PIPE-6): args {fixtures: [{name, repo, brief}], models: {strongest, second, balanced, fast}, maxDecisions}',
+  whenToUse: 'Kit acceptance (ENR-14 / PIPE-6): args {fixtures: [{name, repo, brief}], models: {strongest, second, balanced, fast}, maxDecisions, resume?, firstDecision?}',
   phases: [{ title: 'Run', detail: 'Manager decides, the harness dispatches each worker on its mapped model' }],
 }
 
@@ -110,14 +110,23 @@ set covered=false. Never invent facts, preferences or numbers the brief does not
 async function runFixture(fx) {
   const log_ = []
   const dispatches = []
-  let history = 'START — the kit is installed and committed on main (absd_sync.py install, ABSD-Sync trailer). Begin Bootstrap.'
+  let history = args.resume
+    ? `RESUME — an earlier run of this benchmark stopped mid-cycle (${args.resume}). Resume from absd-project/working/cycle.md and context.md as your manual says for a resume; record the resume.`
+    : 'START — the kit is installed and committed on main (absd_sync.py install, ABSD-Sync trailer). Begin Bootstrap.'
   let cycle = 'C001'
-  for (let n = 1; n <= MAX; n++) {
+  let failed = 0
+  const first = args.firstDecision || 1
+  for (let n = first; n < first + MAX; n++) {
     const decision = await agent(managerPrompt(fx, history), {
       model: M.strongest, schema: DECISION, phase: 'Run',
       label: `${fx.name}|${cycle}|manager|other|strongest|${M.strongest}|${n}`,
     })
-    if (!decision) { log_.push({ n, error: 'manager invocation failed' }); history = `[${n}] Your previous invocation failed without a decision (no reply). Resume from cycle.md.`; continue }
+    if (!decision) {
+      log_.push({ n, error: 'manager invocation failed' })
+      // a usage limit or an outage fails every call: stop instead of spending the remaining decisions on failures
+      if (++failed >= 3) return { fixture: fx.name, decisions: n, dispatches, log: log_, end: 'stopped: 3 Manager invocations in a row failed' }
+      history = `[${n}] Your previous invocation failed without a decision (no reply). Resume from cycle.md.`; continue }
+    failed = 0
     cycle = decision.cycle || cycle
     log_.push({ n, decision })
     log(`${fx.name} #${n} ${decision.action}: ${decision.summary}`)
@@ -141,7 +150,7 @@ async function runFixture(fx) {
       return `[${n}] Reply from ${d.agent} · ${d.step} (level ${d.level} → ${modelFor(d.step, d.level)}), brief ${d.brief}:\n${replies[i] || 'NO REPLY — the invocation ended without a reply (treat as interrupted).'}`
     }).join('\n\n')
   }
-  return { fixture: fx.name, decisions: MAX, dispatches, log: log_, end: `stopped at ${MAX} Manager decisions` }
+  return { fixture: fx.name, decisions: first + MAX - 1, dispatches, log: log_, end: `stopped at ${MAX} Manager decisions` }
 }
 
 const results = await pipeline(fixtures, fx => runFixture(fx))
