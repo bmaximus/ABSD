@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Runner images are pinned (GATE-11)
-        run: "! grep -nE 'runs-on:.*-latest' .github/workflows/*.yml"
+        run: "! grep -nE '^ *runs-on: *[^#]*-latest' .github/workflows/*.yml"
       - name: Tooling tests
         run: python -m unittest discover -s absd/tooling -p 'test_*.py'
       - name: Benchmark scorer tests
