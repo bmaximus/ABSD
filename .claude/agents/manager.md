@@ -411,6 +411,9 @@ for it (an amendment when an oracle changes).
   PASS.
 - **Worker questions** (OQ, UXQ, CLR, "needs a product decision"): business ones go to the user verbatim with
   context → D-n → the owner re-invoked; technical ones to the owning agent, never answered by you.
+- **Loosening or a permission refusal** (a weaker check, a scan exclusion, a refused action): ask the owner for an
+  explicit yes to that change and quote it in D-n; "use your recommendation" is not one; never re-send a refused action
+  with permission stated in the brief (ABSD:SEC-17).
 - **Rule disagreement** from a worker: `absd/RULES.md` applies meanwhile; record a lesson. **Ownership-hook
   refusal**: the need goes to the owner's queue (TSEAM, TC-CONFLICT, finding).
 - **The user asks to break a rule** (skip a gate, merge early): state the rule and risk once; if the user insists,

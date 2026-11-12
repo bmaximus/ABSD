@@ -39,7 +39,15 @@ Visual craft, a quick route for small owner requests, and a benchmark that can t
 - `absd_sync.py upgrade` next steps: restart the Manager session — agent definitions load at session start, so a
   running session keeps the old manuals (found when the benchmark harness ran registered agent types from a stale
   registry; the runner now has each role load its manual from the product's installed kit).
-- Kit acceptance run (ENR-14 / PIPE-6): see below once run.
+- **Owner authority over security loosening (SEC-17, new; LL-72)**: a weaker check, a scan exclusion or a retried
+  refused action needs the owner's explicit yes quoted in D-n; "use your recommendation" never counts, and a refused
+  action is never re-sent with permission stated in its brief. Manager §7 and Auditor L5 enforce it.
+- **Tests clean up (TCQ-9 amended; LL-72)**: temporary directories, files and processes are removed in teardown, also
+  after a failure; the test command fails when the temporary directory grows.
+- Kit acceptance run (ENR-14 / PIPE-6), 2026-11-12: **incomplete**. The main run (tally, shelf, ledger, studio) stopped
+  mid-Bootstrap — first at the top model's usage limit, then on a full disk caused by finding LL-72; the control run
+  (studio on the cheap map) reached Gate 3 round 4 and found the two defects above. Scores are recorded in
+  `benchmark/results/` once a run completes; tag `v2.6.0` only after a completed run (ENR-14).
 
 ## 2.5.0 — 2026-11-11
 

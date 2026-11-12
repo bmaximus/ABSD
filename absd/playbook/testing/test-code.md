@@ -129,8 +129,11 @@ printed seed and every test repeated proves it (GATE-9); a test failing only the
 temporary directory per test, a store or tenant per worker (INTEG-3), no mutation of process-global state
 (environment variables, working directory, culture, static singletons, the system clock). A test that must own
 process-global state sits in a declared serial group with its reason in `TESTING.md`.
-- *Why:* a suite written for one worker hides coupling until someone speeds it up.
-- *Check:* the nightly runs ≥ 2 workers (GATE-9); serial groups are listed with reasons; lint bans fixed ports.
+Every temporary directory, file or process a test creates is removed in its teardown, also after a failure.
+- *Why:* a suite written for one worker hides coupling until someone speeds it up; a 2.6.0 benchmark product leaked
+  43,588 temporary directories (27 GB) until the disk was full.
+- *Check:* the nightly runs ≥ 2 workers (GATE-9); serial groups are listed with reasons; lint bans fixed ports; the
+  test command counts the temporary directory's entries before and after the suite and fails when any are left.
 - *Applies when:* always.
 - *Provenance:* industry baseline
 
