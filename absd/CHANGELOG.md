@@ -32,6 +32,10 @@ Visual craft, a quick route for small owner requests, and a benchmark that can t
   `benchmark/usage.py` (tests), `score.py` depth and token coverage (tests).
 - Manager manual: Bootstrap and Harvest steps moved to procedures (`absd/playbook/procedures/bootstrap.md`,
   `harvest.md`; ENR-17) to make room.
+- **Platform change found by the first harness run:** Claude Code now refuses a sub-agent's whole-file Write of a new
+  file named `analysis.md` ("return findings as text, not report files"); every other artifact name and every Edit is
+  allowed. RULES §8 "New artifact" row and the Analyst manual: copy the skeleton (`cp`), then fill it with Edit (owner
+  decision, 2026-11-12).
 - Kit acceptance run (ENR-14 / PIPE-6): see below once run.
 
 ## 2.5.0 — 2026-11-11

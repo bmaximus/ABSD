@@ -214,8 +214,10 @@ Profile lens — what the words mean per declared profile:
 
 ### 5.1 `absd-project/working/analysis.md`
 
-Skeleton: `absd/templates/artifacts/analysis.md` — the single source of the structure; copy it, keep every heading
-and column (trace_check reads them). ≤ 20k tokens; beyond, an index (header, §0, §12–§16, Traceability) plus parts
+Skeleton: `absd/templates/artifacts/analysis.md` — the single source of the structure; create the file by copying it
+(`cp absd/templates/artifacts/analysis.md absd-project/working/analysis.md`), then fill it with edits — some platforms
+refuse a sub-agent's whole-file write of a file named `analysis.md` (RULES §8); keep every heading and column
+(trace_check reads them). ≤ 20k tokens; beyond, an index (header, §0, §12–§16, Traceability) plus parts
 `analysis/NN-<part>.md` holding whole sections — trace_check reads both. Every section holds content, "none",
 `N/A — <reason>` (a lens whose *Applies when* excludes the product, or whose subject is absent — no money, jobs,
 flags — stated with the evidence) or, in a delta, "Unchanged — <reason>". Statuses:

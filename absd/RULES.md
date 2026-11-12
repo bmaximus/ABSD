@@ -134,8 +134,8 @@ count for the whole cycle.
 
 - A test passes only with attached local output or a CI run at the exact **product SHA**: the last commit that
   changes a path outside `absd-project/`. Evidence taken at product SHA S stays valid while
-  `git diff --quiet S HEAD -- . ':!absd-project'` holds — pipeline commits (artifacts, evidence, reports) never
-  invalidate it, and neither does the Tester's Log commit (only the Lesson cells of `ESCAPED-DEFECTS.md`). The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
+  `git diff --quiet S HEAD -- . ':!absd-project'` holds — pipeline commits (artifacts, evidence, reports) and the Tester's
+  Log commit (§5) never invalidate it. The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
   if it cannot, the verdict is **BLOCKED**. An environment limitation is a RISK, never a design decision.
 - Findings everywhere use one row: `ID | Severity | Category | Rule cited | Evidence | Proposed route`. Evidence
   names location (`file:line`), trigger, outcome and why existing guards miss it — security findings also their
@@ -164,9 +164,10 @@ Tests carry their ids in the name or as properties: `TC-0042` and `[AREA-n]` (se
 | Run commands | Bash | the terminal tools |
 | Gate records | `absd-project/working/cycle.md` | the same file |
 | Model level | the Agent tool's `model` on every invocation; frontmatter `model:` only as fallback | the model picker, named in the handoff |
+| New artifact | `cp` its skeleton, then Edit (sub-agents may not Write a new `analysis.md`) | the same |
 
 Workers are invoked only by the Manager with a brief (`absd/templates/briefs/invocation-brief.md`) and answer in ≤ 15
-lines: status, artifact paths, finding counts by severity, blockers — never artifact contents. The final reply is the
+lines: status, artifact paths, finding counts, blockers — never artifact contents. The final reply is the
 deliverable: a worker never ends with work pending in background tasks or sub-runs — it collects or cancels them first;
 the Manager rejects a reply that references unfinished work. **Model level:** the kit names levels, never models;
 `context.md` §14 maps them. Each step runs on its PIPE-1 level (floors stay `strongest`); the Manager passes the model
