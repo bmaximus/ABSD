@@ -82,8 +82,8 @@ near-duplicate payload literals across files; a builder never fills derived fiel
 suffix — randomness in names only, never in inputs that decide an outcome); assert only on records the test created,
 found by those keys (INTEG-4); remove leftovers of globally unique constraints before acting; never mutate or extend
 shared seed data for a new TC (E2E-10); never assert a global count in a shared store. Generated suffixes cannot match
-the product's vocabulary (digits or words a matcher reads); a flake from random data is first checked for a matcher
-bug (VAR-15).
+the product's vocabulary (digits or words a matcher reads); a flake from random data is checked for a matcher bug
+(VAR-15).
 - *Why:* a top-N test passed only while no other test created a larger value; retries tripped over the previous
   attempt's data; a random tag holding "21" hit a keyword matcher (LL-73).
 - *Check:* the suite passes twice in a row on one store and with every test repeated (nightly, GATE-9); the Auditor
@@ -208,10 +208,10 @@ internals; no development auth shortcut (INTEG-7).
 **TCQ-16** — Review every test added or changed in the cycle against the checklist below: the Tester before each
 hand-off, the Auditor at L6 on every test of a money, time or access rule plus a sample of the rest. A failed item is
 a finding citing its rule id; test code meets the same static bar as production code (GATE-4). An outside pull
-request (another person, session or bot) gets this review before merge: each change to an existing test, fake,
+request (another person, session or bot) gets it before merge: each change to an existing test, fake,
 allowlist, threshold or requirement follows an owner-approved behaviour change and stays specific, or blocks the merge
 with file and line (assertion loosened, expected value edited to the output, case deleted, skip or retry added, fake
-made to agree).
+bent to agree).
 - *Why:* unreviewed tests kept weak oracles (`> 0`, loose ranges, status-only checks) in a suite that looked green.
 - *Check:* `test_report.md` records the self-review; `audit.md` L6 lists the tests reviewed and the findings; an
   outside pull request's review is on it before merge.
