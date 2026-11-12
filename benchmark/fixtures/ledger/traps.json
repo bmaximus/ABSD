@@ -29,7 +29,53 @@
         "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "\\bDST\\b|daylight[- ]sav\\w*|summer[- ]?time|winter[- ]?time|\\bclocks? (?:go(?:es)?|chang\\w*|mov\\w*|spring\\w*|fall\\w*|went|turn\\w*)\\b|\\bclock[- ]change|\\b2[35][- ]?(?:hours?|h)\\b|\\boffset (?:change|switch|transition)\\w*|\\b(?:zone|tz|time[- ]?zone) transitions?"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "\\b20\\d\\d-(?:03-(?:2[5-9]|3[01])|10-(?:2[5-9]|3[01]))\\b|\\bDST\\b"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "\\b20\\d\\d-(?:03-(?:2[5-9]|3[01])|10-(?:2[5-9]|3[01]))\\b|\\bDST\\b"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "\\b20\\d\\d-(?:03-(?:2[5-9]|3[01])|10-(?:2[5-9]|3[01]))\\b|\\bDST\\b"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "\\b20\\d\\d-(?:03-(?:2[5-9]|3[01])|10-(?:2[5-9]|3[01]))\\b|\\bDST\\b"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "\\b20\\d\\d-(?:03-(?:2[5-9]|3[01])|10-(?:2[5-9]|3[01]))\\b|\\bDST\\b"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "\\b20\\d\\d-(?:03-(?:2[5-9]|3[01])|10-(?:2[5-9]|3[01]))\\b|\\bDST\\b"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "\\b20\\d\\d-(?:03-(?:2[5-9]|3[01])|10-(?:2[5-9]|3[01]))\\b|\\bDST\\b"
+        }
+      ],
+      "min_matches": 1
+    }
   },
   {
     "id": "TRAP-LEDGER-2",
@@ -69,7 +115,53 @@
         "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\border))(?=.*?(?:duplicat\\w*|\\bde-?dup\\w*|\\bsame order[_ -]?ids?\\b|\\border[_ -]?ids?\\b[^.\\n]{0,60}?(?:\\btwice\\b|more than once|\\bagain\\b|\\brepeat\\w*)|(?:\\btwice\\b|more than once|\\brepeat\\w*)[^.\\n]{0,60}?\\border[_ -]?ids?\\b|\\b(?:first|last|earlier|later) (?:occurrence|one|seen|wins|copy|row)\\b)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "duplicat\\w*|\\btwice\\b|\\bdup\\w*|same order"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "duplicat\\w*|\\btwice\\b|\\bdup\\w*|same order"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "duplicat\\w*|\\btwice\\b|\\bdup\\w*|same order"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "duplicat\\w*|\\btwice\\b|\\bdup\\w*|same order"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "duplicat\\w*|\\btwice\\b|\\bdup\\w*|same order"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "duplicat\\w*|\\btwice\\b|\\bdup\\w*|same order"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "duplicat\\w*|\\btwice\\b|\\bdup\\w*|same order"
+        }
+      ],
+      "min_matches": 1
+    }
   },
   {
     "id": "TRAP-LEDGER-3",
@@ -109,6 +201,52 @@
         "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bstatus\\w*))(?=.*?(?:\\bunknown\\b|\\bunexpected\\b|\\bunrecogni[sz]\\w*|\\bunsupported\\b|\\binvalid\\b|\\bany other\\b|\\bother (?:than|values?|status\\w*)\\b|\\bnot (?:one of|in the (?:list|set)|listed|known)\\b|\\bnew (?:status\\w*|values?)\\b|\\banything else\\b|\\bnone of\\b|\\boutside\\b|\\bpending\\b|\\bshipped\\b|\\bfuture\\b)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird|other)\\b[^\\n]{0,40}status|status[^\\n]{0,40}\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird)\\b"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird|other)\\b[^\\n]{0,40}status|status[^\\n]{0,40}\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird)\\b"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird|other)\\b[^\\n]{0,40}status|status[^\\n]{0,40}\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird)\\b"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird|other)\\b[^\\n]{0,40}status|status[^\\n]{0,40}\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird)\\b"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird|other)\\b[^\\n]{0,40}status|status[^\\n]{0,40}\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird)\\b"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird|other)\\b[^\\n]{0,40}status|status[^\\n]{0,40}\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird)\\b"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird|other)\\b[^\\n]{0,40}status|status[^\\n]{0,40}\\b(?:pending|shipped|on[_-]?hold|unknown|bogus|weird)\\b"
+        }
+      ],
+      "min_matches": 1
+    }
   }
 ]

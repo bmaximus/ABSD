@@ -1,0 +1,622 @@
+[
+  {
+    "id": "TRAP-STUDIO-1",
+    "kind": "external-fact",
+    "summary": "Only the success notification is described: the provider's whole event lifecycle (expired or abandoned checkout, failed payment, refund, dispute) is listed and mapped (EXT-6)",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      },
+      {
+        "glob": "docs/testing/EXTERNAL-FACTS.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+      }
+    ],
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback))(?=.*?(?:\\bexpir\\w*|abandon\\w*|\\brefund\\w*|disput\\w*|charge-?backs?|\\bfail\\w*|declin\\w*|time[- ]?out|reversal|revers\\w* (?:the )?(?:payment|charge)|cancel\\w* (?:payment|checkout)|(?:payment|checkout)\\w* cancel\\w*)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "^(?=.*?(?:expired?|refund\\w*|dispute\\w*|charge-?back|payment[_. -]?failed|\\bfailed\\b|declined))(?=.*?(?:event|webhook|type|status|notification)).*$"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "^(?=.*?(?:expired?|refund\\w*|dispute\\w*|charge-?back|payment[_. -]?failed|\\bfailed\\b|declined))(?=.*?(?:event|webhook|type|status|notification)).*$"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "^(?=.*?(?:expired?|refund\\w*|dispute\\w*|charge-?back|payment[_. -]?failed|\\bfailed\\b|declined))(?=.*?(?:event|webhook|type|status|notification)).*$"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "^(?=.*?(?:expired?|refund\\w*|dispute\\w*|charge-?back|payment[_. -]?failed|\\bfailed\\b|declined))(?=.*?(?:event|webhook|type|status|notification)).*$"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "^(?=.*?(?:expired?|refund\\w*|dispute\\w*|charge-?back|payment[_. -]?failed|\\bfailed\\b|declined))(?=.*?(?:event|webhook|type|status|notification)).*$"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "^(?=.*?(?:expired?|refund\\w*|dispute\\w*|charge-?back|payment[_. -]?failed|\\bfailed\\b|declined))(?=.*?(?:event|webhook|type|status|notification)).*$"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "^(?=.*?(?:expired?|refund\\w*|dispute\\w*|charge-?back|payment[_. -]?failed|\\bfailed\\b|declined))(?=.*?(?:event|webhook|type|status|notification)).*$"
+        }
+      ],
+      "min_matches": 1
+    }
+  },
+  {
+    "id": "TRAP-STUDIO-2",
+    "kind": "reachability",
+    "summary": "The member home lists bookings and classes left but no way to buy: buying is reachable from the member's own navigation and a journey proves it (E2E-18)",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+      }
+    ],
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bbuy\\w*|purchas\\w*|checkout|\\bpass(?:es)? (?:page|screen|shop|store)\\b))(?=.*?(?:navigat\\w*|\\bmenu\\b|\\bnav\\b|entry[- ]point|reachab\\w*|\\breach\\w*|from (?:the )?(?:member'?s? )?home|home (?:screen|page)\\b[^\\n]{0,60}(?:link|button|tab|tile)|(?:link|button|tab|tile)[^\\n]{0,60}home (?:screen|page)|tab bar|bottom bar|dashboard)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "^(?=.*?(?:getByRole|getByText|click\\())(?=.*?(?:\\bbuy\\b|purchase|\\bpass(?:es)?\\b)).*$"
+        },
+        {
+          "glob": "tests/**/*e2e*.*",
+          "regex": "^(?=.*?(?:getByRole|getByText|click\\())(?=.*?(?:\\bbuy\\b|purchase|\\bpass(?:es)?\\b)).*$"
+        },
+        {
+          "glob": "tests/**/*.spec.*",
+          "regex": "^(?=.*?(?:getByRole|getByText|click\\())(?=.*?(?:\\bbuy\\b|purchase|\\bpass(?:es)?\\b)).*$"
+        },
+        {
+          "glob": "test/**/*.spec.*",
+          "regex": "^(?=.*?(?:getByRole|getByText|click\\())(?=.*?(?:\\bbuy\\b|purchase|\\bpass(?:es)?\\b)).*$"
+        }
+      ],
+      "min_matches": 1
+    }
+  },
+  {
+    "id": "TRAP-STUDIO-3",
+    "kind": "idempotency",
+    "summary": "The provider may notify the same payment more than once: one payment gives exactly one pass (idempotent fulfilment)",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      },
+      {
+        "glob": "docs/testing/EXTERNAL-FACTS.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+      }
+    ],
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|checkout|\\bpayments?\\b|webhook|notification|\\bevents?\\b|callback|\\bpass(?:es)?\\b|credit\\w*))(?=.*?(?:duplicat\\w*|\\btwice\\b|more than once|\\bagain\\b|idempot\\w*|replay\\w*|re-?deliver\\w*|\\bretr(?:y|ies|ied)\\b|same (?:event|notification|payment|message))).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "^(?=.*?(?:duplicat\\w*|twice|again|replay\\w*|idempot\\w*|same (?:event|notification)|redeliver))(?=.*?(?:event|webhook|notification|payment|pass)).*$"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "^(?=.*?(?:duplicat\\w*|twice|again|replay\\w*|idempot\\w*|same (?:event|notification)|redeliver))(?=.*?(?:event|webhook|notification|payment|pass)).*$"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "^(?=.*?(?:duplicat\\w*|twice|again|replay\\w*|idempot\\w*|same (?:event|notification)|redeliver))(?=.*?(?:event|webhook|notification|payment|pass)).*$"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "^(?=.*?(?:duplicat\\w*|twice|again|replay\\w*|idempot\\w*|same (?:event|notification)|redeliver))(?=.*?(?:event|webhook|notification|payment|pass)).*$"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "^(?=.*?(?:duplicat\\w*|twice|again|replay\\w*|idempot\\w*|same (?:event|notification)|redeliver))(?=.*?(?:event|webhook|notification|payment|pass)).*$"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "^(?=.*?(?:duplicat\\w*|twice|again|replay\\w*|idempot\\w*|same (?:event|notification)|redeliver))(?=.*?(?:event|webhook|notification|payment|pass)).*$"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "^(?=.*?(?:duplicat\\w*|twice|again|replay\\w*|idempot\\w*|same (?:event|notification)|redeliver))(?=.*?(?:event|webhook|notification|payment|pass)).*$"
+        }
+      ],
+      "min_matches": 1
+    }
+  },
+  {
+    "id": "TRAP-STUDIO-4",
+    "kind": "process",
+    "summary": "The provider cannot be reached, so its behaviour is unverified: payments ship disabled or not live, and the status names the level (built, verified, live) honestly (EXT-1, DOD-11)",
+    "detect": [
+      {
+        "glob": "absd-project/context.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/cycle.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/test_report.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/audit.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/brd.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      },
+      {
+        "glob": "docs/testing/EXTERNAL-FACTS.md",
+        "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+      }
+    ],
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bpay\\w*|\\bPayCo\\b|checkout|online sales|\\bcard\\b))(?=.*?(?:UNVERIFIED|not (?:yet )?verified|\\bunverified\\b|flag\\w*[^\\n]{0,20}\\boff\\b|off by default|\\bdisabled\\b|not live|not (?:yet )?(?:ready|enabled)|test[- ]mode only|\\blive (?:keys?|check\\w*|verification|account|payments?)|RISK-\\d+|fails? closed|cannot (?:yet )?(?:take|accept|charge))).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "^(?=.*?(?:pay\\w*|checkout|PayCo))(?=.*?(?:flag|disabled|enabled\\W{0,4}(?:false|0)|PAYMENTS?_ENABLED|feature|fails? closed|503|not available)).*$"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "^(?=.*?(?:pay\\w*|checkout|PayCo))(?=.*?(?:flag|disabled|enabled\\W{0,4}(?:false|0)|PAYMENTS?_ENABLED|feature|fails? closed|503|not available)).*$"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "^(?=.*?(?:pay\\w*|checkout|PayCo))(?=.*?(?:flag|disabled|enabled\\W{0,4}(?:false|0)|PAYMENTS?_ENABLED|feature|fails? closed|503|not available)).*$"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "^(?=.*?(?:pay\\w*|checkout|PayCo))(?=.*?(?:flag|disabled|enabled\\W{0,4}(?:false|0)|PAYMENTS?_ENABLED|feature|fails? closed|503|not available)).*$"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "^(?=.*?(?:pay\\w*|checkout|PayCo))(?=.*?(?:flag|disabled|enabled\\W{0,4}(?:false|0)|PAYMENTS?_ENABLED|feature|fails? closed|503|not available)).*$"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "^(?=.*?(?:pay\\w*|checkout|PayCo))(?=.*?(?:flag|disabled|enabled\\W{0,4}(?:false|0)|PAYMENTS?_ENABLED|feature|fails? closed|503|not available)).*$"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "^(?=.*?(?:pay\\w*|checkout|PayCo))(?=.*?(?:flag|disabled|enabled\\W{0,4}(?:false|0)|PAYMENTS?_ENABLED|feature|fails? closed|503|not available)).*$"
+        }
+      ],
+      "min_matches": 1
+    }
+  },
+  {
+    "id": "TRAP-STUDIO-5",
+    "kind": "security",
+    "summary": "The provider's call to our server is a public endpoint: its authenticity (signature, shared secret) is verified and forged calls are rejected",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      },
+      {
+        "glob": "docs/testing/EXTERNAL-FACTS.md",
+        "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+      }
+    ],
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:webhook|notification|callback|\\bPayCo\\b|\\bevents?\\b|endpoint))(?=.*?(?:signature|\\bsigned\\b|signing|\\bHMAC\\b|authentic\\w*|spoof\\w*|forg\\w*|tamper\\w*|verif\\w* (?:the )?(?:sender|origin|source|caller)|shared secret|\\bsecret\\b)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "signature|hmac|tamper\\w*|forg\\w*|invalid[_ -]?sig|bad[_ -]?sig|wrong[_ -]?secret"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "signature|hmac|tamper\\w*|forg\\w*|invalid[_ -]?sig|bad[_ -]?sig|wrong[_ -]?secret"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "signature|hmac|tamper\\w*|forg\\w*|invalid[_ -]?sig|bad[_ -]?sig|wrong[_ -]?secret"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "signature|hmac|tamper\\w*|forg\\w*|invalid[_ -]?sig|bad[_ -]?sig|wrong[_ -]?secret"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "signature|hmac|tamper\\w*|forg\\w*|invalid[_ -]?sig|bad[_ -]?sig|wrong[_ -]?secret"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "signature|hmac|tamper\\w*|forg\\w*|invalid[_ -]?sig|bad[_ -]?sig|wrong[_ -]?secret"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "signature|hmac|tamper\\w*|forg\\w*|invalid[_ -]?sig|bad[_ -]?sig|wrong[_ -]?secret"
+        }
+      ],
+      "min_matches": 1
+    }
+  },
+  {
+    "id": "TRAP-STUDIO-6",
+    "kind": "time",
+    "summary": "\"Valid for three months from the day it is bought\": month-end purchases (31st, 30 Nov → February) and the Athens calendar day are pinned",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      },
+      {
+        "glob": "docs/testing/EXTERNAL-FACTS.md",
+        "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+      }
+    ],
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bvalid\\w*|expir\\w*|three months|3 months|\\buntil\\b|end date|\\bvalid until\\b))(?=.*?(?:month[- ]end|end of (?:the )?month|last day|\\b31\\b|\\b(?:29|28) Feb\\w*|February|\\bleap\\b|clamp\\w*|\\bAthens\\b|time[- ]?zone|midnight|\\b23:\\d\\d\\b|\\b00:\\d\\d\\b|\\bshorter month)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "\\b\\d{4}-(?:0[13578]|1[02])-31\\b|\\b\\d{4}-11-30\\b|\\b\\d{4}-02-2[89]\\b|\\b\\d{4}-0[46]-30\\b"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "\\b\\d{4}-(?:0[13578]|1[02])-31\\b|\\b\\d{4}-11-30\\b|\\b\\d{4}-02-2[89]\\b|\\b\\d{4}-0[46]-30\\b"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "\\b\\d{4}-(?:0[13578]|1[02])-31\\b|\\b\\d{4}-11-30\\b|\\b\\d{4}-02-2[89]\\b|\\b\\d{4}-0[46]-30\\b"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "\\b\\d{4}-(?:0[13578]|1[02])-31\\b|\\b\\d{4}-11-30\\b|\\b\\d{4}-02-2[89]\\b|\\b\\d{4}-0[46]-30\\b"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "\\b\\d{4}-(?:0[13578]|1[02])-31\\b|\\b\\d{4}-11-30\\b|\\b\\d{4}-02-2[89]\\b|\\b\\d{4}-0[46]-30\\b"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "\\b\\d{4}-(?:0[13578]|1[02])-31\\b|\\b\\d{4}-11-30\\b|\\b\\d{4}-02-2[89]\\b|\\b\\d{4}-0[46]-30\\b"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "\\b\\d{4}-(?:0[13578]|1[02])-31\\b|\\b\\d{4}-11-30\\b|\\b\\d{4}-02-2[89]\\b|\\b\\d{4}-0[46]-30\\b"
+        }
+      ],
+      "min_matches": 1
+    }
+  },
+  {
+    "id": "TRAP-STUDIO-7",
+    "kind": "external-fact",
+    "summary": "Provider account-side configuration (API version, subscribed event types, endpoint registration, key permissions) is recorded as facts to verify before launch (EXT-6)",
+    "detect": [
+      {
+        "glob": "absd-project/**/analysis.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/analysis/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/test_plan/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/architecture/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/catalogue.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/**/clarification_needed.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "docs/testing/EXTERNAL-FACTS.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      },
+      {
+        "glob": "absd-project/context.md",
+        "regex": "^(?=.*?(?:\\bPayCo\\b|\\bprovider\\b|webhook|endpoint|\\blive keys?\\b|restricted keys?))(?=.*?(?:API version|api[_ -]?version|subscribed events?|event (?:types?|subscriptions?) (?:enabled|configured|selected|subscribed)|endpoint (?:registration|URL|configuration|settings)|\\bdashboard\\b|account (?:settings|configuration)|live keys?|key permissions?|restricted keys?|webhook (?:URL|registration|configuration|settings))).*$"
+      }
+    ],
+    "min_matches": 1
+  }
+]

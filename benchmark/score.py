@@ -50,7 +50,11 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "absd", "tooling"))
 import metrics  # noqa: E402  (one reading of the telemetry format for the pipeline and the benchmark)
 
 SCHEMA = 1
-TRAP_KINDS = {"ambiguity", "variation", "contradiction", "security", "external-fact", "time"}
+TRAP_KINDS = {"ambiguity", "variation", "contradiction", "security", "external-fact", "time", "process",
+              "reachability", "idempotency", "aesthetic"}
+LEVELS = ("planned", "tested")   # depth above "raised": a TC row plans it, test code exercises it
+SKIP_DIRS = {"node_modules", ".venv", "venv", ".git", "__pycache__", "dist", "build"}
+TOKEN_COVERAGE = 90.0       # % of invocations with a platform-reported token count (PIPE-6)
 TRAP_ID = re.compile(r"^TRAP-[A-Z][A-Z0-9]*-\d+$")
 CRITERIA = ("c1", "c2", "c3")
 CRITERION_VALUES = {"pass", "fail"}
@@ -77,8 +81,9 @@ def load_traps(fixture: str) -> list[dict]:
     seen = set()
     for n, trap in enumerate(traps, 1):
         where = f"{path}: trap {n}"
-        if not isinstance(trap, dict) or set(trap) - {"id", "kind", "summary", "detect", "min_matches"}:
-            raise InputError(f"{where}: an object with id, kind, summary, detect, min_matches is required")
+        if not isinstance(trap, dict) or set(trap) - {"id", "kind", "summary", "detect", "min_matches", *LEVELS}:
+            raise InputError(f"{where}: an object with id, kind, summary, detect, min_matches"
+                             f" [, {', '.join(LEVELS)}] is required")
         if not isinstance(trap.get("id"), str) or not TRAP_ID.match(trap["id"]) or trap["id"] in seen:
             raise InputError(f"{where}: id must be a unique TRAP-<FIXTURE>-n")
         seen.add(trap["id"])
@@ -86,29 +91,37 @@ def load_traps(fixture: str) -> list[dict]:
             raise InputError(f"{where}: kind must be one of {', '.join(sorted(TRAP_KINDS))}")
         if not isinstance(trap.get("summary"), str) or not trap["summary"].strip():
             raise InputError(f"{where}: summary is required")
-        detect = trap.get("detect")
-        if not isinstance(detect, list) or not detect:
-            raise InputError(f"{where}: detect must be a non-empty list")
-        for d in detect:
-            if not isinstance(d, dict) or set(d) != {"glob", "regex"} or not all(isinstance(v, str) for v in d.values()):
-                raise InputError(f"{where}: each detector is {{\"glob\": ..., \"regex\": ...}}")
-            try:
-                d["compiled"] = re.compile(d["regex"], re.IGNORECASE | re.MULTILINE)
-            except re.error as error:
-                raise InputError(f"{where}: bad regex {d['regex']!r}: {error}") from error
-        need = trap.get("min_matches", 1)
-        if not isinstance(need, int) or isinstance(need, bool) or not 1 <= need <= len(detect):
-            raise InputError(f"{where}: min_matches must be an integer from 1 to the number of detectors")
-        trap["min_matches"] = need
+        trap["min_matches"] = check_detectors(trap.get("detect"), trap.get("min_matches", 1), where)
+        for level in LEVELS:
+            if level in trap:
+                spec = trap[level]
+                if not isinstance(spec, dict) or set(spec) - {"detect", "min_matches"}:
+                    raise InputError(f"{where}: {level} is {{\"detect\": [...], \"min_matches\": n}}")
+                spec["min_matches"] = check_detectors(spec.get("detect"), spec.get("min_matches", 1),
+                                                      f"{where} {level}")
     return traps
 
 
-def detect_trap(trap: dict, repo: str) -> dict:
-    """Which detectors matched where; caught when at least min_matches detectors matched."""
+def check_detectors(detect, need, where: str) -> int:
+    if not isinstance(detect, list) or not detect:
+        raise InputError(f"{where}: detect must be a non-empty list")
+    for d in detect:
+        if not isinstance(d, dict) or set(d) != {"glob", "regex"} or not all(isinstance(v, str) for v in d.values()):
+            raise InputError(f"{where}: each detector is {{\"glob\": ..., \"regex\": ...}}")
+        try:
+            d["compiled"] = re.compile(d["regex"], re.IGNORECASE | re.MULTILINE)
+        except re.error as error:
+            raise InputError(f"{where}: bad regex {d['regex']!r}: {error}") from error
+    if not isinstance(need, int) or isinstance(need, bool) or not 1 <= need <= len(detect):
+        raise InputError(f"{where}: min_matches must be an integer from 1 to the number of detectors")
+    return need
+
+
+def run_detectors(detect: list, repo: str) -> list:
     matches = []
-    for d in trap["detect"]:
+    for d in detect:
         for path in sorted(glob.glob(os.path.join(repo, d["glob"]), recursive=True)):
-            if not os.path.isfile(path):
+            if not os.path.isfile(path) or SKIP_DIRS & set(os.path.relpath(path, repo).split(os.sep)):
                 continue
             with open(path, encoding="utf-8", errors="replace") as f:
                 text = f.read()
@@ -117,8 +130,21 @@ def detect_trap(trap: dict, repo: str) -> dict:
                 matches.append({"glob": d["glob"], "file": os.path.relpath(path, repo).replace(os.sep, "/"),
                                 "line": text.count("\n", 0, hit.start()) + 1})
                 break   # one file is enough for this detector
-    return {"id": trap["id"], "kind": trap["kind"], "summary": trap["summary"],
-            "caught": len(matches) >= trap["min_matches"], "matches": matches}
+    return matches
+
+
+def detect_trap(trap: dict, repo: str) -> dict:
+    """Raised when at least min_matches detectors matched; depth adds 1 for each level (planned, tested) reached."""
+    matches = run_detectors(trap["detect"], repo)
+    caught = len(matches) >= trap["min_matches"]
+    levels = {}
+    for level in LEVELS:
+        if level in trap:
+            found = run_detectors(trap[level]["detect"], repo)
+            levels[level] = {"reached": caught and len(found) >= trap[level]["min_matches"], "matches": found}
+    depth = (1 + sum(v["reached"] for v in levels.values())) if caught else 0
+    return {"id": trap["id"], "kind": trap["kind"], "summary": trap["summary"], "caught": caught, "matches": matches,
+            "depth": depth, "max_depth": 1 + len(levels), "levels": levels}
 
 
 # ---------------------------------------------------------------------------------------------------------- metrics
@@ -148,6 +174,7 @@ def telemetry_summary(docs: list[dict]) -> dict:
                     cost["tokens"] += event["tokens"]
                 else:
                     cost["tokens_unknown"] += 1
+    cost["token_coverage"] = rate(cost["invocations"] - cost["tokens_unknown"], cost["invocations"])
     per_gate = [{"cycle": cycle, "gate": gate, "rounds": len(v), "fail_rounds": v.count("FAIL"),
                  "first_pass": v[0] == "PASS"} for (cycle, gate), v in sorted(gates.items())]
     first = sum(g["first_pass"] for g in per_gate)
@@ -190,17 +217,22 @@ def score(args) -> tuple[int, list[str]]:
         return 1, [f"::error::invalid telemetry: {error}"]
     caught = [detect_trap(t, args.repo) for t in traps]
     result = {"schema": SCHEMA, "fixture": fixture, "kit": args.kit_version,
-              "traps": {"total": len(caught), "caught": sum(t["caught"] for t in caught), "list": caught},
+              "traps": {"total": len(caught), "caught": sum(t["caught"] for t in caught),
+                        "depth": sum(t["depth"] for t in caught), "max_depth": sum(t["max_depth"] for t in caught),
+                        "list": caught},
               **telemetry_summary(docs), "criteria": criteria}
     write_json(args.out, result)
-    lines = [f"{fixture} on kit {args.kit_version}: {result['traps']['caught']}/{len(caught)} traps caught"]
-    lines += [f"  {'✓' if t['caught'] else '✗'} {t['id']} ({t['kind']})"
+    lines = [f"{fixture} on kit {args.kit_version}: {result['traps']['caught']}/{len(caught)} traps caught, depth "
+             f"{result['traps']['depth']}/{result['traps']['max_depth']}"]
+    lines += [f"  {'✓' if t['caught'] else '✗'} {t['id']} ({t['kind']}, depth {t['depth']}/{t['max_depth']})"
               + (f" — {', '.join(m['file'] + ':' + str(m['line']) for m in t['matches'])}" if t["matches"] else "")
               for t in caught]
     g = result["gates"]
+    c = result["cost"]
     lines.append(f"  gates {g['first_pass']}/{g['total']} first pass, {g['fail_rounds']} FAIL rounds; "
                  f"kit-gap halts {result['halts']['kit_gap']}; controls {result['controls']['ok']}/"
-                 f"{result['controls']['total']} ok; {result['cost']['invocations']} invocations")
+                 f"{result['controls']['total']} ok; {c['invocations']} invocations, tokens known for "
+                 f"{c['token_coverage']}%")
     return 0, lines
 
 
@@ -228,8 +260,13 @@ def totals(fixtures: dict) -> dict:
     results = list(fixtures.values())
     gates = sum(r["gates"]["total"] for r in results)
     first = sum(r["gates"]["first_pass"] for r in results)
+    invocations = sum(r["cost"]["invocations"] for r in results)
+    unknown = sum(r["cost"]["tokens_unknown"] for r in results)
     return {"traps_total": sum(r["traps"]["total"] for r in results),
             "traps_caught": sum(r["traps"]["caught"] for r in results),
+            "depth": sum(r["traps"].get("depth", r["traps"]["caught"]) for r in results),
+            "max_depth": sum(r["traps"].get("max_depth", r["traps"]["total"]) for r in results),
+            "token_coverage": rate(invocations - unknown, invocations),
             "gates_total": gates, "gates_first_pass": first, "first_pass_rate": rate(first, gates),
             "fail_rounds": sum(r["gates"]["fail_rounds"] for r in results),
             "kit_gap_halts": sum(r["halts"]["kit_gap"] for r in results),
@@ -253,7 +290,8 @@ def combine(args) -> tuple[int, list[str]]:
     combined = {"schema": SCHEMA, "kit": kit, "fixtures": fixtures, "totals": totals(fixtures)}
     write_json(args.out, combined)
     t = combined["totals"]
-    return 0, [f"kit {kit}: {len(fixtures)} fixtures, {t['traps_caught']}/{t['traps_total']} traps caught, "
+    return 0, [f"kit {kit}: {len(fixtures)} fixtures, {t['traps_caught']}/{t['traps_total']} traps caught, depth "
+               f"{t['depth']}/{t['max_depth']}, tokens known for {t['token_coverage']}%, "
                f"first-pass gate rate {t['first_pass_rate']}%, kit-gap halts {t['kit_gap_halts']}"]
 
 
@@ -276,6 +314,15 @@ def compare(args) -> tuple[int, list[str]]:
     bt, ct = base["totals"], cand["totals"]
     if ct["traps_caught"] < bt["traps_caught"]:
         regressions.append(f"traps caught {ct['traps_caught']} < {bt['traps_caught']}")
+    if "depth" in bt and "depth" in ct:
+        common = {name for name in base["fixtures"] if name in cand["fixtures"]}
+        b_depth = sum(base["fixtures"][n]["traps"].get("depth", base["fixtures"][n]["traps"]["caught"]) for n in common)
+        c_depth = sum(cand["fixtures"][n]["traps"].get("depth", cand["fixtures"][n]["traps"]["caught"]) for n in common)
+        if c_depth < b_depth:
+            regressions.append(f"trap depth on the baseline's fixtures {c_depth} < {b_depth}")
+    if ct.get("token_coverage") is None or ct["token_coverage"] < TOKEN_COVERAGE:
+        regressions.append(f"tokens known for {ct.get('token_coverage')}% of invocations — at least "
+                           f"{TOKEN_COVERAGE:g}% required (PIPE-6)")
     if ct["kit_gap_halts"] > bt["kit_gap_halts"]:
         regressions.append(f"kit-gap halts {ct['kit_gap_halts']} > {bt['kit_gap_halts']}")
     regressions += [f"{name}: ENR-14 criterion {k} is {v or 'not reported'}"

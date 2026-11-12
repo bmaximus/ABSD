@@ -618,6 +618,8 @@ def cmd_upgrade(args: argparse.Namespace) -> int:
         f'Commit the upgrade alone as a kit-sync commit (kit paths, the MANIFEST, new seeds'
         f'{", " + LOCAL_EDITS if edits else ""}): git add -A && git commit -m "absd: upgrade ABSD {new.version}" '
         f'--trailer "ABSD-Sync: upgrade {new.version}" (ownership_check accepts it).',
+        "Restart the Manager session (`claude --agent manager`): agent definitions are loaded when a session starts, so "
+        "a running session keeps the old manuals.",
         f"Read absd/CHANGELOG.md for every version after {old.version} up to {new.version}.",
         f'Manager commit: "ABSD version: {new.version}" in {PROJECT_DIR}/context.md'
         + (f", and the changed seed templates merged into {', '.join(d for _, d in changed_seeds)}" if changed_seeds else "")

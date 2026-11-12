@@ -29,7 +29,53 @@
         "regex": "^(?=.*?(?:\\buser[- _]?names?\\b|\\bdisplay[- ]names?\\b|\\blogin names?\\b|\\baccount names?\\b|\\bnick ?names?\\b))(?=.*?(?:__proto__|\\bprototype\\b|[\\\"'`]constructor[\\\"'`]|hasOwnProperty|Object\\.create\\(null\\)|reserved (?:object )?(?:keys?|names?|words?|propert\\w*)|<script|<img|\\bXSS\\b|cross[- ]site|\\binjection\\b|\\.\\./|path[- ]traversal|control char\\w*|zero[- ]width|\\bbidi\\w*|right-to-left|\\bRTL\\b|homoglyph\\w*|confusabl\\w*|unicode normali[sz]\\w*|\\bNFK?[CD]\\b|\\bhostile\\b|\\bmalicious\\b|\\babuse\\w*|\\bescap\\w*|\\bmarkup\\b)).*$"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\buser[- _]?names?\\b|\\bdisplay[- ]names?\\b|\\blogin names?\\b|\\baccount names?\\b|\\bnick ?names?\\b))(?=.*?(?:__proto__|\\bprototype\\b|[\\\"'`]constructor[\\\"'`]|hasOwnProperty|Object\\.create\\(null\\)|reserved (?:object )?(?:keys?|names?|words?|propert\\w*)|<script|<img|\\bXSS\\b|cross[- ]site|\\binjection\\b|\\.\\./|path[- ]traversal|control char\\w*|zero[- ]width|\\bbidi\\w*|right-to-left|\\bRTL\\b|homoglyph\\w*|confusabl\\w*|unicode normali[sz]\\w*|\\bNFK?[CD]\\b|\\bhostile\\b|\\bmalicious\\b|\\babuse\\w*|\\bescap\\w*|\\bmarkup\\b)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\buser[- _]?names?\\b|\\bdisplay[- ]names?\\b|\\blogin names?\\b|\\baccount names?\\b|\\bnick ?names?\\b))(?=.*?(?:__proto__|\\bprototype\\b|[\\\"'`]constructor[\\\"'`]|hasOwnProperty|Object\\.create\\(null\\)|reserved (?:object )?(?:keys?|names?|words?|propert\\w*)|<script|<img|\\bXSS\\b|cross[- ]site|\\binjection\\b|\\.\\./|path[- ]traversal|control char\\w*|zero[- ]width|\\bbidi\\w*|right-to-left|\\bRTL\\b|homoglyph\\w*|confusabl\\w*|unicode normali[sz]\\w*|\\bNFK?[CD]\\b|\\bhostile\\b|\\bmalicious\\b|\\babuse\\w*|\\bescap\\w*|\\bmarkup\\b)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "__proto__|['\\\"`]constructor['\\\"`]|\\\\u200[bcdef]|\\\\u202[a-e]|<script|\\.\\./"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "__proto__|['\\\"`]constructor['\\\"`]|\\\\u200[bcdef]|\\\\u202[a-e]|<script|\\.\\./"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "__proto__|['\\\"`]constructor['\\\"`]|\\\\u200[bcdef]|\\\\u202[a-e]|<script|\\.\\./"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "__proto__|['\\\"`]constructor['\\\"`]|\\\\u200[bcdef]|\\\\u202[a-e]|<script|\\.\\./"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "__proto__|['\\\"`]constructor['\\\"`]|\\\\u200[bcdef]|\\\\u202[a-e]|<script|\\.\\./"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "__proto__|['\\\"`]constructor['\\\"`]|\\\\u200[bcdef]|\\\\u202[a-e]|<script|\\.\\./"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "__proto__|['\\\"`]constructor['\\\"`]|\\\\u200[bcdef]|\\\\u202[a-e]|<script|\\.\\./"
+        }
+      ],
+      "min_matches": 1
+    }
   },
   {
     "id": "TRAP-SHELF-2",
@@ -69,7 +115,53 @@
         "regex": "^(?=.*?(?:\\bread\\b|date[- _]?read|read[- _]?(?:on|at|date)|\\bfinished\\b|dateRead|readOn|readAt))(?=.*?(?:\\bAthens\\b|time[- ]?zones?|\\bUTC\\b|\\bGMT\\b|\\boffset\\b|\\bEET\\b|\\bEEST\\b|\\+0[23]:?00|\\bTZ\\b|\\blocal (?:date|day|time)\\b))(?=.*?(?:midnight|\\b(?:2[1-3]|0[0-2]):\\d\\d\\b|\\bday (?:boundary|edge|rollover)|\\bdate (?:boundary|line|rollover)|\\bprevious day|\\bnext day|\\bday before|\\bday after|\\byesterday\\b|\\btomorrow\\b|\\blate (?:at )?night|\\b(?:another|other|foreign|different|a second) (?:time[- ]?)?zone|\\b(?:America|Asia|Australia|Pacific|Africa)/\\w+|\\bUTC ?[+-]\\d|\\bDST\\b|summer time)).*$"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "planned": {
+      "detect": [
+        {
+          "glob": "absd-project/**/test_plan*.md",
+          "regex": "^(?=.*?(?:\\bread\\b|date[- _]?read|read[- _]?(?:on|at|date)|\\bfinished\\b|dateRead|readOn|readAt))(?=.*?(?:\\bAthens\\b|time[- ]?zones?|\\bUTC\\b|\\bGMT\\b|\\boffset\\b|\\bEET\\b|\\bEEST\\b|\\+0[23]:?00|\\bTZ\\b|\\blocal (?:date|day|time)\\b))(?=.*?(?:midnight|\\b(?:2[1-3]|0[0-2]):\\d\\d\\b|\\bday (?:boundary|edge|rollover)|\\bdate (?:boundary|line|rollover)|\\bprevious day|\\bnext day|\\bday before|\\bday after|\\byesterday\\b|\\btomorrow\\b|\\blate (?:at )?night|\\b(?:another|other|foreign|different|a second) (?:time[- ]?)?zone|\\b(?:America|Asia|Australia|Pacific|Africa)/\\w+|\\bUTC ?[+-]\\d|\\bDST\\b|summer time)).*$"
+        },
+        {
+          "glob": "absd-project/**/test_plan/*.md",
+          "regex": "^(?=.*?(?:\\bread\\b|date[- _]?read|read[- _]?(?:on|at|date)|\\bfinished\\b|dateRead|readOn|readAt))(?=.*?(?:\\bAthens\\b|time[- ]?zones?|\\bUTC\\b|\\bGMT\\b|\\boffset\\b|\\bEET\\b|\\bEEST\\b|\\+0[23]:?00|\\bTZ\\b|\\blocal (?:date|day|time)\\b))(?=.*?(?:midnight|\\b(?:2[1-3]|0[0-2]):\\d\\d\\b|\\bday (?:boundary|edge|rollover)|\\bdate (?:boundary|line|rollover)|\\bprevious day|\\bnext day|\\bday before|\\bday after|\\byesterday\\b|\\btomorrow\\b|\\blate (?:at )?night|\\b(?:another|other|foreign|different|a second) (?:time[- ]?)?zone|\\b(?:America|Asia|Australia|Pacific|Africa)/\\w+|\\bUTC ?[+-]\\d|\\bDST\\b|summer time)).*$"
+        }
+      ],
+      "min_matches": 1
+    },
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "Europe/Athens|\\+0[23]:00"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "Europe/Athens|\\+0[23]:00"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "Europe/Athens|\\+0[23]:00"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "Europe/Athens|\\+0[23]:00"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "Europe/Athens|\\+0[23]:00"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "Europe/Athens|\\+0[23]:00"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "Europe/Athens|\\+0[23]:00"
+        }
+      ],
+      "min_matches": 1
+    }
   },
   {
     "id": "TRAP-SHELF-3",
@@ -109,6 +201,68 @@
         "regex": "^(?=.*?(?:\\badmin\\w*))(?=.*?(?:\\bedit\\w*|\\bchang\\w*|\\bmodif\\w*|\\balter\\w*|\\bdelet\\w*|\\bremov\\w*|\\badd\\w* (?:a )?books?|\\bwrite (?:access|to)\\b|read[- ]only|view[- ]only|\\bonly (?:see|view|read|look)|\\bmanag\\w*))(?=.*?(?:\\b(?:another|other|any|every|each|a|the) (?:member|user)(?:'s|s'|s)? shel|\\bmembers?(?:'s|') shel|\\bsomeone else\\b|\\bothers'? shel|\\bother people\\b|\\bnot their own\\b|\\bother members\\b)).*$"
       }
     ],
-    "min_matches": 1
+    "min_matches": 1,
+    "tested": {
+      "detect": [
+        {
+          "glob": "tests/**/*.*",
+          "regex": "^(?=.*?(?:\\badmin))(?=.*?(?:\\b403\\b|forbidden|not allowed|denied|unauthori[sz]ed)).*$"
+        },
+        {
+          "glob": "test/**/*.*",
+          "regex": "^(?=.*?(?:\\badmin))(?=.*?(?:\\b403\\b|forbidden|not allowed|denied|unauthori[sz]ed)).*$"
+        },
+        {
+          "glob": "e2e/**/*.*",
+          "regex": "^(?=.*?(?:\\badmin))(?=.*?(?:\\b403\\b|forbidden|not allowed|denied|unauthori[sz]ed)).*$"
+        },
+        {
+          "glob": "spec/**/*.*",
+          "regex": "^(?=.*?(?:\\badmin))(?=.*?(?:\\b403\\b|forbidden|not allowed|denied|unauthori[sz]ed)).*$"
+        },
+        {
+          "glob": "src/**/*.test.*",
+          "regex": "^(?=.*?(?:\\badmin))(?=.*?(?:\\b403\\b|forbidden|not allowed|denied|unauthori[sz]ed)).*$"
+        },
+        {
+          "glob": "src/**/*_test.*",
+          "regex": "^(?=.*?(?:\\badmin))(?=.*?(?:\\b403\\b|forbidden|not allowed|denied|unauthori[sz]ed)).*$"
+        },
+        {
+          "glob": "**/test_*.py",
+          "regex": "^(?=.*?(?:\\badmin))(?=.*?(?:\\b403\\b|forbidden|not allowed|denied|unauthori[sz]ed)).*$"
+        }
+      ],
+      "min_matches": 1
+    }
+  },
+  {
+    "id": "TRAP-SHELF-4",
+    "kind": "aesthetic",
+    "summary": "\"Calm, warm, bookish\" pulls to the generic cream + serif + terracotta look: the design system records the default it considered and refuses it or justifies it from the brief",
+    "detect": [
+      {
+        "glob": "absd-project/**/design-system.md",
+        "regex": "^(?=.*?(?:\\bcream\\w*|parchment|\\bbeige\\b|off-white|\\bserif|terracotta|\\bsepia\\b|\\bivory\\b|paper[- ]?(?:like|texture|tone)|\\blibrary\\b|old books?|book[- ]?shop))(?=.*?(?:\\bdefault\\w*|generic|clich\\w*|\\bcommon\\b|\\bexpected\\b|\\bobvious\\w*|\\btypical\\w*|\\bavoid\\w*|\\binstead\\b|rather than|\\breject\\w*|\\brefus\\w*|predictab\\w*|\\btrend\\w*|\\bover-?used\\b|considered)).*$"
+      },
+      {
+        "glob": "absd-project/**/design.md",
+        "regex": "^(?=.*?(?:\\bcream\\w*|parchment|\\bbeige\\b|off-white|\\bserif|terracotta|\\bsepia\\b|\\bivory\\b|paper[- ]?(?:like|texture|tone)|\\blibrary\\b|old books?|book[- ]?shop))(?=.*?(?:\\bdefault\\w*|generic|clich\\w*|\\bcommon\\b|\\bexpected\\b|\\bobvious\\w*|\\btypical\\w*|\\bavoid\\w*|\\binstead\\b|rather than|\\breject\\w*|\\brefus\\w*|predictab\\w*|\\btrend\\w*|\\bover-?used\\b|considered)).*$"
+      },
+      {
+        "glob": "absd-project/**/design/*.md",
+        "regex": "^(?=.*?(?:\\bcream\\w*|parchment|\\bbeige\\b|off-white|\\bserif|terracotta|\\bsepia\\b|\\bivory\\b|paper[- ]?(?:like|texture|tone)|\\blibrary\\b|old books?|book[- ]?shop))(?=.*?(?:\\bdefault\\w*|generic|clich\\w*|\\bcommon\\b|\\bexpected\\b|\\bobvious\\w*|\\btypical\\w*|\\bavoid\\w*|\\binstead\\b|rather than|\\breject\\w*|\\brefus\\w*|predictab\\w*|\\btrend\\w*|\\bover-?used\\b|considered)).*$"
+      }
+    ],
+    "min_matches": 1,
+    "tested": {
+      "detect": [
+        {
+          "glob": "absd-project/**/visual-lint.json",
+          "regex": "\\\"findings\\\""
+        }
+      ],
+      "min_matches": 1
+    }
   }
 ]

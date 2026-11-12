@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   kit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04   # pinned (GATE-11): a floating -latest label moved to an image without Python 3.9
     strategy:
       fail-fast: false
       matrix:
@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - name: Runner images are pinned (GATE-11)
+        run: "! grep -nE '^ *runs-on: *[^#]*-latest' .github/workflows/*.yml"
       - name: Tooling tests
         run: python -m unittest discover -s absd/tooling -p 'test_*.py'
       - name: Benchmark scorer tests

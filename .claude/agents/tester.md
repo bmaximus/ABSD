@@ -28,9 +28,10 @@ what works and what does not. The code is wrong until a discriminating test you 
 | Route (`absd/RULES.md` §2) | Your mode | Starts after | Produces | Checked by |
 |---|---|---|---|---|
 | scope adds or changes an external fact | Facts | Gate 1 | `EXTERNAL-FACTS.md` rows, recordings | Designer, Architect |
+| Q (the `brd.md` §11 cards: one RED TC per card's AC, an existing harness only — a new seam or fixture kind is a yes that upgrades the card, ABSD:PIPE-7) | Plan & Bind | the user's card confirmation (+ catalogue apply) | `test_plan.md`, RED tests; T-SHA | Gate T; Auditor |
 | F; S (delta); C (re-entry); B | Plan & Bind | Gate 2R PASS | `test_plan.md`, RED tests, harness; evidence commit = T-SHA | Gate T; Auditor L6 |
 | D | Reproduce | `defect.md` | RED regression tests, why-missed, class, sweep (plan §15) | classification Gate T |
-| F, S, D, B | Verify | Builder pass; routed `F-n`/`DQ-n`; D test-only gap | `test_report.md`, gallery, living docs | Gate 3, Design QA ∥ Audit |
+| F, S, Q, D, B | Verify | Builder pass; routed `F-n`/`DQ-n`; D test-only gap | `test_report.md`, gallery, living docs | Gate 3, Design QA ∥ Audit |
 | B, U | Baseline | Foundation step 5 (before Plan & Bind); kit upgrade | `TESTING.md`, `EXTERNAL-FACTS.md`, CHAR tests, ratchets | Manager; Auditor |
 | D; any cycle with an escape | Log | Harvest | `ESCAPED-DEFECTS.md` Lesson cells | archive check |
 | R | Verify, release scope | Mode R | release-lane evidence, human-session log | DOD-8 |
@@ -238,7 +239,8 @@ finding routed to a Fix; Foundation step 7; any change after an audit (XCA-9); M
    needing CI on branch `absd/neg-C###-<n>`, never merged, deleted after the run, its run URL the evidence.
 7. Gallery (VIS-1) whenever Design QA follows (Mode D: a changed visual or output surface): per SCR × state × device
    class × theme of the component–state matrix, real build, production volume, `SCR-n_<state>_<device>_<theme>.png`
-   under `…/screens/`; cli, pipeline, documents: golden outputs (VIS-3). A missing cell blocks Design QA (DSN-20).
+   under `…/screens/`, then the visual lint over each page and state → `evidence/tester/visual-lint.json` (DSN-33); cli,
+   pipeline, documents: golden outputs (VIS-3). A missing cell blocks Design QA (DSN-20).
 8. Agent exploratory pass (EXPL-3) — run it before steps 4–6, so its `EXPLORATORY.md` log joins (a): each cycle charter per device class with its profile's probes — volume max,
    foreign zone; web-ui, native-app also a dialog past the longest timer, keyboard only, slow network,
    back/refresh/second tab. In scope → TF; outside → proposed DEF; wanted otherwise → decision (EXPL-6); severity per

@@ -3,10 +3,10 @@
 The canonical rules for every ABSD agent, on every platform. Agent manuals (`.claude/agents/*.md`) implement them; the
 playbook (`absd/playbook/`) explains them; nothing overrides them except the user, through the Manager.
 
-**Start:** run the Manager as the main conversation — `claude --agent manager`, or set `"agent": "manager"` in
-`.claude/settings.json` (the Bootstrap template does). Only the main conversation can talk to the user and restrict
-which workers it may delegate to, so the Manager is never a sub-agent. **Fallback:** a session that is not the Manager
-does no pipeline work: it tells the user how to start the Manager. Workers have no delegation tool. GitHub Copilot:
+**Start:** run the Manager as the main conversation — `claude --agent manager`, or `"agent": "manager"` in
+`.claude/settings.json` (the Bootstrap template sets it); it is never a worker's sub-agent (a dispatching harness,
+PIPE-8, is not a worker). **Fallback:** a session that is not the Manager does no pipeline work: it tells the user how
+to start the Manager. Workers have no delegation tool. GitHub Copilot:
 pick the **Manager** custom agent; delegation happens through handoffs the user confirms.
 
 ## 1. Agents
@@ -42,6 +42,11 @@ command or public symbol and changes no interface contract (copy and layout on a
 only if user-visible) → Architect delta → 2R on the delta → Plan & Bind → Gate T → Builder → Verify → Audit (+ Design
 QA if visible) → Gate 3. Never cut: oracles before code, the code/test split, the independent audit, the access rule,
 the escaped-defect rule. The Auditor checks eligibility against the real diff.
+
+**Mode Q — quick owner request:** ≤ 5 change cards (`brd.md` §11), each only copy, a design-token or style value or
+documentation, no to every Mode S question, ≤ 3 production files, no new requirement: [Analyst catalogue apply] →
+Tester *Plan & Bind* → **Gate T** → Builder *Fix* → Tester *Verify* → [Design QA if visible] ∥ Auditor *Audit*
+(eligibility vs diff) → **Gate 3**. A yes at any step moves the card to Mode S or F (PIPE-7).
 
 **Mode D — defect:** `defect.md` (a Critical on a live system is contained first: the user rolls back or turns the
 flag off — recorded as a decision and a RISK) → Tester *Reproduce* (regression test RED; an external-fact mechanism is
@@ -129,8 +134,8 @@ count for the whole cycle.
 
 - A test passes only with attached local output or a CI run at the exact **product SHA**: the last commit that
   changes a path outside `absd-project/`. Evidence taken at product SHA S stays valid while
-  `git diff --quiet S HEAD -- . ':!absd-project'` holds — pipeline commits (artifacts, evidence, reports) never
-  invalidate it, and neither does the Tester's Log commit (only the Lesson cells of `ESCAPED-DEFECTS.md`). The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
+  `git diff --quiet S HEAD -- . ':!absd-project'` holds — pipeline commits (artifacts, evidence, reports) and the Tester's
+  Log commit (§5) never invalidate it. The Auditor runs every suite and gate itself, in a clean checkout, before reading the Tester's report;
   if it cannot, the verdict is **BLOCKED**. An environment limitation is a RISK, never a design decision.
 - Findings everywhere use one row: `ID | Severity | Category | Rule cited | Evidence | Proposed route`. Evidence
   names location (`file:line`), trigger, outcome and why existing guards miss it — security findings also their
@@ -155,18 +160,18 @@ Tests carry their ids in the name or as properties: `TC-0042` and `[AREA-n]` (se
 | Action | Claude Code | GitHub Copilot (assisted mode) |
 |---|---|---|
 | Run the Manager | main conversation as agent `manager` | the Manager custom agent |
-| Delegate to a worker | the Agent tool with the worker's name and an invocation brief | a handoff the user confirms |
+| Delegate to a worker | the Agent tool with the worker's name and an invocation brief; or a dispatching harness that runs the Manager's chosen worker and returns its reply (PIPE-8) | a handoff the user confirms |
 | Run commands | Bash | the terminal tools |
 | Gate records | `absd-project/working/cycle.md` | the same file |
 | Model level | the Agent tool's `model` on every invocation; frontmatter `model:` only as fallback | the model picker, named in the handoff |
+| New artifact | `cp` its skeleton, then Edit (sub-agents may not Write a new `analysis.md`) | the same |
 
 Workers are invoked only by the Manager with a brief (`absd/templates/briefs/invocation-brief.md`) and answer in ≤ 15
-lines: status, artifact paths, finding counts by severity, blockers — never artifact contents. The final reply is the
+lines: status, artifact paths, finding counts, blockers — never artifact contents. The final reply is the
 deliverable: a worker never ends with work pending in background tasks or sub-runs — it collects or cancels them first;
-the Manager rejects a reply that references unfinished work. **Model level:** the kit names levels (`strongest`,
-`balanced`, `fast`), never models; `context.md` §14 maps them to models. Each role and step runs on its PIPE-1 default or a §14 override; floors (architecture, 2R, Plan & Bind
-oracles, every audit and security review, money, permission and security WPs) stay `strongest`. The Manager passes
-the model per invocation and records each one in the cycle's telemetry (PIPE-2, PIPE-3).
+the Manager rejects a reply that references unfinished work. **Model level:** the kit names levels, never models;
+`context.md` §14 maps them. Each step runs on its PIPE-1 level (floors stay `strongest`); the Manager passes the model
+per invocation and records it, with the token count the platform reports, in the telemetry (PIPE-2, PIPE-3).
 
 ## 9. Playbook and size
 

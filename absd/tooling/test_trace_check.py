@@ -655,6 +655,28 @@ class TraceCheckTests(unittest.TestCase):
         self.write("working/design_review.md", "Verdict: N/A — a library has no visual or human-facing output\n")
         self.assertEqual(self.run_gate("gate3")[0], 0)
 
+    def test_gate3_mode_q_needs_design_review_only_for_a_visible_card(self):
+        self.write("working/cycle.md", "Cycle: C014 | Mode: Q | Status: IN-PROGRESS\n")
+        self.remove("working/arch_review.md")
+        self.remove("working/design_review.md")
+        self.write("working/brd.md", "# BRD\n## 11. Mode S brief and Mode Q cards\n| Card | Request | Visible |\n"
+                   "|---|---|---|\n| Q1 | rename the button (ACC-1.AC1) | Design QA: no |\n")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 0, out)
+        self.assertIn("route Mode Q: requires test_report.md, audit.md", out)
+        self.write("working/brd.md", "# BRD\n## 11. Mode S brief and Mode Q cards\n| Card | Request | Visible |\n"
+                   "|---|---|---|\n| Q1 | rename the button (ACC-1.AC1) | Design QA: yes |\n")
+        code, out = self.run_gate("gate3")
+        self.assertEqual(code, 2, out)
+        self.assertIn("design_review.md: not found", out)
+
+    def test_mode_q_cards_are_the_scope_of_gate_t(self):
+        self.remove("working/analysis.md")
+        self.write("working/brd.md", "# BRD\n## 3. Change\n- ACC-1.AC2 is context\n## 11. Mode S brief and Mode Q cards\n"
+                   "| Card | Request | Catalogue AC changed |\n|---|---|---|\n| Q1 | new wording | ACC-1.AC1 |\n")
+        code, out, checks = self.gate_json("gateT")
+        self.assertEqual(checks["every AC in scope of brd.md is referenced in a TC row of test_plan.md"]["checked"], 1)
+
     def test_gate3_route_mode_x_needs_only_the_audit(self):
         self.write("working/cycle.md", "# Cycle C007\nCycle: C007 | Mode: X | Status: IN-PROGRESS\n")
         self.remove("working/arch_review.md")

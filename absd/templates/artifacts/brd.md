@@ -49,9 +49,14 @@ payout, forfeit, fee); none → write "none — <reason>".
 | OQ | Question | Owner | Blocking? | Status |
 |---|---|---|---|---|
 
-## 11. Mode S brief (Mode S only)
+## 11. Mode S brief and Mode Q cards (Modes S and Q only)
+Mode S:
 | AC | GIVEN / WHEN / THEN with example values | Catalogue id |
 |---|---|---|
+
+Mode Q (ABSD:PIPE-7; ≤ 5 cards, each confirmed by the user):
+| Card | Request (user's words) | Before → after | GIVEN / WHEN / THEN with example values | Catalogue AC changed | Visible (Design QA: yes/no) | Status (open · done · upgraded to S/F — reason) |
+|---|---|---|---|---|---|---|
 
 ## 12. Change Log
 | CR | Date | Change (user's words) | Earliest affected artifact | Re-entry gate | Status |

@@ -26,7 +26,7 @@ holds numbered steps with the evidence each records and the rule ids it checks, 
 rule that triggers it (e.g. XCA-16 for `absd/playbook/procedures/security-review.md`) lives in its topic file. A manual
 cites the triggering rule and the procedure's path in the step where it applies, never in "Read first"; the agent
 opens the procedure only when that step is reached. Procedures today: `security-review.md` (XCA-16),
-`ownership-repair.md` (GATE-18), `park.md` (DOD-10).
+`ownership-repair.md` (GATE-18), `park.md` (DOD-10), `bootstrap.md` (DOD-5), `harvest.md` (ENR-1).
 
 ## Routing table — one home per topic
 
@@ -81,6 +81,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Journeys, device classes, no hover-only affordance, touch and scroll behaviour, long lists and default selection | DSN | `absd/playbook/design/excellence.md` |
 | User state surviving refresh, error message design per failure mode, accessible names, contrast and target sizes | DSN | `absd/playbook/design/excellence.md` |
 | CLI and machine-surface design, design rubric per profile, Design QA, protected baselines | DSN | `absd/playbook/design/rubric-and-qa.md` |
+| Art direction, generic looks, type, colour, space, depth, icons, motion and chart styling, visual lint, visual rubric | DSN | `absd/playbook/design/visual-craft.md` |
 | Label maps (never raw enums), one formatter per kind, machine-output formats | LOC | `absd/playbook/design/content-and-locale.md` |
 | Clock style, display zones, label truthfulness, date buckets, number style, truncation | LOC | `absd/playbook/design/content-and-locale.md` |
 | Copy deck, tone, empty states, action and error wording, localisation readiness, format lint | LOC | `absd/playbook/design/content-and-locale.md` |
@@ -105,7 +106,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Procedures: on-demand step files, their format and how manuals cite them | ENR | `absd/playbook/process/enrichment.md` |
 | Harvest, lessons ledger, proposals, local kit edits (product side) | ENR | `absd/playbook/process/enrichment.md` |
 | Kit change procedure: inbox, dedupe, generalize, decide, LEDGER, rule text, CHANGELOG, semver, checks, kit acceptance, provenance | ENR | `absd/playbook/process/enrichment.md` |
-| Model level per role and step, floors, per-invocation model; cycle telemetry record, privacy and report; agent benchmark | PIPE | `absd/playbook/process/pipeline-operations.md` |
+| Model level per role and step, floors, per-invocation model; cycle telemetry record, privacy and report; agent benchmark; quick route (Mode Q); dispatching harness | PIPE | `absd/playbook/process/pipeline-operations.md` |
 
 Severity scale and finding schema: `absd/RULES.md` §6 (calibration: XCA). Routes, gates and modes: `absd/RULES.md` §2.
 

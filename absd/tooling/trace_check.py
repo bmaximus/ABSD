@@ -48,7 +48,8 @@ Gates (artifacts read from --working):
            start with answered, resolved, closed, withdrawn or fixed).
   gate3    the reports the cycle's route produces exist (read from the "Mode:" line of cycle.md: X → audit.md;
            D and R → test_report.md, audit.md, and in Mode D also design_review.md when defect.md says
-           "Design QA: yes" or "- Class: UX gap"; S → arch_review.md, test_report.md, audit.md; any other mode, or no
+           "Design QA: yes" or "- Class: UX gap"; S → arch_review.md, test_report.md, audit.md; Q → test_report.md,
+           audit.md, and design_review.md when brd.md's cards say "Design QA: yes"; any other mode, or no
            cycle.md → arch_review.md, test_report.md, design_review.md (Verdict: N/A for a product without a visual or
            human-facing output surface), audit.md;
            design_review.md and an arch_review.md the route does not require are read when present); every TC a DEF
@@ -128,7 +129,8 @@ VERDICT_OF = {"audit.md": ("Overall", ("PASS",)), "arch_review.md": ("Verdict", 
 BLOCKING = ("critical", "major")
 GATE3_REQUIRED = ("arch_review.md", "test_report.md", "design_review.md", "audit.md")   # Mode F, B, C — and when unknown
 GATE3_BY_MODE = {"X": ("audit.md",), "D": ("test_report.md", "audit.md"), "R": ("test_report.md", "audit.md"),
-                 "S": ("arch_review.md", "test_report.md", "audit.md")}   # Mode S: design_review.md only when visible
+                 "S": ("arch_review.md", "test_report.md", "audit.md"),   # Mode S: design_review.md only when visible
+                 "Q": ("test_report.md", "audit.md")}   # Mode Q: design_review.md when a card says "Design QA: yes"
 GATE3_OPTIONAL = ("arch_review.md", "test_report.md", "design_review.md")
 DESIGN_QA_YES = re.compile(r"\bDesign QA:\s*[*_`]*yes\b", re.IGNORECASE)                     # defect.md route line
 REBIND = re.compile(r"binds at re-bind:\s*[*_`]*(?!none\b|<)[^\s*_`]", re.IGNORECASE)   # plan §15, a DEF's section
@@ -489,8 +491,9 @@ def scope_of(source: Doc) -> tuple[set, set]:
 
 
 def brief_section(doc: Doc) -> str:
-    """The Mode S brief of brd.md (the section whose heading contains "Mode S brief"), or ""."""
-    return "\n".join(section for heading, section in doc.sections if "mode s brief" in heading.lower())
+    """The Mode S brief or Mode Q cards of brd.md (a section whose heading names either), or ""."""
+    return "\n".join(section for heading, section in doc.sections
+                     if "mode s brief" in heading.lower() or "mode q card" in heading.lower())
 
 
 def cited_text(source: Doc) -> str:
@@ -739,6 +742,9 @@ def gate3(working: str, catalogue_path: str, facts_path: str = "") -> Result:
     defects = artifact(working, "defect.md", required=False) if mode == "D" else None
     if defects is not None and (DESIGN_QA_YES.search(defects.text) or UX_GAP_CLASS.search(defects.text)):
         required = required + ("design_review.md",)   # the fix changes a visual or output surface, or a UX gap
+    cards = artifact(working, "brd.md", required=False) if mode == "Q" else None
+    if cards is not None and DESIGN_QA_YES.search(brief_section(cards)):
+        required = required + ("design_review.md",)   # a visible Mode Q card
     docs = [artifact(working, name) for name in required]
     docs += [doc for doc in (artifact(working, name, required=False) for name in GATE3_OPTIONAL if name not in required)
              if doc]

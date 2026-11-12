@@ -3,6 +3,56 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.6.0 — 2026-11-11
+
+Visual craft, a quick route for small owner requests, and a benchmark that can tell models apart (owner review of the
+2.4.0 benchmark, proposal owner-review-benchmark-2026-11-11). Ledger: LL-70, LL-71.
+
+- **Visual craft** (new `absd/playbook/design/visual-craft.md`, DSN-23 to DSN-34): art direction in
+  `design-system.md` §1 with "category default considered → our choice" rows and a surface mode per screen; one
+  signature and a logged subtraction pass; a generic-look catalogue used only with a brief reason; floors for type
+  (scale ratio, reading floor, measure, tabular numerals), colour (strategy, roles, perceptual ramps, themes designed
+  separately), space, depth and platform surfaces, icons, motion timing and charts; a visual lint the Tester runs over
+  every gallery page (`evidence/tester/visual-lint.json`, report shape fixed by the kit); a V1–V10 visual rubric the
+  Designer scores from images before reading the lint. Templates: `design-system.md` §1 art direction,
+  `design_review.md` §5a. Designer, Tester and Manager (Gate UX) wired.
+- **Mode Q — quick owner request** (RULES §2, PIPE-7): up to 5 user-confirmed change cards (`brd.md` §11) that change
+  only copy, a design-token or style value, or documentation, ≤ 3 production files, no new requirement: catalogue
+  apply → Plan & Bind → Gate T → Builder Fix → Verify → [Design QA] ∥ Audit → Gate 3. Never cut: tests before code, the
+  code/test split, the independent audit. A yes at any step moves that card to Mode S or F. `cycle.md` eligibility
+  questions 12–14; `trace_check` reads the cards as gate T scope and knows Mode Q's Gate 3 reports (with tests).
+- **PIPE-8 dispatching harness:** where the Manager cannot start sub-agents, a harness runs exactly the worker, level
+  and brief the Manager decided and records each invocation's platform-reported usage; RULES §1/§8 allow it.
+- **PIPE-3 tokens:** the count the platform reports per invocation (delegation result or harness transcript), never
+  estimated; the Manager records it with every invocation.
+- **PIPE-6 benchmark v2:** each role step its own sub-agent on its mapped model; trap **depth** (raised → planned →
+  tested); tokens known for ≥ 90 % of invocations or the run regresses; new fixture **studio** (card payments: provider
+  lifecycle, reachability, idempotent fulfilment, honest status, webhook authenticity, month-end validity, provider
+  configuration — LL-59 to LL-62); **TRAP-SHELF-4** aesthetic trap. `benchmark/runner/pipeline.workflow.js`,
+  `benchmark/usage.py` (tests), `score.py` depth and token coverage (tests).
+- Manager manual: Bootstrap and Harvest steps moved to procedures (`absd/playbook/procedures/bootstrap.md`,
+  `harvest.md`; ENR-17) to make room.
+- **Platform change found by the first harness run:** Claude Code now refuses a sub-agent's whole-file Write of a new
+  file named `analysis.md` ("return findings as text, not report files"); every other artifact name and every Edit is
+  allowed. RULES §8 "New artifact" row and the Analyst manual: copy the skeleton (`cp`), then fill it with Edit (owner
+  decision, 2026-11-12).
+- `absd_sync.py upgrade` next steps: restart the Manager session — agent definitions load at session start, so a
+  running session keeps the old manuals (found when the benchmark harness ran registered agent types from a stale
+  registry; the runner now has each role load its manual from the product's installed kit).
+- **Owner authority over security loosening (SEC-17, new; LL-72)**: a weaker check, a scan exclusion or a retried
+  refused action needs the owner's explicit yes quoted in D-n; "use your recommendation" never counts, and a refused
+  action is never re-sent with permission stated in its brief. Manager §7 and Auditor L5 enforce it.
+- **Tests that test (KatenatsioTipster proposal katenatsiotipster-2026-11-12; LL-73)**: TCQ-16 reviews outside pull
+  requests' test changes before merge; GATE-16 merges outside contributions one at a time on the landing tree; GATE-11
+  pins runner images; TCQ-5 keeps generated data out of the product's vocabulary; GATE-10 makes browser failures print
+  their own diagnosis; Mode U's Baseline lists unadopted mandatory gates with a target cycle.
+- **Tests clean up (TCQ-9 amended; LL-72)**: temporary directories, files and processes are removed in teardown, also
+  after a failure; the test command fails when the temporary directory grows.
+- Kit acceptance run (ENR-14 / PIPE-6), 2026-11-12: **incomplete**. The main run (tally, shelf, ledger, studio) stopped
+  mid-Bootstrap — first at the top model's usage limit, then on a full disk caused by finding LL-72; the control run
+  (studio on the cheap map) reached Gate 3 round 4 and found the two defects above. Scores are recorded in
+  `benchmark/results/` once a run completes; tag `v2.6.0` only after a completed run (ENR-14).
+
 ## 2.5.0 — 2026-11-11
 
 A palette may start from a curated colour-combination catalogue — as a guideline, never a rule over the brief, a

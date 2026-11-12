@@ -81,13 +81,15 @@ near-duplicate payload literals across files; a builder never fills derived fiel
 **TCQ-5** — Make every created name, key and address unique per run and per attempt (run id plus counter or random
 suffix — randomness in names only, never in inputs that decide an outcome); assert only on records the test created,
 found by those keys (INTEG-4); remove leftovers of globally unique constraints before acting; never mutate or extend
-shared seed data for a new TC (E2E-10); never assert a global count in a shared store.
+shared seed data for a new TC (E2E-10); never assert a global count in a shared store. Generated suffixes cannot match
+the product's vocabulary (digits or words a matcher reads); a flake from random data is checked for a matcher bug
+(VAR-15).
 - *Why:* a top-N test passed only while no other test created a larger value; retries tripped over the previous
-  attempt's data.
+  attempt's data; a random tag holding "21" hit a keyword matcher (LL-73).
 - *Check:* the suite passes twice in a row on one store and with every test repeated (nightly, GATE-9); the Auditor
   flags fixed names in mutating tests.
 - *Applies when:* tests share a store, account space, file system or fake.
-- *Provenance:* industry baseline
+- *Provenance:* industry baseline; LL-73 (KatenatsioTipster, 2026-11)
 
 ### Determinism and isolation
 
@@ -129,10 +131,13 @@ printed seed and every test repeated proves it (GATE-9); a test failing only the
 temporary directory per test, a store or tenant per worker (INTEG-3), no mutation of process-global state
 (environment variables, working directory, culture, static singletons, the system clock). A test that must own
 process-global state sits in a declared serial group with its reason in `TESTING.md`.
-- *Why:* a suite written for one worker hides coupling until someone speeds it up.
-- *Check:* the nightly runs ≥ 2 workers (GATE-9); serial groups are listed with reasons; lint bans fixed ports.
+Every temporary directory, file or process a test creates is removed in its teardown, also after a failure.
+- *Why:* a suite written for one worker hides coupling until someone speeds it up; leaked temporary directories
+  filled a disk (LL-72).
+- *Check:* the nightly runs ≥ 2 workers (GATE-9); serial groups are listed with reasons; lint bans fixed ports; the
+  test command fails when the suite leaves entries in the temporary directory.
 - *Applies when:* always.
-- *Provenance:* industry baseline
+- *Provenance:* industry baseline; LL-72
 
 **TCQ-10** — Give each shared fixture an explicit lifetime and owner: scope (test · class · worker · run), what it
 creates, what tests may change, and its teardown, which also runs after a failure. Expensive fixtures (host, store,
@@ -202,11 +207,16 @@ internals; no development auth shortcut (INTEG-7).
 
 **TCQ-16** — Review every test added or changed in the cycle against the checklist below: the Tester before each
 hand-off, the Auditor at L6 on every test of a money, time or access rule plus a sample of the rest. A failed item is
-a finding citing its rule id; test code meets the same static bar as production code (GATE-4).
+a finding citing its rule id; test code meets the same static bar as production code (GATE-4). An outside pull
+request (another person, session or bot) gets it before merge: each change to an existing test, fake,
+allowlist, threshold or requirement follows an owner-approved behaviour change and stays specific, or blocks the merge
+with file and line (assertion loosened, expected value edited to the output, case deleted, skip or retry added, fake
+bent to agree).
 - *Why:* unreviewed tests kept weak oracles (`> 0`, loose ranges, status-only checks) in a suite that looked green.
-- *Check:* `test_report.md` records the self-review; `audit.md` L6 lists the tests reviewed and the findings.
-- *Applies when:* every cycle with test changes.
-- *Provenance:* industry baseline
+- *Check:* `test_report.md` records the self-review; `audit.md` L6 lists the tests reviewed and the findings; an
+  outside pull request's review is on it before merge.
+- *Applies when:* every cycle with test changes, and every outside contribution that touches tests.
+- *Provenance:* industry baseline; LL-73 (KatenatsioTipster, 2026-11)
 
 ## Test-code review checklist
 

@@ -4,7 +4,7 @@ Code **DSN** (DSN-1 to DSN-16, DSN-22). The design bar and its proof: beauty thr
 flows; every device class, volume, state and failure designed; WCAG 2.2 AA as testable checks; per-profile
 deliverables. Applied by the Designer (`design.md`, `design-system.md`); this Checklist and the one in
 `absd/playbook/design/rubric-and-qa.md` (CLI and machine surfaces, the rubric per profile, Design QA, baselines:
-DSN-17 to DSN-21) are the Manager's Gate UX checklist; the Tester binds them at Plan & Bind; the Auditor cites them at
+DSN-17 to DSN-21) and in `absd/playbook/design/visual-craft.md` (DSN-23 to DSN-34) are the Manager's Gate UX checklist; the Tester binds them at Plan & Bind; the Auditor cites them at
 L2. Related: LOC (`absd/playbook/design/content-and-locale.md`); A11Y, VIS (`absd/playbook/testing/nonfunctional.md`).
 
 ## Checklist

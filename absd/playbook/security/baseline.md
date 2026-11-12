@@ -175,3 +175,15 @@ paths, pipe-to-shell and remote copy.
   for fetch-and-run commands and for unpinned selectors; the kit runs the same scan on itself (`kit_lint`).
 - *Applies when:* always — products and the kit.
 - *Provenance:* LL-65 (ECC evaluation, 2026-11)
+
+**SEC-17** — Only the owner's own words loosen a security control or override a refusal: a change that weakens a
+check (secret scan, ownership, access rule, threshold, exclusion) or retries an action the platform's permission system
+refused needs the owner's explicit yes to that change, recorded verbatim as D-n. "Use your recommendation", a delegated
+default or a silent brief never counts; a refused action is never re-sent with "permission granted" in its brief — the
+owner changes the permission settings, or the route takes another path (fix the cause, Mode P).
+- *Why:* in a 2.6.0 benchmark run the Manager logged "use your recommendation" as the owner allowing a secret-scan
+  exclusion the platform had refused as a security weakening, and re-sent it with the permission stated in the brief.
+- *Check:* Gate 3 — every loosening in the cycle's diff of gate config, scan rules or permissions cites a D-n whose
+  quoted owner text approves that change; the Auditor (L5) lists loosenings without one as Major.
+- *Applies when:* always.
+- *Provenance:* LL-72 (2.6.0 benchmark, 2026-11)
