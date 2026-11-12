@@ -23,3 +23,7 @@ Findings behind it:
   review) had no rules; research of three public design rule sets (an Anthropic frontend-design skill, Impeccable,
   UI UX Pro Max — rules reworded, nothing copied or installed; Impeccable's hooks download binaries and send
   telemetry, so it was read, never run) is the source.
+
+Owner decision, 2026-11-12 (supersedes the model map above): after the first 2.6.0 run used up the owner's allowance of
+the top model, the benchmark model map is strongest **Opus 5.5** (`opus`), second auditor `sonnet`, balanced `sonnet`,
+fast `haiku`. The run resumed on this map at decision 201; decisions 1–~30 of each fixture ran on the earlier map.
