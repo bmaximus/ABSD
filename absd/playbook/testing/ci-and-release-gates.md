@@ -43,23 +43,28 @@ nightly after Foundation — is triggered, and its result decides (STRAT-8).
 **GATE-10** — Make every failure readable on the run page: each failing suite or gate posts the failing test, rule or
 unit, its first failure messages and the remedy ("add a test, or list it with its reason in <file>") as annotations or a
 run summary, and keeps its machine-readable result as a run artifact; badges and dashboards come only from the run's
-real results, each claimed gate mapped to a job that passed.
+real results, each claimed gate mapped to a job that passed. A failing browser or end-to-end test prints its own
+diagnosis to the step log (final address, visible headings, the accessibility tree near the awaited element, the last
+console and network errors): an artifact alone is not readable to whoever cannot reach the artifact store.
 - *Why:* failure output posted as annotations was readable without raw logs, which agents often cannot fetch (LL-31); a
-  report card listed gates from a static list, whatever had run.
+  report card listed gates from a static list, whatever had run; a browser failure whose context sat only in an
+  unreachable artifact was never diagnosed (LL-73).
 - *Check:* the Auditor finds a red run's cause and remedy without opening raw logs; kit tools write annotations and
   `--summary-md`.
 - *Applies when:* always.
-- *Provenance:* LL-31 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-31 (KatenatsioTipster, 2026-10); LL-73 (KatenatsioTipster, 2026-11)
 
 **GATE-11** — Keep CI red only for reasons inside the change: no unauthenticated or per-run pulls of images or packages
 a run does not need (preinstalled services, mirrors or caches instead), every tool, test runner and third-party CI step
-at an exact immutable version shared with local and post-deploy runs, a throwaway store per run and worker (INTEG-3),
+at an exact immutable version shared with local and post-deploy runs, every runner image pinned by an explicit version
+(a floating `latest` label is a change outside the change, moved only deliberately with the tools that depend on it), a throwaway store per run and worker (INTEG-3),
 ephemeral ports and a time limit per job; an infrastructure failure is fixed at its root, never re-run until green.
-- *Why:* CI broke with no code change when an image registry's anonymous pull limit was hit (LL-30).
-- *Check:* the Auditor reads workflows for pulls and floating versions; a red run caused by infrastructure gets a DEF or
+- *Why:* CI broke with no code change when an image registry's anonymous pull limit was hit (LL-30), and when a
+  floating runner label moved to a new operating system overnight (LL-73).
+- *Check:* a workflow test fails on a floating runner label; the Auditor reads workflows for pulls and floating versions; a red run caused by infrastructure gets a DEF or
   DEBT row.
 - *Applies when:* always.
-- *Provenance:* LL-30 (KatenatsioTipster, 2026-10)
+- *Provenance:* LL-30 (KatenatsioTipster, 2026-10); LL-73 (KatenatsioTipster, 2026-11)
 
 **GATE-12** — Run the migration gates on every push against the production engine and major version: (a) migrate from
 empty with the shipped migrations; (b) upgrade a store at the previous release's schema holding representative data and
@@ -123,12 +128,16 @@ cancelled midway; keep manual dispatch as the audited override with validated in
 tip against the release tree immediately before pushing a release: every removed line must be intended by the release;
 if the tip moved since the release was built, rebuild the release on the new tip and re-run every suite the moved
 commits or the merge touched. After any merge or conflict resolution on an integration branch, re-run the full suites
-before claiming it green.
+before claiming it green. Merge outside contributions one at a time, in order, each after the full suites ran on the
+tree as it will land (default-branch tip plus that change); a failure is classified as the change's own or a flake
+already on the default branch, and the latter is fixed there first with its own failing test (TCQ-16 reviews the tests).
 - *Why:* a release built from a stale shared branch removed a feature another contributor had merged minutes earlier;
-  a conflict resolution silently dropped a guard that only the full suites caught (LL-63, LL-64).
+  a conflict resolution silently dropped a guard that only the full suites caught (LL-63, LL-64); a second
+  contributor's pull requests merged without the full suites kept the default branch red for a day (LL-73).
 - *Check:* the release record shows the diff check at the pushed tip; no release pushes onto a tip it was not built on.
-- *Applies when:* more than one writer to the default branch, or an integration branch merged from several packages.
-- *Provenance:* LL-63, LL-64 (KatenatsioTipster, 2026-11)
+- *Applies when:* more than one writer to the default branch, an integration branch merged from several packages, or
+  pull requests from outside the pipeline.
+- *Provenance:* LL-63, LL-64, LL-73 (KatenatsioTipster, 2026-11)
 
 **GATE-17** — Keep the exit status of every gate, build or test command whose output is piped or filtered: the shell
 fails the step when any command in the pipe fails (e.g. bash `set -o pipefail`, PowerShell `$LASTEXITCODE` or

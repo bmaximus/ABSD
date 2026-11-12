@@ -200,7 +200,8 @@ Only between cycles, with the user's consent: on the default branch run `python3
 then open the Mode U cycle (6.1). Each local kit edit (`--accept-local-edits` →
 `absd-project/upgrade-local-edits.md`) becomes a lesson (ABSD:ENR-4). Read every `absd/CHANGELOG.md` entry between
 the versions; settle answered `sent` lessons (ABSD:ENR-16); MAJOR: apply every migration note. tester · Baseline
-against new and changed rules → gaps → DEBT or a Foundation-delta. Bump the ABSD version; all green at HEAD
+against new and changed rules, and every mandatory gate the product does not yet run (mutation, property-based,
+clock-edge, recorded external facts …) → gaps, each with a target cycle → DEBT or a Foundation-delta. Bump the ABSD version; all green at HEAD
 (ABSD:DOD-9); harvest.
 
 ### 4.12 Mode P — park or abandon

@@ -42,6 +42,10 @@ Visual craft, a quick route for small owner requests, and a benchmark that can t
 - **Owner authority over security loosening (SEC-17, new; LL-72)**: a weaker check, a scan exclusion or a retried
   refused action needs the owner's explicit yes quoted in D-n; "use your recommendation" never counts, and a refused
   action is never re-sent with permission stated in its brief. Manager §7 and Auditor L5 enforce it.
+- **Tests that test (KatenatsioTipster proposal katenatsiotipster-2026-11-12; LL-73)**: TCQ-16 reviews outside pull
+  requests' test changes before merge; GATE-16 merges outside contributions one at a time on the landing tree; GATE-11
+  pins runner images; TCQ-5 keeps generated data out of the product's vocabulary; GATE-10 makes browser failures print
+  their own diagnosis; Mode U's Baseline lists unadopted mandatory gates with a target cycle.
 - **Tests clean up (TCQ-9 amended; LL-72)**: temporary directories, files and processes are removed in teardown, also
   after a failure; the test command fails when the temporary directory grows.
 - Kit acceptance run (ENR-14 / PIPE-6), 2026-11-12: **incomplete**. The main run (tally, shelf, ledger, studio) stopped

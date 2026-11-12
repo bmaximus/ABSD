@@ -45,3 +45,11 @@ these findings:
 
 The product's owner asks for a kit release covering P1–P6. The product will upgrade to it (Mode U) when the owner
 says so, then plan the adoption work of P6 in its next cycle.
+
+## Outcome (ABSD 2.6.0, 2026-11-12)
+
+Accepted → LL-73: P1 TCQ-16 amended (outside contributions get the test-integrity review); P2 GATE-16 amended
+(one-at-a-time merges on the landing tree); P3 GATE-11 amended (pinned runner images, workflow test on floating
+labels); P4 TCQ-5 amended (generated data vs product vocabulary); P5 GATE-10 amended (browser failures print their own
+diagnosis); P6 Manager Mode U: Baseline lists every mandatory gate the product does not yet run, each with a target
+cycle.
