@@ -37,7 +37,7 @@ raised). Depth separates models that notice the same issues but carry them throu
 
 Every role step runs as its own sub-agent on its mapped model (PIPE-6, PIPE-8) — never one agent playing every role.
 On Claude Code the harness is `runner/pipeline.workflow.js` (the Workflow tool; sub-agents there cannot start
-sub-agents, so the harness dispatches on the Manager's behalf). Its args: `{"fixtures": [{"name", "repo", "brief"}],
+sub-agents, so the harness dispatches on the Manager's behalf). Each role runs as a plain sub-agent told to load its manual from the product's installed kit (`.claude/agents/<role>.md`) — a session's registered agent types are read at session start and can lag the kit under test. Its args: `{"fixtures": [{"name", "repo", "brief"}],
 "models": {"strongest", "second", "balanced", "fast"}, "maxDecisions": 120}` — `second` runs the second audit
 (XCA-17). Each Manager invocation starts from `cycle.md` and ends with one decision; the owner's questions go to an
 owner agent that answers only from the brief (a `covered: false` answer is a kit-gap signal). After the run, record

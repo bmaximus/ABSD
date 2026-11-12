@@ -52,8 +52,16 @@ function modelFor(step, level) {
   return M[level]
 }
 
+// Roles run as plain sub-agents that load their manual from the product's installed kit (the version under test):
+// a session's agent registry is read once at session start, so registered agent types can lag the kit being tested.
+function role(name, repo) {
+  return `Your role and your complete operating manual: read ${repo}/.claude/agents/${name}.md in full before anything
+else — its body is your instructions and its frontmatter "tools" list is the only tool set you may use. Follow it
+exactly, as that agent.`
+}
+
 function managerPrompt(fx, history) {
-  return `You are the ABSD Manager (your manual: .claude/agents/manager.md) for the product repository at ${fx.repo}.
+  return `You are the ABSD Manager for the product repository at ${fx.repo}. ${role('manager', fx.repo)}
 Run every command from that directory (cd ${fx.repo} first); every path below is relative to it.
 
 A dispatching harness runs this pipeline (ABSD playbook PIPE-8; absd/RULES.md §8): you cannot start sub-agents and you
@@ -83,8 +91,8 @@ ${history}`
 }
 
 function workerPrompt(fx, d) {
-  return `ABSD ${d.agent} invocation for the product repository at ${fx.repo}: run every command from that directory
-(cd ${fx.repo} first). Your invocation brief is ${d.brief} (committed by the Manager). Work exactly as your manual says
+  return `You are the ABSD ${d.agent} for the product repository at ${fx.repo}. ${role(d.agent, fx.repo)}
+Run every command from that directory (cd ${fx.repo} first). Your invocation brief is ${d.brief} (committed by the Manager). Work exactly as your manual says
 and end with your reply in the manual's reply format (≤ 15 lines).`
 }
 
@@ -106,7 +114,7 @@ async function runFixture(fx) {
   let cycle = 'C001'
   for (let n = 1; n <= MAX; n++) {
     const decision = await agent(managerPrompt(fx, history), {
-      agentType: 'manager', model: M.strongest, schema: DECISION, phase: 'Run',
+      model: M.strongest, schema: DECISION, phase: 'Run',
       label: `${fx.name}|${cycle}|manager|other|strongest|${M.strongest}|${n}`,
     })
     if (!decision) { log_.push({ n, error: 'manager invocation failed' }); history = `[${n}] Your previous invocation failed without a decision (no reply). Resume from cycle.md.`; continue }
@@ -125,7 +133,7 @@ async function runFixture(fx) {
     const ds = (decision.delegations || []).slice(0, 2)
     if (!ds.length) { history = `[${n}] Your decision was "delegate" with no worker. Decide again.`; continue }
     const replies = await parallel(ds.map((d, i) => () => agent(workerPrompt(fx, d), {
-      agentType: d.agent, model: modelFor(d.step, d.level), phase: 'Run',
+      model: modelFor(d.step, d.level), phase: 'Run',
       label: `${fx.name}|${cycle}|${d.agent}|${d.step}|${d.level}|${modelFor(d.step, d.level)}|${n}.${i + 1}`,
     })))
     history = ds.map((d, i) => {
