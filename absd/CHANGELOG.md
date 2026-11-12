@@ -36,6 +36,9 @@ Visual craft, a quick route for small owner requests, and a benchmark that can t
   file named `analysis.md` ("return findings as text, not report files"); every other artifact name and every Edit is
   allowed. RULES §8 "New artifact" row and the Analyst manual: copy the skeleton (`cp`), then fill it with Edit (owner
   decision, 2026-11-12).
+- `absd_sync.py upgrade` next steps: restart the Manager session — agent definitions load at session start, so a
+  running session keeps the old manuals (found when the benchmark harness ran registered agent types from a stale
+  registry; the runner now has each role load its manual from the product's installed kit).
 - Kit acceptance run (ENR-14 / PIPE-6): see below once run.
 
 ## 2.5.0 — 2026-11-11

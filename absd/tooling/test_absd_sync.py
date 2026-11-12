@@ -458,6 +458,7 @@ class UpgradeTests(SyncTestCase):
         self.assertIn("kept     absd-project/catalogue.md", out)
         self.assertIn("removed  .claude/agents/tester.md", out)
         self.assertIn("CHANGELOG", out)
+        self.assertIn("Restart the Manager session", out)   # agent definitions load at session start
         self.assertIn('"ABSD version: 2.1.0" in absd-project/context.md', out)
         self.assertLess(out.index("ABSD-Sync: upgrade 2.1.0"), out.index("ABSD version: 2.1.0"))   # sync commit first
         self.assertIn("::warning title=Seed template changed::absd/templates/project/context.md", out)
