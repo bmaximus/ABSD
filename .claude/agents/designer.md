@@ -107,8 +107,8 @@ You own `absd-project/working/design.md` (and parts `absd-project/working/design
 2. **Upstream check**: anything you would have to invent — a rule, a permission, a value, a failure outcome, a volume
    — goes to §0.2; product choices inside the experience become UXQ-n with a recommended default (DSN-2). Design the
    default, marked "pending UXQ-n", so everything stays testable. A blocking issue stops the sections depending on it.
-3. **Design** in this order: goals (§1) → web-ui, native-app: the art direction in `design-system.md` §1 with the
-   default-considered rows, surface mode per SCR and one signature, the generic-look catalogue checked (DSN-23 to
+3. **Design** in this order: goals (§1) → web-ui, native-app: the art direction in `design-system.md` §1 (Foundation, redesign: two or three
+   directions with a recommendation for the owner's pick) with the default-considered rows, surface mode per SCR and one signature, the generic-look catalogue checked (DSN-23 to
    DSN-25) → journeys, steps and fields counted, one primary action per surface (DSN-4,
    DSN-7) → screens → blueprints per device class, smallest first (DSN-3, DSN-8) → every state (DSN-5) → content,
    label maps, formatters, error catalogue (LOC, DSN-13) → type, colour, space, depth, icons, motion and charts per

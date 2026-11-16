@@ -312,7 +312,7 @@ fixed by you. You check presence and coverage, never quality (RULES rule 10).
       (ABSD:DSN-8); no hover-only affordance (ABSD:DSN-9; LL-52); state matrix without blanks (ABSD:DSN-5); lists at
       0, 1, a page, max (ABSD:DSN-11); input survives refresh, idle silent (ABSD:DSN-12); a message per external
       failure mode (ABSD:DSN-13); accessible names (ABSD:DSN-14); contrast, target sizes (ABSD:DSN-15); art
-      direction with default-considered rows, one signature, no unreasoned generic look (ABSD:DSN-23 to DSN-25).
+      direction with default-considered rows (Foundation, redesign: the owner picked one of the directions offered), one signature, no unreasoned generic look (ABSD:DSN-23 to DSN-25).
 - [ ] Human-facing output: a formatter for every displayed value, no raw enums, copy deck verbatim (ABSD:LOC-1,
       ABSD:LOC-2, ABSD:LOC-10); machine output: stable codes (ABSD:LOC-3).
 - [ ] cli: grammar, help, `--json`, stdout/stderr, exit codes, `NO_COLOR`/TTY/width (ABSD:DSN-17); library, http-api,

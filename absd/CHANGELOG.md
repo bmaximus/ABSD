@@ -3,6 +3,22 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.7.0 — 2026-11-16
+
+The owner's design rules (proposal owner-design-rules-2026-11-16). Ledger: LL-74.
+
+- **Directions before screens (DSN-23)**: in a Foundation cycle or a redesign the Designer offers two or three
+  clearly different directions (mood, real references, type pairing, palette, signature) with a recommendation; the
+  owner picks at Gate UX; `design-system.md` §1 records the pick.
+- **Generic looks (DSN-25)**: the catalogue adds a library's default theme or raw palette shipped as the design, the
+  template page stack, icon-in-square cards, vanity stats and invented testimonials, filler copy, generic button
+  labels and placeholder data.
+- **Type (DSN-26)**: every font covers the product's scripts (checked, not assumed); default faces need a reason;
+  at most three weights.
+- **Critique rounds (DSN-34)**: each Design QA lists the five weakest things seen; new primary screens get a second
+  round.
+- Kit acceptance run: not run for this MINOR; the 2.6.0 run is still due (ENR-14).
+
 ## 2.6.0 — 2026-11-11
 
 Visual craft, a quick route for small owner requests, and a benchmark that can tell models apart (owner review of the
