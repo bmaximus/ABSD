@@ -5,6 +5,13 @@
 > `absd/playbook/design/rubric-and-qa.md` (DSN), `absd/playbook/design/content-and-locale.md` (LOC). Keep only the sections for the product's interface profiles.
 
 ## 1. Character and art direction (web-ui, native-app: DSN-23 to DSN-25)
+- Directions offered (Foundation, redesign; DSN-23) and the owner's pick (D-n):
+
+| Direction | Mood (3 words) | References | Type pairing | Palette | Signature |
+|---|---|---|---|---|---|
+| <name> (recommended) | | | | | |
+| <name> | | | | | |
+
 - Personality in three words: <e.g. calm, precise, warm>
 - Subject world (materials, objects, places of the domain): <…> · Use scene (who, where, light, device, pace): <…>
 - Colour strategy (restrained · committed · full · drenched, DSN-27): <…> · Type roles (≤ 2 families, DSN-26): <…>

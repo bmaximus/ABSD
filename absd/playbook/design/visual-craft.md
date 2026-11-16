@@ -34,15 +34,19 @@ a surface mode per SCR (operate — repeated work; read — long text; persuade 
 product itself is on display), the colour strategy (DSN-27), type roles (DSN-26), a layout concept, three principles
 and one signature (DSN-24). Before building, record the category default — what a generic design for this kind of
 product would look like — in a "default considered → our choice" row per foundation (palette, type, layout, motion);
-a choice may equal the default only with a reason from the brief. The brief's own look, a brand guide or an inherited
-design system wins over a fresh direction. Operate and read screens keep the platform's standard controls and
+a choice may equal the default only with a reason from the brief. In a Foundation cycle or a redesign
+the Designer first drafts two or three clearly different directions — name, mood in three words, two or three real
+references outside software templates (print, signage, architecture, a named product), type pairing, palette values,
+one signature — and recommends one; the owner picks at Gate UX and §1 records the pick (D-n). The brief's own look, a
+brand guide or an inherited design system wins over a fresh direction (a small change infers the current system). Operate and read screens keep the platform's standard controls and
 patterns; their direction shows in type, palette, density and the signature, never in unfamiliar controls.
 - *Why:* without a written direction every screen falls back to the average of what models and templates have seen;
   products look interchangeable and nobody can say why a screen is off.
-- *Check:* §1 has every field and the default-considered rows; every SCR in `design.md` names its surface mode; Gate UX
+- *Check:* §1 has every field, the default-considered rows and (Foundation, redesign) the directions offered with the
+  owner's pick; every SCR in `design.md` names its surface mode; Gate UX
   rejects an empty or generic direction ("modern, clean, intuitive").
 - *Applies when:* web-ui, native-app.
-- *Provenance:* LL-71 (visual-craft research of three public design rule sets, 2026-11-11)
+- *Provenance:* LL-71 (visual-craft research of three public design rule sets, 2026-11-11); LL-74
 
 **DSN-24** — Spend boldness in one place: one signature element per product (a type treatment, a colour field, a
 data presentation, a motion moment) recorded in §1 and used where it serves the primary journey; everything else is
@@ -62,28 +66,35 @@ a small label; eyebrow labels over every heading; fake step numbers (01/02/03) o
 decorative translucent panels; coloured side stripes on cards; glows and neon edges; a border plus a wide soft shadow
 on the same element; one radius on everything; emoji as icons; tracked-out capitals for body labels; the same
 fade-and-rise entrance on every element; bounce or elastic easing; cream background + serif + terracotta accent for
-anything "warm"; near-black + one neon accent for anything "technical"; purple-to-blue gradients. The kit maintainer
+anything "warm"; near-black + one neon accent for anything "technical"; purple-to-blue gradients; a component library's or style framework's default theme or raw palette shipped as the
+design; the template page stack (centred hero with two buttons, logo strip, three icon cards, stats row, testimonials,
+three-tier pricing, FAQ); an icon in a rounded square above every card title; vanity stats and invented testimonials;
+filler copy (unlock, elevate, seamless, all-in-one), buttons that do not say what happens ("Submit", "Click here") and
+placeholder data ("John Doe", "Item 1"). The kit maintainer
 reviews the catalogue at every MINOR release (looks date).
 - *Why:* these patterns are what generated interfaces converge on; each is fine once, and together they make a
   product look machine-made.
 - *Check:* Design QA (V1, V10) and the visual lint (DSN-33: stripes, gradient text, glows) find no catalogue look
   without its §1 reason; on a primary screen an unrecorded one is Major.
 - *Applies when:* web-ui, native-app.
-- *Provenance:* LL-71
+- *Provenance:* LL-71; LL-74
 
 **DSN-26** — Set type as a system: a scale from a ratio (operate and read surfaces ≈ 1.125–1.25 per step; persuade
-and showcase ≥ 1.25), at most two families with named roles, only the weights used loaded. Reading floor on the web:
+and showcase ≥ 1.25), at most two families with named roles (a monospace only for code or data), at most three weights, only the weights used
+loaded. Every family covers every script of the product's locales (LOC), checked against the font's character set, never
+assumed; the faces generated interfaces converge on by default need a reason in §1 like a catalogue look (DSN-25). Reading floor on the web:
 body ≥ 16 px, nothing below 12 px (11 px only inside dense controls), 45–75 characters per line for running text,
 line height 1.4–1.7 for body, tighter for large headings, letter spacing only on capitals and never below the face's
 default for body. Headings balance their lines, no single-word last line in a heading or short paragraph, and more
 space above a heading than below it. Numbers that are compared (tables, totals, timers) use tabular numerals and
 right-align in columns. Light text on dark gets slightly more weight compensation and spacing; fallbacks are
 metric-matched so text never shifts or disappears while fonts load.
-- *Why:* most "something is off" reactions trace to type: lines too long, sizes too close, numbers that jitter.
+- *Why:* most "something is off" reactions trace to type: lines too long, sizes too close, numbers that jitter; a
+  face without the product's script falls back glyph by glyph to a system font (LL-74).
 - *Check:* the type table in §2 lists scale, ratio, families and roles; the visual lint measures size, line length,
   line height and tracking (DSN-33); Design QA V3.
 - *Applies when:* web-ui, native-app (cli: DSN-17 output style).
-- *Provenance:* LL-71
+- *Provenance:* LL-71; LL-74
 
 **DSN-27** — Choose a colour strategy before any swatch — restrained (neutrals plus one accent), committed (one hue
 carries the brand across surfaces), full (several hues with roles) or drenched (colour as the surface itself) — then
@@ -167,14 +178,15 @@ dimension 1, 3 or 5 like DSN-19 with an image path or measurement as evidence. W
 visual lint JSON, so the measurements cannot anchor the judgement; then reconcile — a lint finding the score missed
 lowers that score with a note. A fresh reviewer is preferred: the Designer who designed the screen scores it only
 when no other Designer invocation is available, and says so. Bar: every dimension ≥ 4 on average across screens; V1 and
-V3 at 5 on primary screens. V1 or V3 ≤ 2 on a primary screen is Major; an unrecorded generic look (DSN-25) is Minor,
+V3 at 5 on primary screens. Every Design QA also lists the five weakest things seen in the images, as findings (Minor
+unless a bar is missed); a new primary screen gets a second Design QA round after they are fixed or answered. V1 or V3 ≤ 2 on a primary screen is Major; an unrecorded generic look (DSN-25) is Minor,
 Major on a primary screen.
 - *Why:* a rubric scored after reading the numbers repeats the numbers; scoring blind first keeps the visual
   judgement independent.
 - *Check:* `design_review.md` holds the V table with evidence per score, written in a commit before the lint JSON is
   cited; the reconciliation notes follow.
 - *Applies when:* web-ui, native-app.
-- *Provenance:* LL-71
+- *Provenance:* LL-71; LL-74
 
 | V | Dimension (★ = primary-screen bar 5) | 5 means | Evidence |
 |---|---|---|---|
