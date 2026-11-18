@@ -3,6 +3,22 @@
 Newest first. Every entry cites the ledger lessons (`LL-n`) and product proposals it answers. Versioning: MAJOR =
 artifact structure, ids, gates or routes (with migration notes); MINOR = rules added or changed; PATCH = wording.
 
+## 2.7.1 — 2026-11-18
+
+Fixes from the 2.7.0 benchmark run (proposal benchmark-2.7.0-findings-2026-11-18). Ledger: LL-75.
+
+- **Gate 2R converges (ARCH-26, new)**: the Architect answers an AR with the smallest change, narrows behaviour before
+  adding mechanism, lists added mechanism in §0.3 and re-reads every edited section whole; from round 2 the Auditor
+  tags each new AR `fix`, `missed` or `upstream`; when half or more of the new Critical/Major ARs are `fix`, the
+  Manager escalates at once with a simplify option. A blueprint never defers an external fact's verification to a
+  work package; the 2R checklist adds a replay of worked-number ACs through the specified algorithms.
+- **Disagreeing sources block (ORACLE-7, amended)**: a disagreement on any reachable input is a blocking spec defect;
+  the Tester never binds only the inputs where the sources agree.
+- **Agents' temporary files (PIPE-9, new)**: every script an agent runs keeps temporary files in one per-invocation
+  directory removed before replying; replies end with a `Temp:` line (invocation brief).
+- Version: 2.7.1 at the owner's request; strictly these are rule changes (MINOR).
+- Kit acceptance run: the 2.7.0 run stopped unfinished; a rerun on 2.7.1 is due before tagging (ENR-14).
+
 ## 2.7.0 — 2026-11-16
 
 The owner's design rules (proposal owner-design-rules-2026-11-16). Ledger: LL-74.

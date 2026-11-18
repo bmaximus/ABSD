@@ -25,6 +25,8 @@ whole prompt. A worker that receives a request without a brief refuses and answe
 - <artifact path(s)> — full / delta (unchanged sections: "Unchanged — <reason>")
 - Commit only your own paths (+ `absd-project/working/evidence/<agent>/`) with trailers `ABSD-Agent: <agent>` and
   `ABSD-Cycle: C###`; leave the working tree clean
+- Temporary files only in one directory you create for this run; remove it before you reply, also after a failure
+  (ABSD:PIPE-9)
 - Tester Log only: the lesson ids to write (`DEF-n → <slug>-L<n>`), from `absd-project/lessons.md`
 
 ## Address (only when routed back)
@@ -41,6 +43,7 @@ Status: COMPLETE | COMPLETE-WITH-CONFLICTS | HALTED | BLOCKED | IN-PROGRESS (int
 Artifacts: <paths> · Commit: <sha>
 Findings: Critical <n> · Major <n> · Minor <n>
 Blockers / questions for the Manager: <list or "none">
+Temp: clean | <what is left and why>
 ```
 
 ## Manager checklist before sending

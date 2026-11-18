@@ -216,7 +216,8 @@ G2/G2R, GT, Design QA; a round = a FAIL verdict, other re-passes logged only —
 Builder passes; a resumed halted Build is the same pass); 2 resumes per invocation. At the 3rd halt (before resuming), or at a limit with
 Critical/Major open, or on a dispute only the user can settle, stop and send `ABSD escalation — C### <slug> ·
 <counter> <n>/<limit>` with: history (one line per round or pass: failed ids → what changed); open findings with
-severity and owner; options A, B and C = park (Mode P), each with cost and risk; your recommendation in product terms;
+severity and owner; options A, B and C = park (Mode P), each with cost and risk — at G2R one option simplifies
+(ABSD:ARCH-26); your recommendation in product terms;
 one decision question.
 
 ## 5. Artifact structures you own
@@ -336,7 +337,9 @@ fixed by you. You check presence and coverage, never quality (RULES rule 10).
 ### 6.5 Gate 2R — architecture review (`arch_review.md`)
 
 - [ ] Read the verdict line and AR table only. PASS → resolution table complete → proceed. FAIL → architect · Delta
-      on every AR → G2 → G2R (round +1).
+      on every AR → G2 → G2R (round +1). Round ≥ 2: half or more of the new Critical/Major ARs tagged `fix` → the loop
+      diverges: escalate now (4.13), option A = simplify (Analyst narrows the requirement behind the mechanism)
+      (ABSD:ARCH-26).
 - [ ] Dispute: the Architect may contest ONE AR with an ADR; the Auditor re-reviews; still disputed → the user
       decides between both positions, stated neutrally → D-n (ABSD:XCA-10).
 

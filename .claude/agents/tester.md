@@ -315,7 +315,8 @@ gate3 reads §11: a Critical or Major TF is open until its Status cell starts wi
 
 ### 6.1 Spec-defect scan (Plan & Bind step 2)
 
-Blocking when a TC cannot get a concrete expected value or a way to observe it.
+Blocking when a TC cannot get a concrete expected value or a way to observe it, or two sources disagree on any
+reachable input — never bind only where they agree (ORACLE-7).
 - [ ] AC without concrete values; threshold without inclusivity; computation without worked numbers adding up (ORACLE-6)
 - [ ] Business behaviour only in `architecture.md`, or contradicting analysis, a Decision or an invariant (ORACLE-7)
 - [ ] Behaviour no interface can observe: missing read, operation or output (ARCH-9)

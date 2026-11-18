@@ -118,11 +118,14 @@ recorded gate decisions and existing catalogue invariants decides business behav
 (copy, states, formats, focus); `architecture.md` decides only addresses (routes, signatures, payload shapes, error
 codes) and internal units. When sources disagree — architecture vs analysis, a new rule vs an existing invariant,
 design vs analysis — raise a spec defect to their owners; never build the oracle from the lower or the newer text alone.
+A disagreement on any reachable input (an order, an edge, a clock change) is blocking: never bind only the inputs where
+the sources agree.
 - *Why:* a Gate 1 decision was reversed by an architecture note and every gate passed (LL-44); a test encoded a rule
-  contradicting an earlier one (LL-48).
+  contradicting an earlier one (LL-48); a 5-vs-6 disagreement bound only where both agreed halted the Builder (LL-75).
 - *Check:* gateT rejects `SPEC:architecture` on a row citing a requirement id and fails on an open blocking spec defect.
 - *Applies when:* always.
-- *Provenance:* LL-44, LL-48 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10)
+- *Provenance:* LL-44, LL-48 (KatenatsioTipster, 2026-10); LL-57 (ABSD v2 kit review, 2026-10); LL-75 (ABSD 2.7.0
+  benchmark, 2026-11-18)
 
 **ORACLE-8** — Classify every failing TC and every TC-CONFLICT, with evidence, into exactly one class in
 `test_report.md`: product defect (TF → Builder fix, counted as an iteration) · spec defect (→ owner of the cited source,
