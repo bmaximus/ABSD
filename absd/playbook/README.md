@@ -90,7 +90,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Seams and test architecture, error catalogue, configuration keys, schema and migrations design | ARCH | `absd/playbook/engineering/architecture.md` |
 | Concurrency register, background job specification, flag register, external ports | ARCH | `absd/playbook/engineering/architecture.md` |
 | Security design and observability in the blueprint, ADRs, suppression-marker list, work packages, profile modules | ARCH | `absd/playbook/engineering/architecture.md` |
-| Architecture review checklist (Gate 2R) | ARCH | `absd/playbook/engineering/architecture-review.md` |
+| Architecture review checklist (Gate 2R); convergence of the 2R loop | ARCH | `absd/playbook/engineering/architecture-review.md` |
 | Static analysis, warnings as errors, formatting, complexity, naming, dead code, dependency hygiene, suppression markers in code; lifecycle as one state type; callers searched before editing an existing file | CODE | `absd/playbook/engineering/code-quality.md` |
 | Authentication, authorization (deny by default, object level), input validation, secret handling, headers, logging hygiene, dependency scanning, threat model | SEC | `absd/playbook/security/baseline.md` |
 | Server-side fetch and file-path hostile-input sets; concurrent duplicate requests; products calling a model; agent configuration as supply chain | SEC | `absd/playbook/security/baseline.md` |
@@ -106,7 +106,7 @@ row here in the same change that adds its first rule (ENR-6).
 | Procedures: on-demand step files, their format and how manuals cite them | ENR | `absd/playbook/process/enrichment.md` |
 | Harvest, lessons ledger, proposals, local kit edits (product side) | ENR | `absd/playbook/process/enrichment.md` |
 | Kit change procedure: inbox, dedupe, generalize, decide, LEDGER, rule text, CHANGELOG, semver, checks, kit acceptance, provenance | ENR | `absd/playbook/process/enrichment.md` |
-| Model level per role and step, floors, per-invocation model; cycle telemetry record, privacy and report; agent benchmark; quick route (Mode Q); dispatching harness | PIPE | `absd/playbook/process/pipeline-operations.md` |
+| Model level per role and step, floors, per-invocation model; cycle telemetry record, privacy and report; agent benchmark; quick route (Mode Q); dispatching harness; agents' temporary files | PIPE | `absd/playbook/process/pipeline-operations.md` |
 
 Severity scale and finding schema: `absd/RULES.md` §6 (calibration: XCA). Routes, gates and modes: `absd/RULES.md` §2.
 

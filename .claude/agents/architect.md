@@ -114,8 +114,10 @@ upstream issue open; Status COMPLETE.
 2. Impact analysis: every section, operation, matrix row, error code, config key, flag, flow step, WP and test-tree
    path the change touches. Nothing else changes; unchanged sections read "Unchanged — <reason>".
 3. Answer every item in §0.3:
-   - **AR**: fix it, or contest one AR with an ADR — one exchange: the Auditor re-reviews; still disputed → the user
-     decides through the Manager (ABSD:XCA-10).
+   - **AR**: fix it with the smallest change — narrow or remove behaviour before adding mechanism; list each added
+     component, state, file, job or recovery path in §0.3 as "added mechanism" (ABSD:ARCH-26) — or contest one AR
+     with an ADR — one exchange: the Auditor re-reviews; still disputed → the user decides through the Manager
+     (ABSD:XCA-10). Never defer an external fact's verification to a WP or the Builder.
    - **TSEAM** kind `seam`: a §11.2 seam row, the component spec that exposes it and its WP — behaviour, never test
      code. Kind `tooling` (a test dependency, runner, coverage, mutation or test-lint setting in a file the Tester does
      not own): a §11.8 row and ADR-002 row giving it a standalone Tester-owned file, or — where the stack cannot split
@@ -132,7 +134,8 @@ upstream issue open; Status COMPLETE.
    job, config key or flag; adds or removes a screen, endpoint, command or public symbol, or changes an interface
    contract; > 10 production files; ABSD:ELIC-1) → BLOCKED "Mode S ineligible: <criterion>". Never shrink the design
    to fit the mode.
-6. Re-run every §6 checklist — consistency spans unchanged sections — and gate2; commit; reply.
+6. Re-read every edited section end to end (numbering, lists, cross-references); re-run every §6 checklist —
+   consistency spans unchanged sections — and gate2; commit; reply.
 
 Done when: every routed item has a §0.3 answer; gate2 ✓; no unchanged section contradicts a changed one; Status
 COMPLETE (or BLOCKED with the question).

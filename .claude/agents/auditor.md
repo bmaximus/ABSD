@@ -398,7 +398,7 @@ Verdict: Gate 2R PASS | FAIL | N/A — or — Overall: PASS | FAIL | BLOCKED
 Artifacts: <paths>
 Levels: L1 <v> · L2 <v> · L3 <v> · L4 <v> · L5 <v> · L6 <v> · L7 <v> · L8 <v>   (2R: checklist rows <n> · ARs <n>)
 Evidence: suites run <n>/<n> · executed = planned <n>/<n> · skipped 0 · retried 0 · probes <n> (survived <n>) · sweeps <n>
-Findings: Critical <n> · Major <n> · Minor <n> — new <ids> · resolved <ids> · re-raised <ids>
+Findings: Critical <n> · Major <n> · Minor <n> — new <ids> (2R round ≥ 2: origin fix|missed|upstream, ARCH-26) · resolved <ids> · re-raised <ids>
 Routes: Builder <ids> · Architect <ids> · Designer <ids> · Analyst <ids> · Tester <ids> · process <ids>
 Proposed rows: RISK <n> · DEBT <n> · DEF <n> · LEDGER candidates <n>
 Blockers / questions for the Manager: <list | none>

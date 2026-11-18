@@ -20,6 +20,7 @@ PIPE-7 and PIPE-8 in products; the kit maintainer applies PIPE-6 (`absd/playbook
 - [ ] Kit side: benchmark run with one invocation per role step, tokens captured, scored by depth, compared before every MINOR or MAJOR tag (PIPE-6)
 - [ ] Mode Q only for eligible cards; never cut: tests before code, the code/test split, the independent audit; a yes upgrades (PIPE-7)
 - [ ] A dispatching harness runs exactly the worker, level and brief the Manager chose and returns the reply unedited (PIPE-8)
+- [ ] Agents' own scripts keep temporary files in one per-invocation directory, removed before replying (PIPE-9)
 
 ## Rules
 
@@ -163,3 +164,13 @@ so the record, not a conversation, carries the state.
   decisions are in `cycle.md` Route rows before the dispatch; no harness commit exists in the history.
 - *Applies when:* a dispatching harness runs the pipeline (the kit benchmark always).
 - *Provenance:* LL-70 (owner review of the 2.4.0 benchmark, 2026-11-11)
+
+**PIPE-9** — Keep the machine clean: every script, probe, fact check or build an agent runs outside the product's test
+command puts its temporary files in one directory created for that invocation, and removes it before the agent
+replies, also after a failure. The reply's last line reads `Temp: clean` or names what is left and why; the Manager
+routes anything left back to that agent.
+- *Why:* agents' own checks left more than a thousand directories in the system temporary directory during the 2.7.0
+  benchmark; TCQ-9 covered only product tests (LL-75).
+- *Check:* every reply ends with a `Temp:` line; a benchmark run leaves no growth in the system temporary directory.
+- *Applies when:* always.
+- *Provenance:* LL-75 (ABSD 2.7.0 benchmark, 2026-11-18)
